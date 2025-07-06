@@ -11,8 +11,6 @@
       "extensions": [
         // Liquid tags auto-complete
         "killalau.vscode-liquid-snippets",
-        // Liquid syntax highlighting and formatting
-        "Shopify.theme-check-vscode",
         // Shell
         "timonwong.shellcheck",
         "mkhl.shfmt",
@@ -23,6 +21,15 @@
         "yzhang.markdown-all-in-one",
         // Git
         "mhutchie.git-graph",
+        "ms-azuretools.vscode-containers",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers",
+        "bierner.markdown-mermaid",
+        "redhat.vscode-yaml",
+        "github.copilot",
+        "github.copilot-chat",
+        "github.vscode-pull-request-github"
+
       ]
     }
   }

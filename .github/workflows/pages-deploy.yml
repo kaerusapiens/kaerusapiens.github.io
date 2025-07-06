@@ -45,6 +45,13 @@ jobs:
           ruby-version: 3.3
           bundler-cache: true
 
+      - name: Convert mermaid code blocks in Markdown
+        run: |
+          find . -type f -name '*.md' -print0 | xargs -0 sed -i -E '/^```mermaid$/,/^```$/ { \
+            s/^```mermaid$/{{% mermaid %}}/; \
+            s/^```$/{{% endmermaid %}}/; \
+          }'
+
       - name: Build site
         run: bundle exec jekyll b -d "_site${{ steps.pages.outputs.base_path }}"
         env:

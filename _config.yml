@@ -205,6 +205,11 @@ compress_html:
   ignore:
     envs: [development]
 
+gems: [jekyll-mermaid]
+
+mermaid:
+  src: https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js
+
 exclude:
   - "*.gem"
   - "*.gemspec"

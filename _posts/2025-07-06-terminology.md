@@ -21,15 +21,14 @@ categories: [kubernetes]
     - /etc/kubernetes/manifests디렉토리를 모니터링하여 request를 받을수있음
     - Static Pod: kubelet이 관리하는 Pod.API를 통하여 생성되는 것이 아니라 kubelet이 파일을 읽어 Pod을 생성함. Static Pod은 kubelet이 시작될 때 자동으로 생성됨. 
 
-{% mermaid %}
+```mermaid
 flowchart LR
  file["/etc/kubernetes/manifests"]
  file --> kubectl
  kubectl --> containerd
  containerd --> runc["runc"]
  runc --> staticPod["static Pod"]
-{% endmermaid %}
-
+```
 
 1. etcd(Control Plane>Static Pod)
     - Kubernetes의 분산 키-값 저장소로, 클러스터의 상태 정보를 저장함. Source of Truth. etcd는 클러스터의 모든 리소스 상태를 저장하고, 이를 통해 클러스터의 일관성을 유지함. Production setup으로써 홀수의 노드로, 5개를 권장함.RAFT(Reliable Asynchronous Fault Tolerance) 합의 프로토콜을 사용하여 일관성을 유지하도록함.

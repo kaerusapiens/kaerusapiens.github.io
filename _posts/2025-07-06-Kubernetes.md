@@ -1,5 +1,5 @@
 ---
-title: "03.Kubernetes"
+title: "Kubernetes"
 categories: [kubernetes]
 ---
 

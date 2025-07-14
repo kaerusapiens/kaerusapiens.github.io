@@ -91,7 +91,7 @@ KEDA는 HPA 위에 올라타는 방식이지만, 사용자는 그것을 직접 �
 ## CNCF (Cloud Native Computing Foundation)
 CNCF는 클라우드 네이티브 기술의 발전과 표준화를 위해 설립된 오픈 소스 소프트웨어 재단.
 "Make Cloud Native Computing Ubiquitous"라는 목표 아래, 클라우드 네이티브 애플리케이션의 개발, 배포, 운영을 지원하는 다양한 프로젝트를 호스팅하고 있습니다. CNCF는 Kubernetes, Prometheus, Envoy 등과 같은 주요 오픈 소스 프로젝트를 관리하며, 클라우드 네이티브 생태계의 상호 운용성을 높이고, 개발자들이 다양한 플랫폼에서 클라우드 네이티브 기술을 쉽게 사용할 수 있도록 합니다.
-<img src="/img/CNCF-graduation-criteria.png" alt="CNCF Graduation Criteria">
+<img src="../img/CNCF-graduation-criteria.png" alt="CNCF Graduation Criteria">
 
 - the chasm : Early adopters, Early majority사이의 균열 단계. Incubated -> Graudated. 적절한 기능, 세큐리티, 퍼포먼스등을 만족할수 있는가가 검토되는 단계.
 - Innovators(techeis) -> Early Adopters(visionaries) -> Early Majority(pragamatistics) -> Late Majority(conservatives) -> Laggards(Skeptics)

@@ -36,6 +36,16 @@ categories: [kubernetes]
 클라우드 환경에 **최적화된 애플리케이션을 빠르고 안정적으로 개발·운영하는 방식**
 
   - **CI/CD** : (Countinuous Integration/Deployment): 코드 변경 사항을 자동으로 빌드, 테스트, 배포하는 프로세스. Jenkins, GitLab CI/CD, GitHub Actions 등이 사용됨. Countinous Delivery라는 것이 배포가능한 상태가 사람에 의하여 트리거 되는것과 달리 Continuous Deployment는 배포까지 완전 자동화 되는것을 말함. "Delivery over deployment", "Delivery first with Deployment".항상 배포 가능한 상태를 유지하는 것이 우선.
+    - 전통적인 CICD
+     Build: The code is compiled and packaged into a deployable artifact.
+     Testing: The built artifact is then tested to ensure it meets the required standards.
+     Release: The tested artifact is prepared for deployment, which may involve creating a release candidate or packaging the artifact for distribution.
+     Deployment: The released artifact is finally deployed to production, making it available to end-users.
+
+    - Jenkins : 오픈 소스 자동화 서버로, CI/CD 파이프라인을 구축하고 관리하는 데 사용됩니다.  automating building, testing, and deploying applications
+    -카나리 배포 및 프로그레시브 딜리버리
+     - 과거: 릴리스 후 전체 사용자에게 즉시 배포(빅뱅 배포).
+     - 현재: 블루/그린 배포(Blue/Green Deployment), 카나리 배포(Canary Release), A/B 테스트 배포 등 점진적 배포 전략이 도입. 소규모 사용자 그룹에 먼저 배포해 안정성을 확인한 후 전체 배포로 전환.
   - **Service Mesh**: 마이크로서비스 간의 통신을 관리하고 보안, 모니터링, 로깅 등을 제공하는 인프라 계층. Istio, Linkerd 등이 대표적임.
   - **API Gateway**: 마이크로서비스 간의 API 요청을 관리하고 라우팅, 인증, 모니터링 등을 제공하는 서비스. AWS API Gateway, Kong, NGINX 등이 사용됨
   - **Auto Scaling**: 시스템이 부하에 따라 자동으로 확장되거나 축소되는 패턴.
@@ -81,8 +91,8 @@ KEDA는 HPA 위에 올라타는 방식이지만, 사용자는 그것을 직접 �
 ## CNCF (Cloud Native Computing Foundation)
 CNCF는 클라우드 네이티브 기술의 발전과 표준화를 위해 설립된 오픈 소스 소프트웨어 재단.
 "Make Cloud Native Computing Ubiquitous"라는 목표 아래, 클라우드 네이티브 애플리케이션의 개발, 배포, 운영을 지원하는 다양한 프로젝트를 호스팅하고 있습니다. CNCF는 Kubernetes, Prometheus, Envoy 등과 같은 주요 오픈 소스 프로젝트를 관리하며, 클라우드 네이티브 생태계의 상호 운용성을 높이고, 개발자들이 다양한 플랫폼에서 클라우드 네이티브 기술을 쉽게 사용할 수 있도록 합니다.
+<img src="img/CNCF-graduation-criteria.png)">
 
-![CNCF-graduation-criteria](img/CNCF-graduation-criteria.png)
 - the chasm : Early adopters, Early majority사이의 균열 단계. Incubated -> Graudated. 적절한 기능, 세큐리티, 퍼포먼스등을 만족할수 있는가가 검토되는 단계.
 - Innovators(techeis) -> Early Adopters(visionaries) -> Early Majority(pragamatistics) -> Late Majority(conservatives) -> Laggards(Skeptics)
 

@@ -760,6 +760,195 @@ etcd는 Kubernetes의 상태 데이터를 저장하는 핵심 데이터 스토�
 Kubernetes는 Pod, 노드 장애를 감지하고 자동으로 대체 Pod를 생성하거나 노드를 재스케줄링하여 서비스를 복구합니다(예: ReplicaSet, DaemonSet).
 
 
+## StatefulSets
+
+StatefulSet은 Kubernetes에서 상태를 가지는 애플리케이션을 관리하기 위한 리소스입니다. StatefulSet은 Pod의 순서와 안정성을 보장하며, 각 Pod에 고유한 네트워크 ID와 스토리지 볼륨을 할당합니다. StatefulSet은 데이터베이스, 캐시, 메시지 큐 등 상태를 가지는 애플리케이션에 사용됩니다.
+- Deployment와의 차이점
+  - Depolyment는 ReplicaSet을 사용하여 Pod의 복제본을 관리합니다. Pod의 이름은 랜덤하게 생성됩니다. (stateless) Persistent Volume을 붙여서 Deployment의 Pod들에서 공유할 수 있습니다 
+
+- StatefulSet의 특징
+  - 고유한 네트워크 ID: 각 Pod은 고유한 네트워크 ID를 가지며, 이를 통해 Pod 간의 통신이 가능합니다.
+  - 안정적인 스토리지: 각 Pod에 **Persistent Volume**을 할당하여 안정적인 스토리지를 제공합니다.
+  - 순서 보장: Pod의 생성, 업데이트, 삭제 순서를 보장합니다. 예를 들어, Pod이 순차적으로 생성되거나 삭제됩니다.
+  - 롤링 업데이트: StatefulSet은 롤링 업데이트를 지원하여 애플리케이션을 중단 없이 업데이트할 수 있습니다.
+  - Headless Service: StatefulSet은 Headless Service를 사용하여 Pod의 DNS 이름을 안정적으로 제공합니다. 이를 통해 Pod 간의 통신이가능합니다. <hostname>.<service-name>.<namespace>.svc.cluster.local 형식으로 DNS 이름이 생성됩니다.
+  - Rollingupdate partition: StatefulSet의 롤링 업데이트를 제어하는 옵션입니다. 
+  - StatefulSet의 Pod 업데이트 시, 특정 파티션부터 업데이트를 시작할 수 있습니다. 이를 통해 업데이트 중에 일부 Pod을 유지할 수 있습니다.
+#### partition
+partition은 주로 쿠버네티스 StatefulSet 리소스에서 롤링 업데이트 전략을 제어하기 위해 사용되는 필드입니다. PDB와 달리 독립적인 쿠버네티스 오브젝트가 아니라 StatefulSet의 특정 속성입니다.
+
+주요 목적: StatefulSet의 업데이트(배포) 방식을 제어하여, 특정 수의 Pod만 업데이트되도록 하거나, 특정 Pod부터 업데이트되도록 지정할 때 사용됩니다. 이는 특히 데이터베이스처럼 순서가 중요하거나, 롤링 업데이트 시 특정 조건(예: 마스터 노드를 마지막에 업데이트)을 만족해야 하는 스테이트풀 애플리케이션에서 중요합니다.
+
+작동 방식:
+
+롤링 업데이트 일시 중지: partition 값을 StatefulSet의 Pod 개수보다 작게 설정하면, 해당 partition 값보다 인덱스가 낮은 Pod만 업데이트되고 나머지는 업데이트되지 않습니다. 이를 통해 단계별 업데이트를 제어하거나 업데이트를 일시 중지할 수 있습니다.
+
+업데이트 건너뛰기: partition 값을 특정 Pod 인덱스보다 크게 설정하면, 해당 인덱스까지의 Pod들은 업데이트를 건너뛰고, partition 값부터 그 이후의 Pod들이 먼저 업데이트되도록 할 수 있습니다. (드물게 사용되나 특정 시나리오에서 유용).
+
+적용 대상: StatefulSet이 관리하는 Pod들에만 적용됩니다. ReplicaSet이나 Deployment에는 이 필드가 없습니다.
+
+예시: StatefulSet이 5개의 Pod (db-0, db-1, db-2, db-3, db-4)로 구성되어 있고 updateStrategy.rollingUpdate.partition: 3으로 설정하면, db-0, db-1, db-2만 새로운 버전으로 업데이트되고 db-3, db-4는 현재 버전으로 유지됩니다. 이후 partition 값을 0으로 변경하면 모든 Pod가 업데이트됩니다.
+  
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: my-statefulset
+spec:
+  serviceName: my-service #headless service name DNS name : my-statefulset.my-service.default.svc.cluster.local
+  replicas: 3 #Pod의 복제본 수
+  updateStrategy:
+    type: RollingUpdate #롤링 업데이트 전략
+    rollingUpdate:
+      partition: 2 #롤링 업데이트 파티션
+  selector:
+    matchLabels:
+      app: my-app #Pod의 레이블 셀렉터
+
+```
+
+
+
+- `kubectl create service clusterip --clusterip=None --name=my-service --tcp=80:80` 명령어를 사용하여 Headless Service를 생성할 수 있습니다.
+- `kubectl get statefulsets` 명령어를 사용하여 StatefulSet을 조회할 수 있습니다.
+- `kubectl describe statefulsets <statefulset-name>` 명령어를 사용하여 StatefulSet의 상세 정보를 조회할 수 있습니다.
+- `kubectl delete statefulsets <statefulset-name>` 명령어를 사용하여 StatefulSet을 삭제할 수 있습니다.
+- `kubectl scale statefulsets <statefulset-name> --replicas=<number>` 명령어를 사용하여 StatefulSet의 복제본 수를 조정할 수 있습니다.
+
+
+
+## NetworkPolicy
+NetworkPolicy는 Kubernetes에서 Pod 간의 네트워크 트래픽을 제어하는 리소스입니다. NetworkPolicy를 사용하여 Pod 간의 통신을 허용하거나 차단할 수 있습니다. NetworkPolicy는 Pod의 레이블을 기반으로 트래픽을 필터링합니다. 이를 통해 보안 그룹과 유사한 기능을 제공합니다. NetworkPolicy는 기본적으로 모든 Pod 간의 통신을 허용합니다. NetworkPolicy를 정의하여 특정 Pod 간의 통신을 허용하거나 차단할 수 있습니다. NetworkPolicy는 네임스페이스 단위로 적용됩니다. 즉, 네임스페이스 내의 Pod 간의 통신을 제어할 수 있습니다. NetworkPolicy는 클러스터의 CNI(Container Network Interface) 플러그인에 의해 구현됩니다. CNI 플러그인이 NetworkPolicy를 지원해야 합니다. 예를 들어, Calico, Cilium, Weave Net 등 다양한 CNI 플러그인이 NetworkPolicy를 지원합니다.
+
+
+- Ingress: Pod로 들어오는 네트워크 요청을 제어합니다. 예를 들어, 특정 레이블을 가진 Pod에서만 요청을 허용하거나, 특정 포트로의 요청만 허용할 수 있습니다.
+- Egress: Pod에서 나가는 네트워크 요청을 제어합니다. 예를 들어, 특정 레이블을 가진 Pod로의 요청만 허용하거나, 특정 포트로의 요청만 허용할 수 있습니다.
+- PodSelector: NetworkPolicy가 적용될 Pod을 선택하는 레이블 셀렉터입니다. PodSelector를 사용하여 특정 레이블을 가진 Pod에만 NetworkPolicy를 적용할 수 있습니다.
+- PolicyTypes: NetworkPolicy가 적용될 트래픽 유형을 정의합니다. `Ingress`, `Egress`, 또는 둘 다를 지정할 수 있습니다. 기본적으로 NetworkPolicy는 모든 트래픽을 허용합니다. 따라서 NetworkPolicy를 정의하지 않으면 Pod 간의 통신이 허용됩니다. NetworkPolicy를 정의하면 해당 NetworkPolicy에 정의된 규칙에 따라 Pod 간의 통신이 허용되거나 차단됩니다.
+
+NetworkPolicy는 Pod 수준에서만 적용됩니다.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: my-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: my-app
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: #이 Pod로 들어오는 네트워크 요청
+  - from:
+    - podSelector:
+        matchLabels:
+          app: my-app
+    ports:
+    - protocol: TCP
+      port: 80
+  egress: #다른 Pod나 외부로 나가는 네트워크 요청
+  - to:
+    - podSelector:
+        matchLabels:
+          app: my-app
+    ports:
+    - protocol: TCP
+      port: 80
+```
+
+
+## PodDisruptionBudget
+PodDisruptionBudget(PDB)는 Kubernetes에서 Pod의 가용성을 보장하기 위한 리소스입니다. PDB를 사용하여 Pod의 최소 가용성을 정의하고, 클러스터에서 Pod을 안전하게 중단할 수 있는 조건을 설정할 수 있습니다. PDB는 주로 노드 유지보수, 클러스터 업그레이드, Pod 업데이트 등의 작업 중에 Pod의 가용성을 유지하기 위해 사용됩니다. PDB는 Pod의 가용성을 보장하기 위해 최소한의 Pod 수를 유지해야 합니다. 
+
+PodDisruptionBudget (PDB)
+PDB는 쿠버네티스 애플리케이션의 고가용성을 보장하기 위한 정책 리소스입니다.
+
+주요 목적: 자발적(Voluntary) 중단 상황(예: 노드 드레인, 클러스터 업그레이드 등 관리자가 의도적으로 Pod를 제거하는 경우)에서 특정 애플리케이션의 Pod가 동시에 너무 많이 중단되는 것을 방지합니다.
+
+작동 방식: "이 서비스는 최소한 X개의 Pod가 항상 실행 중이어야 한다" 또는 "이 서비스는 최대 Y개의 Pod만 동시에 중단될 수 있다"고 쿠버네티스에게 알려줍니다. kubectl drain 같은 명령은 PDB 정책을 준수하려고 시도하며, PDB를 위반하게 되면 작업을 보류하거나 실패시킵니다.
+
+적용 대상: Deployment, StatefulSet 등으로 배포된 Pod들의 집합에 적용됩니다. Pod들이 속한 서비스를 보호합니다.
+
+예시: 웹 서버 클러스터가 5개의 Pod로 구성되어 있을 때, PDB를 통해 "최소 3개의 Pod는 항상 가용해야 한다"고 설정하면, 노드 유지보수 시 3개 미만으로 떨어지지 않도록 쿠버네티스가 조정합니다.
+
+- Pod 퇴거(Evict)
+  - drain 명령어를 사용하여 노드를 비우는 작업을 수행할 때, PDB를 위반하지 않는 범위 내에서 Pod을 퇴거합니다. PDB를 위반하면 Pod이 퇴거되지 않습니다.
+  PodDisruptionBudget(PDB)는 자발적 중단(예: 노드 유지보수, 클러스터 업그레이드 등) 시 Pod의 가용성을 보장하기 위해 사용됩니다. PDB를 사용하여 최소한의 Pod 수를 유지해야 합니다. PDB를 위반하면 Pod이 퇴거(Evict)되지 않습니다.
+
+
+## DaemonSet
+DaemonSet은 Kubernetes에서 각 노드에 하나의 Pod 복제본을 실행하기 위한 리소스입니다. DaemonSet을 사용하면 클러스터의 모든 노드 또는 특정 노드에서 Pod을 자동으로 배포하고 관리할 수 있습니다. 주로 로그 수집, 모니터링, 네트워크 프로세싱 등과 같은 작업에 사용됩니다.
+
+DaemonSet의 주요 특징은 다음과 같습니다.
+
+- 모든 노드에 Pod 배포: DaemonSet을 사용하면 클러스터의 모든 노드에 동일한 Pod을 배포할 수 있습니다. 새로운 노드가 클러스터에 추가되면, DaemonSet은 자동으로 해당 노드에 Pod을 생성합니다.
+- 특정 노드에만 배포: DaemonSet은 노드 셀렉터를 사용하여 특정 노드에만 Pod을 배포할 수 있습니다. 이를 통해 특정 하드웨어나 소프트웨어 요구 사항이 있는 작업을 수행할 수 있습니다.
+- Pod 업데이트: DaemonSet의 Pod을 업데이트하려면, DaemonSet을 수정하고 새로운 버전의 Pod을 배포해야 합니다. DaemonSet은 기존 Pod을 순차적으로 종료하고 새로운 Pod을 생성합니다.
+
+DaemonSet을 생성하려면 다음과 같은 YAML 파일을 작성할 수 있습니다.
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: my-daemonset
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-container
+        image: nginx:latest
+```
+
+
+## kubernetes Security
+
+Kubernetes 보안은 클러스터와 애플리케이션을 보호하기 위한 다양한 메커니즘과 모범 사례를 포함합니다. Kubernetes 보안은 다음과 같은 주요 영역으로 구성됩니다.
+1. kubernetes security context
+   - Pod, 컨테이너, 네임스페이스 등 리소스의 보안 설정을 정의합니다.
+   - 예를 들어, 컨테이너가 루트 권한으로 실행되지 않도록 설정하거나, 특정 사용자로 실행되도록 설정할 수 있습니다.
+   - `runAsUser`, `runAsGroup`, `fsGroup` 등의 필드를 사용하여 보안 컨텍스트를 정의합니다.
+   - PodSecurityPolicies (PSP) 
+     - Pod의 보안 설정을 정의하는 리소스입니다. PSP를 사용하여 Pod의 보안 설정을 제어할 수 있습니다.
+     - 예를 들어, Pod이 루트 권한으로 실행되지 않도록 설정하거나, 특정 네트워크 정책을 적용할 수 있습니다.
+   - deprecated: PodSecurityPolicy(PSP)는 Kubernetes 1.21부터 deprecated 되었으며, 대신 Pod Security Admission을 사용합니다.Pod Security Standards (PSS) 및 Kyverno와 같은 서드파티 정책 엔진으로 대체되었습니다.
+
+- Security Context
+Pod나 Container가 실행될 때의 보안 설정이에요.
+root 권한 없이 실행
+특정 사용자(runAsUser)로 실행
+파일 퍼미션 설정 (readOnlyRootFilesystem)
+
+- Securit Policy
+
+
+작동 범위: 클러스터 수준(컨트롤 플레인)
+컨트롤 플레인에서 Pod 생성 자체를 제한하는 규칙이에요.
+대표 정책 도구: PodSecurityPolicy(PSP) (deprecated), Kyverno, OPA/Gatekeeper
+
+
+2. Pod admission controller
+     - Kubernetes 1.22부터 Pod Security Admission이 도입되었습니다. Pod Security Admission은 Pod의 보안 설정을 검증하고, 필요한 경우 수정하는 어드미션 컨트롤러입니다.
+     - Pod Security Admission은 `restricted`, `baseline`, `privileged` 등 세 가지 보안 수준을 제공합니다.
+     - 예를 들어, `restricted` 보안 수준은 Pod이 루트 권한으로 실행되지 않도록 설정합니다.
+
+3. Essential security tools
+  - OpenID Connect(OIDC): Kubernetes 클러스터에 대한 인증을 제공하는 프로토콜입니다. OIDC를 사용하여 외부 인증 제공자(예: Google, GitHub 등)와 통합할 수 있습니다.대규모의 사용자 인증 및 권한 부여를 간소화할 수 있습니다.
+  -  Kyverno: Kubernetes 리소스의 정책을 정의하고 적용하는 도구입니다. YAML 파일을 사용하여 정책을 정의하고, 클러스터에 적용할 수 있습니다.
+  - falcon: Kubernetes 클러스터의 보안을 모니터링하고, 침입 탐지 및 대응을 제공하는 도구입니다. Falco는 시스템 콜을 모니터링하여 비정상적인 활동을 감지합니다.
+  - kubescape: Kubernetes 클러스터의 보안을 평가하고, 취약점을 식별하는 도구입니다. Kubescape는 Kubernetes 리소스의 보안 설정을 검토하고, 보안 모범 사례를 적용합니다.
+
+
+
 ## kubectl cmd
 
 ### common 명령어
@@ -807,11 +996,22 @@ Kubernetes는 Pod, 노드 장애를 감지하고 자동으로 대체 Pod를 생�
   - 클러스터의 모든 ClusterRoleBinding을 나열합니다.
   - ClusterRoleBinding은 ClusterRole을 사용자, 그룹, 서비스 계정에 바인딩하여 권한을 부여하는 리소스입니다.
 
+- `kubectl patch <resource-type> <resource-name> -p <patch-data>`
+  - 리소스의 일부 필드를 수정합니다.
+  - `-p`: 패치 데이터를 JSON 형식으로 지정합니다.
+  - 예: `kubectl patch deployment my-deployment -p '{"spec":{"replicas":3}}'`는 `my-deployment`의 복제본 수를 3으로 변경합니다.
+
+- `kubectl replace --force -f <manifest-file>`
+  - 기존 리소스를 새로운 manifest 파일로 교체합니다.
+  - `--force`: 강제로 교체합니다. 리소스가 존재하지 않으면 새로 생성합니다.
+
+
 ### Pod 관련 명령어
 - `kubectl run <pod-name> --image=<image-name> --port=<port>`
   - 새로운 Pod을 생성합니다.
   - `--image`: 사용할 컨테이너 이미지 지정.
   - `--port`: Pod에서 노출할 포트 지정.
+  - kubectl run은 자동으로 label을 추가하고, Pod을 생성합니다.
   
 - `kubectl logs <pod-name> -c <container-name> -p`
   - pod의 로그를 가져옵니다.
@@ -826,6 +1026,7 @@ Kubernetes는 Pod, 노드 장애를 감지하고 자동으로 대체 Pod를 생�
   - Pod을 서비스로 노출합니다.
   - `kubectl expose pod/my-pod --port=80 --type=NodePort`
   - Pod의 80 포트를 NodePort 서비스로 노출.
+
 
 ### Namespace 관련 명령어
 - `kubectl create namespace <namespace-name>` : 새로운 네임스페이스를 생성합니다.
@@ -923,3 +1124,20 @@ Kubernetes는 Pod, 노드 장애를 감지하고 자동으로 대체 Pod를 생�
   - 특정 사용자나 서비스 계정이 특정 리소스에 대해 특정 작업을 수행할 수 있는지 확인합니다.
 - `kubectl auth can-i <verb> <resource-type> --as-group=<group-name>`
   - 특정 그룹이 특정 리소스에 대해 특정 작업을 수행할 수 있는지 확인합니다.
+
+## PDB
+- `kubectl create pdb <pdb-name> --selector=<label-selector> --min-available=<number>`
+  - PodDisruptionBudget(PDB)를 생성합니다.
+  - 예: `kubectl create pdb my-pdb --selector app=my-app --min-available=2`는 `app=my-app` 레이블이 있는 Pod에 대해 최소 2개의 Pod가 항상 가용하도록 PDB를 생성합니다.
+  - min-available: 최소 가용 Pod 수를 지정합니다. 이 값은 PDB가 적용되는 Pod의 최소 가용성을 보장합니다.
+  - max-unavailable: 최대 중단 가능한 Pod 수를 지정합니다. 이 값은 PDB가 적용되는 Pod의 최대 중단 가능성을 보장합니다.
+- `kubectl cordon <node-name>`
+  - 특정 노드를 코돈 상태로 설정하여 해당 노드에서 새로운 Pod이 스케줄되지 않도록 합니다.
+  - 예: `kubectl cordon my-node`는 `my-node`를 코돈 상태로 설정합니다.
+
+- `kubectl drain <node-name>`
+  - 노드를 드레인하여 해당 노드에서 실행 중인 Pod을 안전하게 종료합니다.
+  - 노드에서 Pod을 안전하게 종료하고, 새로운 Pod이 다른 노드에서 실행되도록 합니다.
+  - 예: `kubectl drain my-node`는 `my-node`에서 실행 중인 Pod을 안전하게 종료합니다.
+  - `--ignore-daemonsets`: DaemonSet에 의해 관리되는 Pod은 드레인하지 않습니다.
+  - `--delete-local-data`: 로컬 데이터를 가진 Pod도 드레인합니다.

@@ -3,6 +3,21 @@ title: "Cloud_Native_Fundamentals"
 categories: [kubernetes]
 ---
 ---
+## 자격증종류
+
+- KCNA (Kubernetes and Cloud Native Associate)
+  - Kubernetes와 클라우드 네이티브 기술에 대한 기초 지식을 검증하는 자격증.
+  - Kubernetes의 기본 개념, 아키텍처, API, 리소스 관리, 보안, 네트워킹, 스토리지, 모니터링 및 로깅 등 다양한 주제를 다룹니다.
+  - 클라우드 네이티브 애플리케이션 개발 및 운영에 필요한 기초 지식을 갖추고 있는지를 평가합니다.
+- CKA (Certified Kubernetes Administrator)
+  - Kubernetes 클러스터의 설치, 구성, 관리 및 문제 해결 능력을 검증하는 자격증.
+  - Kubernetes의 아키텍처, API, 리소스 관리, 보안, 네트워킹, 스토리지, 모니터링 및 로깅 등 다양한 주제를 다룹니다.
+  - Kubernetes 클러스터를 운영하는 데 필요한 실무 능력을 평가합니다.
+- CKAD (Certified Kubernetes Application Developer)
+  - Kubernetes에서 애플리케이션을 개발하고 배포하는 능력을 검증하는 자격증.
+  - Kubernetes의 API, 리소스 관리, 네트워킹, 스토리지, 보안, 모니터링 및 로깅 등 다양한 주제를 다룹니다.
+  - Kubernetes에서 애플리케이션을 개발하고 배포하는 데 필요한 실무 능력을 평가합니다.
+
 
 ## Cloud Native 아키텍쳐
 
@@ -89,6 +104,10 @@ KEDA는 HPA 위에 올라타는 방식이지만, 사용자는 그것을 직접 �
 
 
 ## CNCF (Cloud Native Computing Foundation)
+
+2000년도 Linux Foundation 가 Open Source Development Labs와 Free Standards Group이 통합되어 Linux Foundation이 탄생함.
+2015년 7월에 설립된 CNCF는 클라우드 네이티브 컴퓨팅의 발전과 표준화를 목표로 하는 오픈 소스 소프트웨어 재단입니다. 첫 번째 프로젝트로 Kubernetes를 채택하였으며, 이후 Prometheus, Envoy, gRPC 등 다양한 오픈 소스 프로젝트를 호스팅하고 있습니다. CNCF는 클라우드 네이티브 애플리케이션의 개발, 배포, 운영을 지원하는 다양한 프로젝트를 관리하며, 클라우드 네이티브 생태계의 상호 운용성을 높이고, 개발자들이 다양한 플랫폼에서 클라우드 네이티브 기술을 쉽게 사용할 수 있도록 합니다.
+
 CNCF는 클라우드 네이티브 기술의 발전과 표준화를 위해 설립된 오픈 소스 소프트웨어 재단.
 "Make Cloud Native Computing Ubiquitous"라는 목표 아래, 클라우드 네이티브 애플리케이션의 개발, 배포, 운영을 지원하는 다양한 프로젝트를 호스팅하고 있습니다. CNCF는 Kubernetes, Prometheus, Envoy 등과 같은 주요 오픈 소스 프로젝트를 관리하며, 클라우드 네이티브 생태계의 상호 운용성을 높이고, 개발자들이 다양한 플랫폼에서 클라우드 네이티브 기술을 쉽게 사용할 수 있도록 합니다.
 <img src="/img/CNCF-graduation-criteria.png" alt="CNCF Graduation Criteria">

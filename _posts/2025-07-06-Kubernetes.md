@@ -4,6 +4,7 @@ categories: [kubernetes]
 ---
 
 # Kubernetes
+2014년 Google Borg에서 개발한 오픈소스 컨테이너 오케스트레이션 플랫폼입니다.
 
 Kubernetes는 컨테이너화된 애플리케이션을 자동으로 배포, 확장 및 관리하기 위한 오픈소스 플랫폼입니다. Google에서 개발하였으며, 현재는 Cloud Native Computing Foundation(CNCF)에서 관리하고 있습니다. Kubernetes는 컨테이너 오케스트레이션을 위한 표준으로 자리 잡았습니다.
 콘테이너 오케스트레이션에 OpenShift(k8s제공), Docker Swarm, HashiCorp Nomad가 있었으나 이제는 k8s가 주류. 
@@ -451,7 +452,7 @@ Service는 Labels를 사용하여 Pod에 대한 트래픽을 라우팅합니다.
 **Labels는 리소스의 선택과 필터링에 사용되며, 그를 통해 조직의 비용 절감과 효율성을 높일 수 있습니다.** 
 
 `--selector` 옵션을 사용하여 Labels를 기반으로 리소스를 선택할 수 있습니다. 예를 들어, `kubectl get pods --selector app=my-app` 명령어를 사용하여 `app=my-app` 레이블이 있는 Pod을 조회할 수 있습니다.
-`-l` 옵션을 사용하여 Labels를 출력할 수 있습니다. 예를 들어, `kubectl get pods -l app=my-app -o yaml` 명령어를 사용하여 `app=my-app` 레이블이 있는 Pod의 YAML 형식을 출력할 수 있습니다. `--selector` 옵션과 `-l` 옵션은 동일한 기능을 수행합니다.
+`-l` 옵션을 사용하여 Labels를 출력할 수 있습니다. 예를 들어, `kubectl get pods -l app=my-app -o yaml` 명령어를 사용하여 `app=my-app` 레이블이 있는 Pod의 YAML 형식을 출력할 수 있습니다. **`--selector` 옵션과 `-l` 옵션은 동일한 기능을 수행합니다.**
 
 ````yaml
 apiVersion: v1
@@ -603,8 +604,7 @@ flowchart TD
 | **Users**           | 쿠버네티스 외부에서 인증서를 발급받은 사용자. 예: `alice`, `alice@example.com` | **외부 생성 (CSR 등)**       |
 | **Groups**          | 외부 인증 주체가 속한 그룹. RBAC에서 그룹 단위 권한 부여 시 사용됩니다.              | **외부 생성 (CSR에서 O 필드)**  |
 | **ServiceAccounts** | 쿠버네티스 내부에서 생성되며, Pod 실행 시 자동 할당됩니다.                       | ✅ **Kubernetes 내부 리소스** |
-> ❗ Users/Groups는 CSR로 발급한 인증서에 의해 "인증"되며,
-ServiceAccount는 쿠버네티스 내부에서 자동으로 토큰 및 인증서를 발급받습니다.
+> ❗ Users/Groups는 CSR로 발급한 인증서에 의해 "인증"되며, ServiceAccount는 쿠버네티스 내부에서 자동으로 토큰 및 인증서를 발급받습니다.
 
 
 - Certificate Signing Request (CSR) 주체 정보 (subject)
@@ -615,10 +615,12 @@ ServiceAccount는 쿠버네티스 내부에서 자동으로 토큰 및 인증서
 | **CN = Common Name** | 인증서의 대표 이름(사용자 ID)을 의미합니다. 예: `system:admin`, `alice@example.com` 등                                         |
 
 - ClusterRole:클러스터 전체에 적용되는 역할(Role)을 정의합니다.
-네임스페이스에 관계없이 리소스(예: 모든 Pod, 모든 Node 등)에 대한 권한 집합을 기술합니다.
+네임스페이스에 관계없이 리소스(예: 모든 Pod, 모든 Node 등)에 대한 권한 집합을 기술합니다. ClusterRole과 Role의 차이는 , ClusterRole은 클러스터 전체에 적용되는 반면, Role은 특정 네임스페이스에만 적용된다는 점입니다.
 - ClusterRoleBinding: ClusterRole을 사용자(User), 그룹(Group), 또는 서비스 계정(ServiceAccount) 에 바인딩합니다.
-
-
+- Role: 특정 네임스페이스에 적용되는 역할(Role)을 정의합니다.
+네임스페이스 내의 리소스(예: Pod, Service 등)에 대한 권한 집합을 기술합니다. Role은 네임스페이스 내에서만 유효하며, 다른 네임스페이스에서는 사용할 수 없습니다.
+- RoleBinding: Role을 사용자(User), 그룹(Group), 또는 서비스 계정(ServiceAccount) 에 바인딩합니다.
+RoleBinding은 Role을 특정 네임스페이스에 바인딩하여, 해당 네임스페이스 내에서 Role의 권한을 부여합니다.
 
 ## kube-scheduler
 Kube-scheduler는 Kubernetes 클러스터에서 Pod을 실행할 노드를 결정하는 컴포넌트입니다. Kube-scheduler는 클러스터의 상태를 모니터링하고, Pod의 요구 사항과 노드의 리소스 상태를 기반으로 최적의 노드를 선택합니다. Kube-scheduler는 Pod이 실행될 노드를 결정하고, 해당 노드에 Pod을 할당합니다.

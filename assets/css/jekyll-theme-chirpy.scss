@@ -1,0 +1,25 @@
+---
+---
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+
+/* Custom sidebar background color - white-green */
+#sidebar {
+  background-color: #cbd5c0 !important; /* Honeydew - a light white-green color */
+}
+
+/* Alternative white-green colors you can use instead:
+#sidebar {
+  background-color: #f5fffa !important; // Mint cream
+  background-color: #f0ffff !important; // Azure (very light green-white)
+  background-color: #e6ffe6 !important; // Light green
+  background-color: #f7fff7 !important; // Very pale green
+}
+*/

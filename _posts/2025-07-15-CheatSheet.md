@@ -1,6 +1,6 @@
 ---
 title: Kubernetes Cheat Sheet
-categories: [Kubernetes]
+categories: [kubernetes]
 ---
 
 

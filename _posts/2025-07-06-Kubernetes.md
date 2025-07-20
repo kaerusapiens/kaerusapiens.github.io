@@ -38,6 +38,7 @@ kind: Workflow
 5. kubeadm
    - Kubernetes 클러스터를 설치하고 관리하기 위한 도구로, 클러스터의 초기화, 노드 추가, 업그레이드 등을 지원합니다. kubeadm은 Kubernetes의 공식 설치 도구 중 하나로, 클러스터를 쉽게 설정할 수 있도록 도와줍니다.
    - 본격적으로 Kubernetes를 구축할경우에는 물리적인 머신 혹은 가상머신을 필요한 만큼 준비하여 Ubuntu등 Linux 배포판을 설치한 후, Master node에는 kubernetes와 CNI, etcd를, Worker node에는 Docker등 컨테이너엔진과 Kubernetes, CNI를 설치할 필요가 있으나, 이것을 kubeadm을 사용하여 자동화할 수 있음.
+   - IPv4/IPv6 Dual Stack 클러스터 구성 시에는 kubeadm init 명령에 `--service-cidr` 플래그로 IPv4와 IPv6 CIDR 블록을 모두 지정해야 합니다. 예: `--service-cidr=10.96.0.0/12,2001:db8::/32`
 
 
 
@@ -102,7 +103,7 @@ Static Pod은 kubelet이 관리하는 Pod으로, Control Plane의 일부로 동�
 
 
 
-## image pull policy 
+## ImagePull policy 
 imagePullPolicy는 Kubernetes에서 컨테이너 이미지를 가져오는 정책을 정의합니다. 이 정책은 컨테이너가 시작될 때 이미지가 어떻게 처리되는지를 결정합니다. 
 
 ### imagePullPolicy의 세 가지 옵션
@@ -221,6 +222,28 @@ Pod은 컨테이너와 볼륨을 세트로 구성하여, 동일한 네트워크 
   - 모든 Pod이 동일한 네트워크 공간에 위치하여 서로 직접 통신할 수 있는 구조입니다.
   - Pod 간의 통신이 IP 주소를 통해 이루어지며, 별도의 NAT(Network Address Translation) 없이도 서로 접근할 수 있습니다.
   - Kubernetes에서는 CNI(Container Network Interface)를 사용하여 flat network를 구현합니다.
+- IPv4/IPv6 Dual Stack
+  - Kubernetes 1.16부터 베타 기능으로 도입되어 1.23부터 GA(Generally Available)로 안정화된 기능입니다.
+  - 클러스터에서 IPv4와 IPv6 주소를 동시에 사용할 수 있도록 지원하는 네트워킹 기능입니다.
+  - Pod과 Service가 IPv4와 IPv6 주소를 모두 할당받을 수 있으며, 두 프로토콜 간의 상호 운용성을 제공합니다.
+  - 클러스터 구성 시 `--service-cluster-ip-range`에 IPv4와 IPv6 CIDR 블록을 모두 지정해야 합니다.
+  - 예: `--service-cluster-ip-range=10.96.0.0/12,2001:db8::/32`
+  - CNI 플러그인(Calico, Cilium, Flannel 등)이 Dual Stack을 지원해야 하며, 각 CNI마다 설정 방법이 다릅니다.
+  - Service의 `ipFamilies` 필드를 통해 IPv4, IPv6 또는 Dual Stack 모드를 선택할 수 있습니다.
+  ```yaml
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: my-dual-stack-service
+  spec:
+    ipFamilies: [IPv4, IPv6]  # Dual Stack 모드
+    ipFamilyPolicy: PreferDualStack
+    selector:
+      app: my-app
+    ports:
+    - port: 80
+  ```
+  - Pod의 네트워크 인터페이스에 IPv4와 IPv6 주소가 모두 할당되어, 외부 서비스와의 다양한 네트워크 환경에서 호환성을 제공합니다.
 - restart policy
   - Always: Pod이 종료되면 항상 재시작합니다. 기본값입니다.
   - OnFailure: Pod이 비정상적으로 종료되면 재시작합니다.
@@ -405,7 +428,7 @@ kubectl annotate deployment <deployment-name> <annotation-key>=<annotation-value
 ```
 
 
-## StatefulSets
+### StatefulSets
 
 StatefulSet은 Kubernetes에서 상태를 가지는 애플리케이션을 관리하기 위한 리소스입니다. StatefulSet은 Pod의 순서와 안정성을 보장하며, 각 Pod에 고유한 네트워크 ID와 스토리지 볼륨을 할당합니다. StatefulSet은 데이터베이스, 캐시, 메시지 큐 등 상태를 가지는 애플리케이션에 사용됩니다.
 StatefulSet는 PV를 사용하여 Pod에 안정적인 스토리지를 제공합니다.
@@ -422,20 +445,17 @@ StatefulSet는 PV를 사용하여 Pod에 안정적인 스토리지를 제공합�
   - Headless Service: StatefulSet은 Headless Service를 사용하여 Pod의 DNS 이름을 안정적으로 제공합니다. 이를 통해 Pod 간의 통신이가능합니다. <hostname>.<service-name>.<namespace>.svc.cluster.local 형식으로 DNS 이름이 생성됩니다.
   - Rollingupdate partition: StatefulSet의 롤링 업데이트를 제어하는 옵션입니다. 
   - StatefulSet의 Pod 업데이트 시, 특정 파티션부터 업데이트를 시작할 수 있습니다. 이를 통해 업데이트 중에 일부 Pod을 유지할 수 있습니다.
-#### partition
+
+- partition
 partition은 주로 쿠버네티스 StatefulSet 리소스에서 롤링 업데이트 전략을 제어하기 위해 사용되는 필드입니다. PDB와 달리 독립적인 쿠버네티스 오브젝트가 아니라 StatefulSet의 특정 속성입니다.
 
-주요 목적: StatefulSet의 업데이트(배포) 방식을 제어하여, 특정 수의 Pod만 업데이트되도록 하거나, 특정 Pod부터 업데이트되도록 지정할 때 사용됩니다. 이는 특히 데이터베이스처럼 순서가 중요하거나, 롤링 업데이트 시 특정 조건(예: 마스터 노드를 마지막에 업데이트)을 만족해야 하는 스테이트풀 애플리케이션에서 중요합니다.
+  - 주요 목적: StatefulSet의 업데이트(배포) 방식을 제어하여, 특정 수의 Pod만 업데이트되도록 하거나, 특정 Pod부터 업데이트되도록 지정할 때 사용됩니다. 이는 특히 데이터베이스처럼 순서가 중요하거나, 롤링 업데이트 시 특정 조건(예: 마스터 노드를 마지막에 업데이트)을 만족해야 하는 스테이트풀 애플리케이션에서 중요합니다.
 
-작동 방식:
-
-롤링 업데이트 일시 중지: partition 값을 StatefulSet의 Pod 개수보다 작게 설정하면, 해당 partition 값보다 인덱스가 낮은 Pod만 업데이트되고 나머지는 업데이트되지 않습니다. 이를 통해 단계별 업데이트를 제어하거나 업데이트를 일시 중지할 수 있습니다.
-
-업데이트 건너뛰기: partition 값을 특정 Pod 인덱스보다 크게 설정하면, 해당 인덱스까지의 Pod들은 업데이트를 건너뛰고, partition 값부터 그 이후의 Pod들이 먼저 업데이트되도록 할 수 있습니다. (드물게 사용되나 특정 시나리오에서 유용).
-
-적용 대상: StatefulSet이 관리하는 Pod들에만 적용됩니다. ReplicaSet이나 Deployment에는 이 필드가 없습니다.
-
-예시: StatefulSet이 5개의 Pod (db-0, db-1, db-2, db-3, db-4)로 구성되어 있고 updateStrategy.rollingUpdate.partition: 3으로 설정하면, db-0, db-1, db-2만 새로운 버전으로 업데이트되고 db-3, db-4는 현재 버전으로 유지됩니다. 이후 partition 값을 0으로 변경하면 모든 Pod가 업데이트됩니다.
+  - 작동 방식
+    - 롤링 업데이트 일시 중지: partition 값을 StatefulSet의 Pod 개수보다 작게 설정하면, 해당 partition 값보다 인덱스가 낮은 Pod만 업데이트되고 나머지는 업데이트되지 않습니다. 이를 통해 단계별 업데이트를 제어하거나 업데이트를 일시 중지할 수 있습니다.
+    - 업데이트 건너뛰기: partition 값을 특정 Pod 인덱스보다 크게 설정하면, 해당 인덱스까지의 Pod들은 업데이트를 건너뛰고, partition 값부터 그 이후의 Pod들이 먼저 업데이트되도록 할 수 있습니다. (드물게 사용되나 특정 시나리오에서 유용).
+  - 적용 대상: StatefulSet이 관리하는 Pod들에만 적용됩니다. ReplicaSet이나 Deployment에는 이 필드가 없습니다.
+    - 예시: StatefulSet이 5개의 Pod (db-0, db-1, db-2, db-3, db-4)로 구성되어 있고 updateStrategy.rollingUpdate.partition: 3으로 설정하면, db-0, db-1, db-2만 새로운 버전으로 업데이트되고 db-3, db-4는 현재 버전으로 유지됩니다. 이후 partition 값을 0으로 변경하면 모든 Pod가 업데이트됩니다.
   
 
 ```yaml
@@ -467,7 +487,7 @@ spec:
 
 
 
-###  Deployment, StatefulSet비교
+####  Deployment, StatefulSet비교
 - **Deployment**: 애플리케이션의 배포와 관리를 위한 리소스입니다. Pod의 복제본을 관리하고, 롤링 업데이트, 롤백 등을 지원합니다. 일반적으로 stateless 애플리케이션에 사용됩니다.
 - **StatefulSet**: 상태를 가지는 애플리케이션을 관리하기 위한 리소스입니다. 각 Pod에 고유한 식별자와 안정적인 네트워크 ID를 부여하여 상태를 유지합니다. 데이터베이스와 같은 stateful 애플리케이션에 사용됩니다. StatefulSet은 Pod의 순서와 안정성을 보장하며, 각 Pod의 스토리지 볼륨을 유지합니다.
 
@@ -496,6 +516,49 @@ Service는 Kubernetes에서 Pod에 대한 안정적인 네트워크 엔드포인
 | NodePort       | 워커노드의 IP로 Service에 엑세스 할 수 있도록. 외부에서 접근 가능하게 포트를 연다.<br>외부에서 접근 (간단/테스트)                                                                                                         |
 | LoadBalancer   | 로드밸런서 IP로 Service 에 액세스 할수있도록함.웹 서버, API 서버를 외부 사용자에게 공개할 때.<br>외부에서 접근 (클라우드/서비스용)                                                                                        |
 | ExternalName   | Pod에서 Service를 통하여 외부에 나갈 때의 설정.<br>외부에 있는 주소를 내부 서비스처럼 쓰고 싶을 때.외부 DNS 이름을 내부 서비스 이름처럼 쓰게 해줌 (CNAME처럼 동작).<br>외부의 API, DB, S3 등과 Pod를 직접연결하고 싶을 때 |
+
+#### IPv4/IPv6 Dual Stack in Service
+
+Kubernetes Service는 IPv4/IPv6 Dual Stack을 지원하여 현대적인 네트워크 환경에 대응할 수 있습니다.
+
+- **ipFamilies 필드**: Service가 사용할 IP 프로토콜을 지정합니다.
+  - `[IPv4]`: IPv4만 사용 (기본값)
+  - `[IPv6]`: IPv6만 사용
+  - `[IPv4, IPv6]`: IPv4와 IPv6 모두 사용 (Dual Stack)
+  - `[IPv6, IPv4]`: IPv6를 우선으로 하고 IPv4도 지원
+
+- **ipFamilyPolicy 필드**: IP 패밀리 정책을 설정합니다.
+  - `SingleStack`: 단일 IP 스택만 사용 (기본값)
+  - `PreferDualStack`: 가능하면 Dual Stack, 불가능하면 단일 스택
+  - `RequireDualStack`: 반드시 Dual Stack이어야 함 (지원하지 않으면 실패)
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-dual-stack-service
+spec:
+  type: ClusterIP
+  ipFamilies: [IPv4, IPv6]
+  ipFamilyPolicy: PreferDualStack
+  selector:
+    app: my-app
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+```
+
+- **clusterIPs 필드**: Dual Stack 환경에서 Service는 IPv4와 IPv6 주소를 모두 할당받습니다.
+  ```yaml
+  status:
+    clusterIPs: ["10.96.0.100", "2001:db8::1"]
+  ```
+
+- **외부 접근 시의 고려사항**:
+  - NodePort와 LoadBalancer 타입의 Service도 Dual Stack을 지원합니다.
+  - 클라이언트는 IPv4 또는 IPv6 중 사용 가능한 프로토콜로 서비스에 접근할 수 있습니다.
+  - DNS 조회 시 A 레코드(IPv4)와 AAAA 레코드(IPv6)가 모두 반환됩니다.
 
 - Headless Services
   - Headless Service는 Cluster IP서비스이지만 IP할당되어있지 않은 서비스임.(분류상으로는 Cluster IP에 속함)
@@ -833,6 +896,28 @@ users:
     client-certificate: /home/xxx/.minikube/profiles/minikube/client.crt
 ```
 
+
+```shell
+- `kubectl create role <role-name> --verb=<verb> --resource=<resource-type>`
+  - Role을 생성합니다.
+  - 예: `kubectl create role my-role --verb=get,list,watch --resource=pods`는 `my-role`이라는 이름의 Role을 생성하고, Pod에 대한 `get`, `list`, `watch` 권한을 부여합니다.
+- `kubectl create clusterrolebinding <binding-name> --clusterrole=<role-name> --group=<group-name>`
+  - ClusterRoleBinding을 생성합니다.
+  - 예: `kubectl create clusterrolebinding my-binding --clusterrole=my-role --group=system:masters`는 `my-role`을 `system:masters` 그룹에 바인딩합니다.
+- `kubectl get clusterrolebindings -o wide`
+  - 클러스터의 모든 ClusterRoleBinding을 나열합니다.
+  - `-o wide` 옵션을 사용하면 추가 정보를 포함한 출력이 제공됩니다.
+- `kubectl auth can-i <verb> <resource-type>`
+  - 특정 사용자나 서비스 계정이 특정 리소스에 대해 특정 작업을 수행할 수 있는지 확인합니다.
+- `kubectl auth can-i <verb> <resource-type> --as-group=<group-name>`
+  - 특정 그룹이 특정 리소스에 대해 특정 작업을 수행할 수 있는지 확인합니다.
+
+- `kubectl get clusterrolebindings`
+  - 클러스터의 모든 ClusterRoleBinding을 나열합니다.
+  - ClusterRoleBinding은 ClusterRole을 사용자, 그룹, 서비스 계정에 바인딩하여 권한을 부여하는 리소스입니다.
+```
+
+
 ### CSR (Certificate Signing Request)
 - Kubernetes API 서버에 인증서를 요청하는 리소스입니다. CSR은 인증서의 주체(subject) 정보를 포함하며, API 서버는 CSR을 검토하고 승인하면 인증서를 발급합니다. private key와 CSR을 생성한 후, API 서버에 제출하여 인증서를 요청합니다.
 - CSR은 인증서의 주체(subject) 정보와 공개 키를 포함하며, API 서버는 CSR을 검토하고 승인하면 인증서를 발급합니다. CSR은 인증서의 주체(subject) 정보와 공개 키를 포함하며, API 서버는 CSR을 검토하고 승인하면 인증서를 발급합니다.
@@ -862,6 +947,7 @@ users:
 
 
 - 인증 주체 (Identities)
+
 | 종류                | 설명                                                                           | 위치                           |
 | ------------------- | ------------------------------------------------------------------------------ | ------------------------------ |
 | **Users**           | 쿠버네티스 외부에서 인증서를 발급받은 사용자. 예: `alice`, `alice@example.com` | **외부 생성 (CSR 등)**         |
@@ -905,23 +991,24 @@ flowchart TD
 ## kube-scheduler
 Kube-scheduler는 Kubernetes 클러스터에서 Pod을 실행할 노드를 결정하는 컴포넌트입니다. Kube-scheduler는 클러스터의 상태를 모니터링하고, Pod의 요구 사항과 노드의 리소스 상태를 기반으로 최적의 노드를 선택합니다. Kube-scheduler는 Pod이 실행될 노드를 결정하고, 해당 노드에 Pod을 할당합니다.
 
-3 main sets for operation
-1. filtering: 
+1. filtering 
    - 노드 필터링: Pod을 실행할 수 있는 노드를 필터링합니다. 예를 들어, 특정 레이블이 있는 노드만 선택하거나, 특정 리소스 요구 사항을 충족하는 노드만 선택합니다.
    - 예시: `nodeSelector`, `nodeAffinity`, `taints` 등을 사용하여 노드를 필터링합니다.
-2. scoring:
-    - 노드 점수 매기기: 필터링된 노드에 대해 점수를 매깁니다. 점수는 노드의 리소스 사용량, 지연 시간, 위치 등을 기반으로 합니다.높은 스코어를 가진 노드가 Pod을 실행할 수 있는 우선순위를 가집니다.
-   - 예시: `nodeAffinity`, `podAffinity`, `podAntiAffinity` 등을 사용하여 노드에 점수를 매깁니다.
-3. binding:
-    - Pod을 노드에 바인딩합니다. Pod이 실행될 노드를 결정하고, 해당 노드에 Pod을 할당합니다.
-    - 예시: `kube-scheduler`가 Pod을 선택한 후, `kubelet`이 해당 노드에서 Pod을 실행하도록 지시합니다.
 
+2. scoring
+  - 노드 점수 매기기: 필터링된 노드에 대해 점수를 매깁니다. 점수는 노드의 리소스 사용량, 지연 시간, 위치 등을 기반으로 합니다. 높은 스코어를 가진 노드가 Pod을 실행할 수 있는 우선순위를 가집니다.
+  - 예시: `nodeAffinity`, `podAffinity`, `podAntiAffinity` 등을 사용하여 노드에 점수를 매깁니다.
 
-- `nodeSelector`: Pod이 실행될 노드를 선택하는 데 사용되는 레이블 셀렉터입니다. Pod의 `spec.nodeSelector` 필드에 정의됩니다. match하는 노드가 없으면 Pod은 Pending 상태로 남아있습니다.
-- `nodeName` : Pod이 실행될 노드를 직접 지정하는 필드입니다. Pod의 `spec.nodeName` 필드에 정의됩니다. 지정된 노드가 없으면 Pod은 Pending 상태로 남아있습니다.
-- `schedulerName`: Pod이 실행될 스케줄러를 지정하는 필드입니다. Pod의 `spec.schedulerName` 필드에 정의됩니다. 기본값은 `default-scheduler`이며, 다른 스케줄러를 사용하려면 이 필드를 변경해야 합니다.
-- `affinity`: Pod이 실행될 노드의 선호도를 정의하는 필드입니다. Pod의 `spec.affinity` 필드에 정의됩니다. 노드의 레이블, Pod의 레이블 등을 기반으로 노드를 선택할 수 있습니다.
-  - `nodeAffinity`: 노드의 레이블을 기반으로 Pod이 실행될 노드를 선택합니다.
+3. binding
+  - Pod을 노드에 바인딩합니다. Pod이 실행될 노드를 결정하고, 해당 노드에 Pod을 할당합니다.
+  - 예시: `kube-scheduler`가 Pod을 선택한 후, `kubelet`이 해당 노드에서 Pod을 실행하도록 지시합니다.
+
+- 주요옵션
+  - `nodeSelector`: Pod이 실행될 노드를 선택하는 데 사용되는 레이블 셀렉터입니다. Pod의 `spec.nodeSelector` 필드에 정의됩니다. match하는 노드가 없으면 Pod은 Pending 상태로 남아있습니다.
+  - `nodeName` : Pod이 실행될 노드를 직접 지정하는 필드입니다. Pod의 `spec.nodeName` 필드에 정의됩니다. 지정된 노드가 없으면 Pod은 Pending 상태로 남아있습니다.
+  - `schedulerName`: Pod이 실행될 스케줄러를 지정하는 필드입니다. Pod의 `spec.schedulerName` 필드에 정의됩니다. 기본값은 `default-scheduler`이며, 다른 스케줄러를 사용하려면 이 필드를 변경해야 합니다.
+  - `affinity`: Pod이 실행될 노드의 선호도를 정의하는 필드입니다. Pod의 `spec.affinity` 필드에 정의됩니다. 노드의 레이블, Pod의 레이블 등을 기반으로 노드를 선택할 수 있습니다.
+    - `nodeAffinity`: 노드의 레이블을 기반으로 Pod이 실행될 노드를 선택합니다.
 
 ## kube storage
 
@@ -958,9 +1045,8 @@ Kube-scheduler는 Kubernetes 클러스터에서 Pod을 실행할 노드를 결�
 
 - `kubectl get storageclass`
   - StorageClass는 Kubernetes에서 스토리지 리소스를 동적으로 프로비저닝하기 위한 리소스입니다. 전통적으로는 스토리지를 먼저 만든 후 수동으로 PersistentVolume(PV)를 만들어야 했지만,
-  StorageClass를 정의하면사용자가 PersistentVolumeClaim(PVC)을 만들 때Kubernetes가 자동으로 알맞은 PV(디스크 등)를 생성해줍니다.
-
-이 과정을 **"동적 프로비저닝(dynamic provisioning)"**이라고 합니다.
+  StorageClass를 정의하면 사용자가 PersistentVolumeClaim(PVC)을 만들 때 Kubernetes가 자동으로 알맞은 PV(디스크 등)를 생성해줍니다.
+  이 과정을 **"동적 프로비저닝(dynamic provisioning)"**이라고 합니다.
 
 
 - Hostpath Volume
@@ -976,22 +1062,25 @@ Kube-scheduler는 Kubernetes 클러스터에서 Pod을 실행할 노드를 결�
 - CSI (Container Storage Interface)
   - Kubernetes에서 스토리지 플러그인을 표준화된 인터페이스로 관리하기 위한 API입니다. 다양한 스토리지 백엔드를 지원하며, 스토리지 리소스를 동적으로 프로비저닝할 수 있습니다.
   - 예시: AWS EBS, GCE PD, Azure Disk 등 다양한 클라우드 스토리지 서비스를 지원합니다.
+
 클라우드
-| 클라우드         | CSI 드라이버                      | 백엔드 스토리지           | 설명                                   |
-| ---------------- | --------------------------------- | ------------------------- | -------------------------------------- |
-| **AWS**          | `ebs.csi.aws.com`                 | EBS (Elastic Block Store) | 퍼블릭 클라우드 중 **가장 많이 사용**  |
-| **GCP**          | `pd.csi.storage.gke.io`           | Persistent Disk           | Google Kubernetes Engine 기본 제공     |
-| **Azure**        | `disk.csi.azure.com`              | Azure Disk                | Azure Kubernetes Service에서 기본 사용 |
-| **Alibaba**      | `diskplugin.csi.alibabacloud.com` | Alibaba Cloud Disk        | 중국/아시아 시장 중심                  |
-| **DigitalOcean** | `dobs.csi.digitalocean.com`       | DO Block Storage          | 중소규모 서비스에서 인기               |
+
+| 클라우드         | CSI 드라이버                      | 백엔드 스토리지           | 설명                          |
+| ---------------- | --------------------------------- | ------------------------- | ----------------------------- |
+| **AWS**          | `ebs.csi.aws.com`                 | EBS (Elastic Block Store) | 퍼블릭 클라우드에서 가장 인기 |
+| **GCP**          | `pd.csi.storage.gke.io`           | Persistent Disk           | Google Kubernetes Engine 기본 |
+| **Azure**        | `disk.csi.azure.com`              | Azure Disk                | Azure Kubernetes Service 기본 |
+| **Alibaba**      | `diskplugin.csi.alibabacloud.com` | Alibaba Cloud Disk        | 중국/아시아 시장 중심         |
+| **DigitalOcean** | `dobs.csi.digitalocean.com`       | DO Block Storage          | 중소규모 서비스에서 인기      |
 
 온프레미스
-| 스토리지                     | CSI 드라이버     | 유형      | 설명                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| ---------------------------- | ---------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Ceph**                     | `ceph-csi`       | 블록/파일 | 자체 구축 환경에서 가장 널리 사용됨. 분산 스토리지 시스템, 블록(RBD), 파일(CephFS), 오브젝트(RGW) 모두 제공.여러 노드에 데이터를 분산 저장하여 단일 장애 지점(SPOF)을 최소화합니다. ceph-csi는 Kubernetes 환경에서 Ceph 스토리지를 통합하기 위한 CSI(Container Storage Interface) 드라이버로, 동적 프로비저닝과 스토리지 볼륨 관리를 용이하게 합니다. OpenStack과 Bare Metal 환경에서는 특히 가상 머신 및 컨테이너 워크로드에 안정적인 스토리지 솔루션으로 활용됩니다. |
-| **Longhorn**                 | `longhorn.io`    | 블록      | Rancher가 만든 Cloud-Native 블록 스토리지. 설치/운용이 쉬움                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **OpenEBS (Jiva/CStor/ZFS)** | `openebs.io`     | 블록      | CNCF 지원 프로젝트, 다양한 백엔드 지원                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **NFS**                      | `nfs.csi.k8s.io` | 파일      | NAS 환경에서 널리 사용. 단, 성능/권한 문제에 주의 필요                                                                                                                                                                                                                                                                                                                                                                                                                 |
+
+| 스토리지     | CSI 드라이버     | 유형      | 설명                                     |
+| ------------ | ---------------- | --------- | ---------------------------------------- |
+| **Ceph**     | `ceph-csi`       | 블록/파일 | 분산 스토리지. RBD, CephFS, RGW 지원     |
+| **Longhorn** | `longhorn.io`    | 블록      | Rancher 제작. Cloud-Native 블록 스토리지 |
+| **OpenEBS**  | `openebs.io`     | 블록      | CNCF 프로젝트. 다양한 백엔드 지원        |
+| **NFS**      | `nfs.csi.k8s.io` | 파일      | NAS 환경 사용. 성능/권한 문제 주의       |
 
 
 - Rook
@@ -1002,49 +1091,57 @@ Kube-scheduler는 Kubernetes 클러스터에서 Pod을 실행할 노드를 결�
 
 
 
-### Helm
-
-Helm은 helm이라는 명령어로 사용해요:
-```shell
-helm install my-release bitnami/mysql
-helm upgrade my-release -f values.yaml
-helm uninstall my-release
-```
-🔹 위 명령어들은 결국 Kubernetes API 서버에 HTTP 요청을 보냅니다.
-하지만 사용자는 그런 HTTP 요청을 직접 다루지 않고 CLI 도구인 Helm을 통해 간접적으로 사용하죠.
-
-
-
-## Kubernetes의 고가용성(High Availability, HA) 아키텍처
-쿠버네티스에서 고가용성(High Availability, HA) 구성은 시스템이 단일 장애 지점(Single Point of Failure, SPOF) 없이 지속적으로 작동할 수 있도록 설계된 상태를 의미합니다.
-
-1.복제와 중복성 (Replication and Redundancy)
-중요한 컴포넌트(예: API 서버, etcd, 컨트롤러 매니저 등)는 여러 인스턴스로 복제되어 실행됩니다.
-예: API 서버가 여러 노드에 배포되어 한 인스턴스가 실패해도 다른 인스턴스가 트래픽을 처리.
-
-2.로드 밸런싱 (Load Balancing)
-트래픽을 여러 복제된 인스턴스로 분산시키기 위해 로드 밸런서(예: 외부 LB 또는 Ingress Controller)를 사용합니다.
-이는 노드나 API 서버에 대한 요청이 고르게 분포되며, 장애 발생 시 자동으로 다른 인스턴스로 라우팅됩니다.
-
-3.etcd의 고가용성
-etcd는 Kubernetes의 상태 데이터를 저장하는 핵심 데이터 스토어로, HA 설정에서는 복제된 etcd 클러스터(보통 3개 이상의 노드)를 구성합니다.
-이는 데이터 손실 방지와 쿼리 가용성을 보장합니다.
-
-4.컨트롤 플레인의 고가용성
-컨트롤 플레인 컴포넌트(예: kube-apiserver, kube-controller-manager, kube-scheduler)는 여러 노드에 배포되며, 각 컴포넌트는 리더 선출(Leader Election) 메커니즘을 통해 단일 리더가 동작하도록 합니다.
-리더가 실패하면 다른 인스턴스가 자동으로 리더 역할을 인수합니다.
-
-5.노드의 분산
-워커 노드와 마스터 노드를 서로 다른 물리적 또는 가상 머신에 분산 배치하여 단일 하드웨어 실패가 전체 클러스터에 영향을 미치지 않도록 합니다.
-
-6.자동 복구 및 자가 치유 (Self-Healing)
-Kubernetes는 Pod, 노드 장애를 감지하고 자동으로 대체 Pod를 생성하거나 노드를 재스케줄링하여 서비스를 복구합니다(예: ReplicaSet, DaemonSet).
-
-
 
 
 ## NetworkPolicy
-NetworkPolicy는 Kubernetes에서 Pod 간의 네트워크 트래픽을 제어하는 리소스입니다. NetworkPolicy를 사용하여 Pod 간의 통신을 허용하거나 차단할 수 있습니다. NetworkPolicy는 Pod의 레이블을 기반으로 트래픽을 필터링합니다. 이를 통해 보안 그룹과 유사한 기능을 제공합니다. NetworkPolicy는 기본적으로 모든 Pod 간의 통신을 허용합니다. NetworkPolicy를 정의하여 특정 Pod 간의 통신을 허용하거나 차단할 수 있습니다. NetworkPolicy는 네임스페이스 단위로 적용됩니다. 즉, 네임스페이스 내의 Pod 간의 통신을 제어할 수 있습니다. NetworkPolicy는 클러스터의 CNI(Container Network Interface) 플러그인에 의해 구현됩니다. CNI 플러그인이 NetworkPolicy를 지원해야 합니다. 예를 들어, Calico, Cilium, Weave Net 등 다양한 CNI 플러그인이 NetworkPolicy를 지원합니다.
+NetworkPolicy는 Kubernetes에서 Pod 간의 네트워크 트래픽을 제어하는 리소스입니다. NetworkPolicy를 사용하여 Pod 간의 통신을 허용하거나 차단할 수 있습니다. 
+
+- NetworkPolicy는 Pod의 레이블을 기반으로 트래픽을 필터링합니다. 이를 통해 보안 그룹과 유사한 기능을 제공합니다.
+- NetworkPolicy는 기본적으로 모든 Pod 간의 통신을 허용합니다. NetworkPolicy를 정의하여 특정 Pod 간의 통신을 허용하거나 차단할 수 있습니다.
+- NetworkPolicy는 네임스페이스 단위로 적용됩니다. 즉, 네임스페이스 내의 Pod 간의 통신을 제어할 수 있습니다. NetworkPolicy는 클러스터의 CNI(Container Network Interface) 플러그인에 의해 구현됩니다. CNI 플러그인이 NetworkPolicy를 지원해야 합니다. 예를 들어, Calico, Cilium, Weave Net 등 다양한 CNI 플러그인이 NetworkPolicy를 지원합니다.
+
+### NetworkPolicy와 IPv4/IPv6 Dual Stack
+
+IPv4/IPv6 Dual Stack 환경에서 NetworkPolicy는 두 프로토콜 모두에 대해 트래픽 제어 규칙을 적용할 수 있습니다.
+
+- **프로토콜 독립적 정책**: NetworkPolicy는 기본적으로 IPv4와 IPv6 트래픽을 구분하지 않고 동일한 규칙을 적용합니다.
+- **포트 기반 제어**: TCP/UDP 포트 번호를 기반으로 한 제어는 IPv4와 IPv6에서 동일하게 작동합니다.
+- **Pod 셀렉터**: 레이블 기반 Pod 선택은 IP 프로토콜에 관계없이 동작합니다.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dual-stack-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: web-server
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 8080  # IPv4와 IPv6 모두에 적용됨
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: database
+    ports:
+    - protocol: TCP
+      port: 3306
+```
+
+- **주의사항**: 
+  - CNI 플러그인(Calico, Cilium 등)이 Dual Stack NetworkPolicy를 완전히 지원하는지 확인해야 합니다.
+  - 일부 고급 기능(CIDR 블록 기반 제어 등)은 CNI 플러그인의 구현에 따라 IPv4/IPv6 지원 수준이 다를 수 있습니다.
+  - 외부 트래픽에 대한 정책 설정 시 IPv4/IPv6 주소 범위를 별도로 고려해야 할 수 있습니다.
 
 
 - Ingress: Pod로 들어오는 네트워크 요청을 제어합니다. 예를 들어, 특정 레이블을 가진 Pod에서만 요청을 허용하거나, 특정 포트로의 요청만 허용할 수 있습니다.
@@ -1087,12 +1184,13 @@ spec:
       port: 80
 ```
 
+```shell
  - `kubectl apply -f network-policy.yaml` 명령어를 사용하여 NetworkPolicy를 적용할 수 있습니다.
  - `kubectl get networkpolicies` 명령어를 사용하여 NetworkPolicy를 조회할 수 있습니다.
  - `kubectl describe networkpolicy <networkpolicy-name>` 명령어를 사용하여 NetworkPolicy의 상세 정보를 조회할 수 있습니다.
  - `kubectl delete networkpolicy <networkpolicy-name>` 명령어를 사용하여 NetworkPolicy를 삭제할 수 있습니다.
 
-
+```
 
 
 ## PodDisruptionBudget
@@ -1103,18 +1201,39 @@ PodDisruptionBudget(PDB)는 Kubernetes에서 Pod의 가용성을 보장하기 �
 PodDisruptionBudget (PDB)
 PDB는 쿠버네티스 애플리케이션의 고가용성을 보장하기 위한 정책 리소스입니다.
 
-주요 목적: 자발적(Voluntary) 중단 상황(예: 노드 드레인, 클러스터 업그레이드 등 관리자가 의도적으로 Pod를 제거하는 경우)에서 특정 애플리케이션의 Pod가 동시에 너무 많이 중단되는 것을 방지합니다.
+- 주요 목적: 자발적(Voluntary) 중단 상황(예: 노드 드레인, 클러스터 업그레이드 등 관리자가 의도적으로 Pod를 제거하는 경우)에서 특정 애플리케이션의 Pod가 동시에 너무 많이 중단되는 것을 방지합니다.
 
-작동 방식: "이 서비스는 최소한 X개의 Pod가 항상 실행 중이어야 한다" 또는 "이 서비스는 최대 Y개의 Pod만 동시에 중단될 수 있다"고 쿠버네티스에게 알려줍니다. kubectl drain 같은 명령은 PDB 정책을 준수하려고 시도하며, PDB를 위반하게 되면 작업을 보류하거나 실패시킵니다.
+- 작동 방식: "이 서비스는 최소한 X개의 Pod가 항상 실행 중이어야 한다" 또는 "이 서비스는 최대 Y개의 Pod만 동시에 중단될 수 있다"고 쿠버네티스에게 알려줍니다. kubectl drain 같은 명령은 PDB 정책을 준수하려고 시도하며, PDB를 위반하게 되면 작업을 보류하거나 실패시킵니다.
 
-적용 대상: Deployment, StatefulSet 등으로 배포된 Pod들의 집합에 적용됩니다. Pod들이 속한 서비스를 보호합니다.
+- 적용 대상: Deployment, StatefulSet 등으로 배포된 Pod들의 집합에 적용됩니다. Pod들이 속한 서비스를 보호합니다.
 
-예시: 웹 서버 클러스터가 5개의 Pod로 구성되어 있을 때, PDB를 통해 "최소 3개의 Pod는 항상 가용해야 한다"고 설정하면, 노드 유지보수 시 3개 미만으로 떨어지지 않도록 쿠버네티스가 조정합니다.
+- 예시: 웹 서버 클러스터가 5개의 Pod로 구성되어 있을 때, PDB를 통해 "최소 3개의 Pod는 항상 가용해야 한다"고 설정하면, 노드 유지보수 시 3개 미만으로 떨어지지 않도록 쿠버네티스가 조정합니다.
 
 - Pod 퇴거(Evict)
   - drain 명령어를 사용하여 노드를 비우는 작업을 수행할 때, PDB를 위반하지 않는 범위 내에서 Pod을 퇴거합니다. PDB를 위반하면 Pod이 퇴거되지 않습니다.
   PodDisruptionBudget(PDB)는 자발적 중단(예: 노드 유지보수, 클러스터 업그레이드 등) 시 Pod의 가용성을 보장하기 위해 사용됩니다. PDB를 사용하여 최소한의 Pod 수를 유지해야 합니다. PDB를 위반하면 Pod이 퇴거(Evict)되지 않습니다.
 
+
+```shell
+
+- `kubectl create pdb <pdb-name> --selector=<label-selector> --min-available=<number>`
+  - PodDisruptionBudget(PDB)를 생성합니다.
+  - 예: `kubectl create pdb my-pdb --selector app=my-app --min-available=2`는 `app=my-app` 레이블이 있는 Pod에 대해 최소 2개의 Pod가 항상 가용하도록 PDB를 생성합니다.
+  - min-available: 최소 가용 Pod 수를 지정합니다. 이 값은 PDB가 적용되는 Pod의 최소 가용성을 보장합니다.
+  - max-unavailable: 최대 중단 가능한 Pod 수를 지정합니다. 이 값은 PDB가 적용되는 Pod의 최대 중단 가능성을 보장합니다.
+- `kubectl cordon <node-name>`
+  - 특정 노드를 코돈 상태로 설정하여 해당 노드에서 새로운 Pod이 스케줄되지 않도록 합니다. cordon의 사전적의미는 "봉쇄하다"입니다.
+  - 예: `kubectl cordon my-node`는 `my-node`를 코돈 상태로 설정합니다.
+
+- `kubectl drain <node-name>`
+  - 노드를 드레인하여 해당 노드에서 실행 중인 Pod을 안전하게 종료합니다. drain의 사전적의미는 "배수하다"입니다.
+  - 노드에서 Pod을 안전하게 종료하고, 새로운 Pod이 다른 노드에서 실행되도록 합니다.
+  - 예: `kubectl drain my-node`는 `my-node`에서 실행 중인 Pod을 안전하게 종료합니다.
+  - `--ignore-daemonsets`: DaemonSet에 의해 관리되는 Pod은 드레인하지 않습니다.
+  - `--delete-local-data`: 로컬 데이터를 가진 Pod도 드레인합니다.
+
+
+```
 
 ## DaemonSet
 DaemonSet은 Kubernetes에서 각 노드에 하나의 Pod 복제본을 실행하기 위한 리소스입니다. DaemonSet을 사용하면 클러스터의 모든 노드 또는 특정 노드에서 Pod을 자동으로 배포하고 관리할 수 있습니다. 주로 로그 수집, 모니터링, 네트워크 프로세싱 등과 같은 작업에 사용됩니다.
@@ -1195,58 +1314,22 @@ root 권한 없이 실행
 
 Service Mesh는 마이크로서비스 아키텍처에서 서비스 간의 통신을 관리하고, 보안, 모니터링, 트래픽 제어 등의 기능을 제공하는 인프라 계층입니다. Service Mesh는 주로 사이드카 프록시 패턴을 사용하여 각 서비스 인스턴스에 프록시를 배포합니다. 이를 통해 서비스 간의 통신을 제어하고, 다양한 기능을 제공할 수 있습니다.
 
-* 주요 등장인물 
-  - Data Plane
-    - 서비스 간의 실제 트래픽이 흐르는 경로입니다. 사이드카 프록시가 서비스 간의 트래픽을 가로채고, 필요한 기능을 수행합니다.
-    - 예를 들어, Istio에서는 Envoy 프록시가 데이터 플레인 역할을 합니다.
-  - Control Plane
-    - 서비스 메쉬의 정책과 구성을 관리하는 계층입니다. Control Plane은 서비스 메쉬의 동작을 제어하고, 데이터 플레인에 필요한 구성을 제공합니다
-    - 예를 들어, Istio에서는 Pilot, Mixer, Citadel 등의 컴포넌트가 Control Plane 역할을 합니다.
 
-* 주요 기능
+- Service proxy
+ - 서비스 간의 트래픽을 가로채고, 필요한 기능을 수행하는 프록시입니다. 사이드카 패턴을 사용하여 각 서비스 인스턴스에 배포됩니다.
+- Data Plane
+ - 서비스 간의 실제 트래픽이 흐르는 경로입니다. 사이드카 프록시가 서비스 간의 트래픽을 가로채고, 필요한 기능을 수행합니다.
+ - 모든 실제 트래픽이 흐르는 영역. 즉, 각 proxy가 맡은 부분. Sidecar proxy들이 통신하는 영역.
+ - 예를 들어, Istio에서는 Envoy 프록시가 데이터 플레인 역할을 합니다.
+- Control Plane
+ - 서비스 메쉬의 정책과 구성을 관리하는 계층입니다. Control Plane은 서비스 메쉬의 동작을 제어하고, 데이터 플레인에 필요한 구성을 제공합니다
+ - 예를 들어, Istio에서는 Pilot, Mixer, Citadel 등의 컴포넌트가 Control Plane 역할을 합니다.
+
  - Mutual TLS (mTLS)
    - 서비스 간의 통신을 암호화하고, 인증을 제공합니다. mTLS를 사용하면 서비스 간의 통신이 안전하게 이루어집니다.
 
-* SMI
+- SMI
   - Service Mesh Interface (SMI)는 다양한 서비스 메쉬 구현체 간의 호환성을 제공하는 표준 인터페이스입니다. SMI를 사용하면 서비스 메쉬의 기능을 표준화하고, 다양한 서비스 메쉬 구현체를 쉽게 교체할 수 있습니다.
   - SMI는 Traffic management, access control, metrics, telemetry, policy 등 다양한 기능을 제공합니다. SMI를 사용하면 서비스 메쉬의 기능을 표준화하고, 다양한 서비스 메쉬 구현체를 쉽게 교체할 수 있습니다.
 
-
-
-
-### RBAC
-- `kubectl create role <role-name> --verb=<verb> --resource=<resource-type>`
-  - Role을 생성합니다.
-  - 예: `kubectl create role my-role --verb=get,list,watch --resource=pods`는 `my-role`이라는 이름의 Role을 생성하고, Pod에 대한 `get`, `list`, `watch` 권한을 부여합니다.
-- `kubectl create clusterrolebinding <binding-name> --clusterrole=<role-name> --group=<group-name>`
-  - ClusterRoleBinding을 생성합니다.
-  - 예: `kubectl create clusterrolebinding my-binding --clusterrole=my-role --group=system:masters`는 `my-role`을 `system:masters` 그룹에 바인딩합니다.
-- `kubectl get clusterrolebindings -o wide`
-  - 클러스터의 모든 ClusterRoleBinding을 나열합니다.
-  - `-o wide` 옵션을 사용하면 추가 정보를 포함한 출력이 제공됩니다.
-- `kubectl auth can-i <verb> <resource-type>`
-  - 특정 사용자나 서비스 계정이 특정 리소스에 대해 특정 작업을 수행할 수 있는지 확인합니다.
-- `kubectl auth can-i <verb> <resource-type> --as-group=<group-name>`
-  - 특정 그룹이 특정 리소스에 대해 특정 작업을 수행할 수 있는지 확인합니다.
-
-- `kubectl get clusterrolebindings`
-  - 클러스터의 모든 ClusterRoleBinding을 나열합니다.
-  - ClusterRoleBinding은 ClusterRole을 사용자, 그룹, 서비스 계정에 바인딩하여 권한을 부여하는 리소스입니다.
-
-## PDB
-- `kubectl create pdb <pdb-name> --selector=<label-selector> --min-available=<number>`
-  - PodDisruptionBudget(PDB)를 생성합니다.
-  - 예: `kubectl create pdb my-pdb --selector app=my-app --min-available=2`는 `app=my-app` 레이블이 있는 Pod에 대해 최소 2개의 Pod가 항상 가용하도록 PDB를 생성합니다.
-  - min-available: 최소 가용 Pod 수를 지정합니다. 이 값은 PDB가 적용되는 Pod의 최소 가용성을 보장합니다.
-  - max-unavailable: 최대 중단 가능한 Pod 수를 지정합니다. 이 값은 PDB가 적용되는 Pod의 최대 중단 가능성을 보장합니다.
-- `kubectl cordon <node-name>`
-  - 특정 노드를 코돈 상태로 설정하여 해당 노드에서 새로운 Pod이 스케줄되지 않도록 합니다. cordon의 사전적의미는 "봉쇄하다"입니다.
-  - 예: `kubectl cordon my-node`는 `my-node`를 코돈 상태로 설정합니다.
-
-- `kubectl drain <node-name>`
-  - 노드를 드레인하여 해당 노드에서 실행 중인 Pod을 안전하게 종료합니다. drain의 사전적의미는 "배수하다"입니다.
-  - 노드에서 Pod을 안전하게 종료하고, 새로운 Pod이 다른 노드에서 실행되도록 합니다.
-  - 예: `kubectl drain my-node`는 `my-node`에서 실행 중인 Pod을 안전하게 종료합니다.
-  - `--ignore-daemonsets`: DaemonSet에 의해 관리되는 Pod은 드레인하지 않습니다.
-  - `--delete-local-data`: 로컬 데이터를 가진 Pod도 드레인합니다.
 

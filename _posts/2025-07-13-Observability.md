@@ -42,6 +42,12 @@ kube-prometheus는 Kubernetes 클러스터의 모니터링을 위한 오픈 소�
 
 
 
+### PromQL (Prometheus Query Language)
+PromQL은 Prometheus에서 시계열 데이터를 쿼리하기 위한 함수형 쿼리 언어입니다.
+- 기본 쿼리: `http_requests_total{method="GET"}` (레이블 필터링)
+- 시간 범위: `http_requests_total[5m]` (지난 5분 데이터)
+- 집계 함수: `sum(http_requests_total)`, `avg(cpu_usage)`, `rate(http_requests_total[5m])`
+
 ## Grafana
 Grafana는 오픈 소스 데이터 시각화 및 모니터링 도구로, 다양한 데이터 소스(예: Prometheus, InfluxDB, Elasticsearch 등)에서 데이터를 시각화하고 대시보드를 생성하는 데 사용됩니다. Grafana는 사용자 친화적인 인터페이스를 제공하여 데이터를 쉽게 시각화하고, 대시보드를 공유하며, 알림을 설정할 수 있습니다.
 

@@ -191,7 +191,13 @@ Pod은 컨테이너와 볼륨을 세트로 구성하여, 동일한 네트워크 
   - Init Containers는 Pod이 시작되기 전에 실행되는 특별한 컨테이너입니다.
   - 주 컨테이너가 시작되기 전에 필요한 초기화 작업을 수행합니다.
 
+### Phase
 
+- PENDING: 컨테이너가 시작되기 전에 대기 중인 상태입니다. images가 다운로드되거나, 리소스가 할당되기 전에 발생합니다.
+- RUNNING: 컨테이너가 실행 중인 상태입니다.
+- SUCCEEDED: 컨테이너가 성공적으로 실행을 마친 상태입니다.
+- FAILED: 컨테이너가 실행 중 오류가 발생하여 실패한 상태입니다.
+- UNKNOWN: 컨테이너의 상태를 알 수 없는 상태입니다.
 
 
 
@@ -453,6 +459,9 @@ Service는 Labels를 사용하여 Pod에 대한 트래픽을 라우팅합니다.
 
 `--selector` 옵션을 사용하여 Labels를 기반으로 리소스를 선택할 수 있습니다. 예를 들어, `kubectl get pods --selector app=my-app` 명령어를 사용하여 `app=my-app` 레이블이 있는 Pod을 조회할 수 있습니다.
 `-l` 옵션을 사용하여 Labels를 출력할 수 있습니다. 예를 들어, `kubectl get pods -l app=my-app -o yaml` 명령어를 사용하여 `app=my-app` 레이블이 있는 Pod의 YAML 형식을 출력할 수 있습니다. **`--selector` 옵션과 `-l` 옵션은 동일한 기능을 수행합니다.**
+
+
+ - `kubectl run <pod-name> --image=<image-name>` 명령어를 사용하여 Pod을 생성하는 경우, 라벨은 자동으로 생성됩니다. 예를 들어, `run: <pod-name>` 라벨이 생성됩니다.
 
 ````yaml
 apiVersion: v1
@@ -765,8 +774,11 @@ Kubernetes는 Pod, 노드 장애를 감지하고 자동으로 대체 Pod를 생�
 ## StatefulSets
 
 StatefulSet은 Kubernetes에서 상태를 가지는 애플리케이션을 관리하기 위한 리소스입니다. StatefulSet은 Pod의 순서와 안정성을 보장하며, 각 Pod에 고유한 네트워크 ID와 스토리지 볼륨을 할당합니다. StatefulSet은 데이터베이스, 캐시, 메시지 큐 등 상태를 가지는 애플리케이션에 사용됩니다.
+StatefulSet는 PV를 사용하여 Pod에 안정적인 스토리지를 제공합니다.
+
+- `split-brain`이란, 분산 시스템에서 네트워크 파티션이나 장애로 인해 서로 다른 노드가 동일한 데이터를 수정하게 되어 데이터 불일치가 발생하는 상황을 의미합니다. StatefulSet은 이러한 문제를 방지하기 위해 Pod의 순서와 안정성을 보장합니다.
 - Deployment와의 차이점
-  - Depolyment는 ReplicaSet을 사용하여 Pod의 복제본을 관리합니다. Pod의 이름은 랜덤하게 생성됩니다. (stateless) Persistent Volume을 붙여서 Deployment의 Pod들에서 공유할 수 있습니다 
+  - Deployment는 ReplicaSet을 사용하여 Pod의 복제본을 관리합니다. Pod의 이름은 랜덤하게 생성됩니다. (stateless) Persistent Volume을 붙여서 Deployment의 Pod들에서 공유할 수 있습니다.
 
 - StatefulSet의 특징
   - 고유한 네트워크 ID: 각 Pod은 고유한 네트워크 ID를 가지며, 이를 통해 Pod 간의 통신이 가능합니다.
@@ -831,6 +843,9 @@ NetworkPolicy는 Kubernetes에서 Pod 간의 네트워크 트래픽을 제어하
 
 NetworkPolicy는 Pod 수준에서만 적용됩니다.
 
+
+NetworkPolicy가 정의되어있지 않은 Pod은 기본적으로 모든 네트워크 트래픽을 허용합니다. NetworkPolicy를 정의하면 해당 규칙에 따라 Pod 간의 통신이 허용되거나 차단됩니다. 또한 복수의 Policy가 정의되어 있는 경우, 모든 Policy가 적용됩니다. 즉, 하나의 Policy에서 허용된 트래픽이 다른 Policy에서 차단될 수 있습니다.
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -861,9 +876,18 @@ spec:
       port: 80
 ```
 
+ - `kubectl apply -f network-policy.yaml` 명령어를 사용하여 NetworkPolicy를 적용할 수 있습니다.
+ - `kubectl get networkpolicies` 명령어를 사용하여 NetworkPolicy를 조회할 수 있습니다.
+ - `kubectl describe networkpolicy <networkpolicy-name>` 명령어를 사용하여 NetworkPolicy의 상세 정보를 조회할 수 있습니다.
+ - `kubectl delete networkpolicy <networkpolicy-name>` 명령어를 사용하여 NetworkPolicy를 삭제할 수 있습니다.
+
+
+
 
 ## PodDisruptionBudget
 PodDisruptionBudget(PDB)는 Kubernetes에서 Pod의 가용성을 보장하기 위한 리소스입니다. PDB를 사용하여 Pod의 최소 가용성을 정의하고, 클러스터에서 Pod을 안전하게 중단할 수 있는 조건을 설정할 수 있습니다. PDB는 주로 노드 유지보수, 클러스터 업그레이드, Pod 업데이트 등의 작업 중에 Pod의 가용성을 유지하기 위해 사용됩니다. PDB는 Pod의 가용성을 보장하기 위해 최소한의 Pod 수를 유지해야 합니다. 
+
+`voluntary disruption`이란 관리자가 의도적으로 Pod를 중단하는 상황을 의미합니다. 예를 들어, 노드 유지보수, 클러스터 업그레이드, Pod 업데이트 등의 작업이 이에 해당합니다. PDB는 이러한 자발적 중단 상황에서 Pod의 가용성을 보장하기 위해 사용됩니다. disruption의 한국어 뜻은 "중단"입니다.
 
 PodDisruptionBudget (PDB)
 PDB는 쿠버네티스 애플리케이션의 고가용성을 보장하기 위한 정책 리소스입니다.
@@ -942,6 +966,7 @@ root 권한 없이 실행
      - Kubernetes 1.22부터 Pod Security Admission이 도입되었습니다. Pod Security Admission은 Pod의 보안 설정을 검증하고, 필요한 경우 수정하는 어드미션 컨트롤러입니다.
      - Pod Security Admission은 `restricted`, `baseline`, `privileged` 등 세 가지 보안 수준을 제공합니다.
      - 예를 들어, `restricted` 보안 수준은 Pod이 루트 권한으로 실행되지 않도록 설정합니다.
+     - kyverno, Open Policy Agent (OPA)와 같은 서드파티 정책 엔진을 사용하여 Pod의 보안 설정을 검증하고, 필요한 경우 수정할 수 있습니다.
 
 3. Essential security tools
   - OpenID Connect(OIDC): Kubernetes 클러스터에 대한 인증을 제공하는 프로토콜입니다. OIDC를 사용하여 외부 인증 제공자(예: Google, GitHub 등)와 통합할 수 있습니다.대규모의 사용자 인증 및 권한 부여를 간소화할 수 있습니다.
@@ -950,6 +975,30 @@ root 권한 없이 실행
   - kubescape: Kubernetes 클러스터의 보안을 평가하고, 취약점을 식별하는 도구입니다. Kubescape는 Kubernetes 리소스의 보안 설정을 검토하고, 보안 모범 사례를 적용합니다.
 
 
+4. allowPrivileageEscalation
+   - Pod의 컨테이너가 루트 권한으로 실행되는 것을 방지합니다. 이를 통해 컨테이너가 호스트 시스템에 대한 권한을 상승시키는 것을 방지할 수 있습니다.
+   - `allowPrivilegeEscalation: false`로 설정하여 Pod의 컨테이너가 루트 권한으로 실행되지 않도록 합니다.
+
+## Service Mesh
+
+
+Service Mesh는 마이크로서비스 아키텍처에서 서비스 간의 통신을 관리하고, 보안, 모니터링, 트래픽 제어 등의 기능을 제공하는 인프라 계층입니다. Service Mesh는 주로 사이드카 프록시 패턴을 사용하여 각 서비스 인스턴스에 프록시를 배포합니다. 이를 통해 서비스 간의 통신을 제어하고, 다양한 기능을 제공할 수 있습니다.
+
+* 주요 등장인물 
+  - Data Plane
+    - 서비스 간의 실제 트래픽이 흐르는 경로입니다. 사이드카 프록시가 서비스 간의 트래픽을 가로채고, 필요한 기능을 수행합니다.
+    - 예를 들어, Istio에서는 Envoy 프록시가 데이터 플레인 역할을 합니다.
+  - Control Plane
+    - 서비스 메쉬의 정책과 구성을 관리하는 계층입니다. Control Plane은 서비스 메쉬의 동작을 제어하고, 데이터 플레인에 필요한 구성을 제공합니다
+    - 예를 들어, Istio에서는 Pilot, Mixer, Citadel 등의 컴포넌트가 Control Plane 역할을 합니다.
+
+* 주요 기능
+ - Mutual TLS (mTLS)
+   - 서비스 간의 통신을 암호화하고, 인증을 제공합니다. mTLS를 사용하면 서비스 간의 통신이 안전하게 이루어집니다.
+
+* SMI
+  - Service Mesh Interface (SMI)는 다양한 서비스 메쉬 구현체 간의 호환성을 제공하는 표준 인터페이스입니다. SMI를 사용하면 서비스 메쉬의 기능을 표준화하고, 다양한 서비스 메쉬 구현체를 쉽게 교체할 수 있습니다.
+  - SMI는 Traffic management, access control, metrics, telemetry, policy 등 다양한 기능을 제공합니다. SMI를 사용하면 서비스 메쉬의 기능을 표준화하고, 다양한 서비스 메쉬 구현체를 쉽게 교체할 수 있습니다.
 
 ## kubectl cmd
 
@@ -1134,11 +1183,11 @@ root 권한 없이 실행
   - min-available: 최소 가용 Pod 수를 지정합니다. 이 값은 PDB가 적용되는 Pod의 최소 가용성을 보장합니다.
   - max-unavailable: 최대 중단 가능한 Pod 수를 지정합니다. 이 값은 PDB가 적용되는 Pod의 최대 중단 가능성을 보장합니다.
 - `kubectl cordon <node-name>`
-  - 특정 노드를 코돈 상태로 설정하여 해당 노드에서 새로운 Pod이 스케줄되지 않도록 합니다.
+  - 특정 노드를 코돈 상태로 설정하여 해당 노드에서 새로운 Pod이 스케줄되지 않도록 합니다. cordon의 사전적의미는 "봉쇄하다"입니다.
   - 예: `kubectl cordon my-node`는 `my-node`를 코돈 상태로 설정합니다.
 
 - `kubectl drain <node-name>`
-  - 노드를 드레인하여 해당 노드에서 실행 중인 Pod을 안전하게 종료합니다.
+  - 노드를 드레인하여 해당 노드에서 실행 중인 Pod을 안전하게 종료합니다. drain의 사전적의미는 "배수하다"입니다.
   - 노드에서 Pod을 안전하게 종료하고, 새로운 Pod이 다른 노드에서 실행되도록 합니다.
   - 예: `kubectl drain my-node`는 `my-node`에서 실행 중인 Pod을 안전하게 종료합니다.
   - `--ignore-daemonsets`: DaemonSet에 의해 관리되는 Pod은 드레인하지 않습니다.

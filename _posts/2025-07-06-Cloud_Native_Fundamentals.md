@@ -89,6 +89,7 @@ Auto Scaling은 시스템이 부하에 따라 자동으로 확장되거나 축�
 - **Vertical Pod Autoscaler (VPA)**: 쿠버네티스에서 Pod의 리소스 요청과 제한을 자동으로 조정하는 기능. Pod의 CPU와 메모리 사용량을 모니터링하고, 필요에 따라 리소스 요청과 제한을 조정합니다. Pod의 resource request/limit 값을 조정. 예를 들어, Pod의 CPU 사용량이 지속적으로 90%를 초과하면 CPU 요청을 늘리고, 사용량이 10% 이하로 떨어지면 CPU 요청을 줄이는 방식입니다.
 - **KEDA** : Event Driven Autoscaling을 지원하는 쿠버네티스 확장 기능으로, 다양한 이벤트 소스(예: Kafka, RabbitMQ, Azure Queue, PostgreSQL 쿼리 등)를 기반으로 Pod의 수를 자동으로 조정합니다. Scale to zero를 지원.
 KEDA는 HPA 위에 올라타는 방식이지만, 사용자는 그것을 직접 의식할 필요 없이 KEDA CRD(ScaledObject, ScaledJob 등) 만 정의하면 됨.
+S
 
 ## Serverless
 서버 관리 없이 코드 실행에 집중할 수 있는 컴퓨팅 모델. 
@@ -161,7 +162,9 @@ CNCF는 클라우드 네이티브 기술의 발전과 표준화를 위해 설립
 ## OCI (Open Container Initiative)
 컨테이너 표준 형식과 런타임을 정의하는 산업 표준.
 OCI (Open Container Initiative)는 컨테이너 이미지와 런타임의 표준화를 목표로 하는 프로젝트입니다. 
-Image-spec(Buildkit, buildah, Podman), Runtime-spec(runc,kata container, fire cracker,gvisor), Distribution-spec(docker registry HTTP API protocal. Dockerhub) 등 3가지 사양을 정의합니다.
+ - Image-spec(Buildkit, buildah, Podman), 
+ - Runtime-spec(runc,kata container, fire cracker,gvisor), 
+ - Distribution-spec(docker registry HTTP API protocal. Dockerhub) 등 3가지 사양을 정의합니다.
 OCI는 컨테이너 이미지의 형식과 런타임 인터페이스를 정의하여, 다양한 컨테이너 기술 간의 호환성을 보장합니다. OCI는 컨테이너 생태계의 상호 운용성을 높이고, 개발자들이 다양한 플랫폼에서 컨테이너를 쉽게 사용할 수 있도록 합니다.
 
  - runc: OCI에서 정의한 컨테이너 런타임의 구현체로, 컨테이너를 실행하는 데 필요한 기본적인 기능을 제공합니다. Docker, containerd, CRI-O 등 다른 런타임들도 내부적으로 runc를 호출해서 컨테이너를 실행합니다.

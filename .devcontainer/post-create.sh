@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Install Ruby dependencies for Jekyll
+if [ -f Gemfile ]; then
+  bundle install
+fi
+
 if [ -f package.json ]; then
   bash -i -c "nvm install --lts && nvm install-latest-npm"
   npm i

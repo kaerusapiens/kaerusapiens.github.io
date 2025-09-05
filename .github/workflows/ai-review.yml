@@ -1,0 +1,58 @@
+name: Blog feedback
+on:
+  pull_request:
+    types: [opened]
+    paths:
+      - '**/*.md'
+
+jobs:
+  feedback:
+    name: Feedback
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      models: read
+      pull-requests: write
+
+    steps:
+      - name: Get latest code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 0 to fetch all history for all branches and tags
+
+       # --name-only를 하는 것으로, 변경된 파일의 이름만 가져옴
+      - name: Get changed md files
+        id: changed_files
+        run: |
+          files=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep '\.md$' || true) 
+          echo "files=$files" >> $GITHUB_OUTPUT
+
+      - name: Select random persona
+        id: persona
+        run: |
+          personas=(.github/personas/*.txt)
+          echo "Found ${#personas[@]} persona files:"
+          printf '%s\n' "${personas[@]}"
+          selected=${personas[$RANDOM % ${#personas[@]}]}
+          echo "Selected: $selected"
+          echo "file=$selected" >> $GITHUB_OUTPUT
+
+      - name: AI inference
+        id: inference
+        uses: actions/ai-inference@v1
+        with:
+          prompt-file: ${{ steps.changed_files.outputs.files }}
+          system-prompt-file: ${{ steps.persona.outputs.file }}
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        env:
+          AI_RESPONSE: ${{ steps.inference.outputs.response }}
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: process.env.AI_RESPONSE
+            })

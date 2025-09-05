@@ -1,5 +1,9 @@
 name: Blog feedback
 on:
+  push:
+    branches:
+      - main
+      - master
   pull_request:
     types: [opened]
     paths:

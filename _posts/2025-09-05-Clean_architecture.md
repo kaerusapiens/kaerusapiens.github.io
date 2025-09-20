@@ -1,7 +1,7 @@
 ---
 title: "Kubernetes"
 category: "Architecture"
-tags: ["Architecture", "Microservices"]
+categories: ["Architecture", "Microservices"]
 ---
 
 # Clean Architecture

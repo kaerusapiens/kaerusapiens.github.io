@@ -1,0 +1,35 @@
+{
+  "// 마크다운 린트 설정 파일": "Markdown linting configuration",
+  "// 각 규칙에 대한 설명": "Description for each rule",
+
+  "// 기본 설정": "Default settings",
+  "default": true,
+
+  "// 비활성화할 규칙들": "Rules to disable",
+
+  "// MD013: 줄 길이 제한 - Jekyll 포스트는 긴 줄이 자주 있음": "Line length limit - Jekyll posts often have long lines",
+  "MD013": false,
+
+  "// MD033: HTML 태그 허용 - Jekyll에서 HTML 태그 자주 사용": "Allow HTML tags - Jekyll often uses HTML tags",
+  "MD033": false,
+
+  "// MD041: 첫 줄이 최상위 헤딩이 아니어도 됨 - Jekyll front matter 때문": "First line doesn't need to be top-level heading - due to Jekyll front matter",
+  "MD041": false,
+
+  "// 커스텀 설정": "Custom settings",
+
+  "// MD007: 들여쓰기 설정 - 2칸 들여쓰기 사용": "Indentation settings - use 2 spaces",
+  "MD007": {
+    "indent": 2
+  },
+
+  "// MD024: 중복 헤딩 허용 - 같은 이름의 섹션이 여러 개 있을 수 있음": "Allow duplicate headings - multiple sections with same name possible",
+  "MD024": {
+    "allow_different_nesting": true
+  },
+
+  "// MD026: 헤딩 끝의 구두점 허용 - 한국어 제목에 '?' 등이 올 수 있음": "Allow punctuation at end of headings - Korean titles may end with '?' etc",
+  "MD026": {
+    "punctuation": ".,;:!"
+  }
+}

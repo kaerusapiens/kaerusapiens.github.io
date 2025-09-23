@@ -1,0 +1,39 @@
+# Pre-commit hooks configuration
+# 마크다운 및 기타 파일의 품질을 유지하기 위한 사전 커밋 훅 설정
+# Pre-commit hooks to maintain quality of markdown and other files
+
+repos:
+  # 기본적인 파일 체크 (Basic file checks)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # 파일 끝에 빈 줄이 있는지 확인 (Ensures files end with a newline)
+      - id: end-of-file-fixer
+        # 파일 끝의 공백을 제거 (Removes trailing whitespace)
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+        # YAML 파일의 문법을 검사 (Checks YAML syntax)
+      - id: check-yaml
+        # JSON 파일의 문법을 검사 (Checks JSON syntax)
+      - id: check-json
+
+  # 마크다운 린팅 (Markdown linting)
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.45.0
+    hooks:
+      # 마크다운 파일의 스타일과 문법을 검사 (Lints markdown files for style and syntax)
+      - id: markdownlint
+        name: Lint markdown files
+        description: "마크다운 파일의 스타일 가이드라인 준수 여부를 검사합니다"
+        args: [--fix]
+        files: \.(md|markdown)$
+
+  # Prettier를 사용한 마크다운 포맷팅 (Markdown formatting with Prettier)
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        name: Format markdown with Prettier
+        description: "마크다운 파일을 일관된 스타일로 포맷팅합니다"
+        types_or: [markdown]
+        args: [--prose-wrap=always, --print-width=100]

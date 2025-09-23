@@ -17,17 +17,6 @@ repos:
         # JSON 파일의 문법을 검사 (Checks JSON syntax)
       - id: check-json
 
-  # 마크다운 린팅 (Markdown linting)
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.45.0
-    hooks:
-      # 마크다운 파일의 스타일과 문법을 검사 (Lints markdown files for style and syntax)
-      - id: markdownlint
-        name: Lint markdown files
-        description: "마크다운 파일의 스타일 가이드라인 준수 여부를 검사합니다"
-        args: [--fix]
-        files: \.(md|markdown)$
-
   # Prettier를 사용한 마크다운 포맷팅 (Markdown formatting with Prettier)
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8

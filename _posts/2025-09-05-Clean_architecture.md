@@ -109,7 +109,7 @@ Concerns)와 Dependency Rule을 엄격히 적용한 아키텍처 패턴입니다
 클린 아키텍처는 소프트웨어 시스템을 동심원 형태의 계층으로 구성합니다. 각 계층은 명확한 책임을
 가지며, 의존성은 항상 안쪽(더 추상적인 계층)을 향해야 합니다.
 
-![Clean Architecture Diagram](image.png)
+![Clean Architecture Diagram](/img/clean_architecture.png)
 
 ### Core Layers
 

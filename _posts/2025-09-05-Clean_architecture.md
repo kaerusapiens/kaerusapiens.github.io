@@ -251,3 +251,124 @@ Clean Architecture의 핵심 원칙인 의존성 규칙:
 - Delivery의 확장된 형태
 - 완전 자동화된 배포 파이프라인
 - 인적 개입 없는 프로덕션 배포
+
+## 예시
+
+```python
+# ============================================
+# 1️⃣ 'Notifier'라는 설계도(인터페이스)를 만들어요
+# ============================================
+# ABC는 "추상 클래스"라는 뜻이에요.
+# Notifier는 알림을 보내는 역할을 가진 친구들이 따라야 하는 규칙을 정의해요.
+# send_notification이라는 기능을 꼭 만들어야 한다고 약속만 시킵니다.
+from abc import ABC, abstractmethod
+
+class Notifier(ABC):
+    @abstractmethod
+    def send_notification(self, message: str) -> None:
+        pass
+    # 'pass'는 아직 아무것도 안 한다는 뜻
+    # 하지만 이 함수는 나중에 무조건 구현해야 해요.
+
+# ============================================
+# 2️⃣ 이메일 알림을 보내는 친구 만들기
+# ============================================
+# Notifier 규칙을 그대로 따라가는 EmailNotifier 만들기
+# send_notification 기능을 실제로 구현
+class EmailNotifier(Notifier):
+    def send_notification(self, message: str) -> None:
+        print(f"Sending email: {message}")
+        # 이메일을 보내는 흉내만 냈어요, 실제로 보내는 건 아님
+
+# ============================================
+# 3️⃣ SMS 알림을 보내는 친구 만들기
+# ============================================
+# Notifier 규칙을 그대로 따라가는 SMSNotifier 만들기
+class SMSNotifier(Notifier):
+    def send_notification(self, message: str) -> None:
+        print(f"Sending SMS: {message}")
+        # SMS 보내는 흉내만 냈어요
+
+# ============================================
+# 4️⃣ 실제로 알림을 관리해주는 서비스 만들기
+# ============================================
+# NotificationService는 누가 알림을 보낼지(notifier)를 알고 있음
+# "이거 보내!"라고 요청하면 notifier에게 일을 맡김
+class NotificationService:
+    def __init__(self, notifier: Notifier):
+        self.notifier = notifier
+        # notifier는 EmailNotifier나 SMSNotifier 중 하나
+
+    def notify(self, message: str) -> None:
+        # 실제로 알림을 보내는 건 notifier가 담당
+        self.notifier.send_notification(message)
+
+# ============================================
+# 5️⃣ 사용 예시
+# ============================================
+# 이메일 알림을 보낼 준비
+email_notifier = EmailNotifier()
+# NotificationService에 이메일 알림 담당을 맡김
+email_service = NotificationService(email_notifier)
+# 실제 알림 보내기
+email_service.notify("Hello via email")
+# 결과: "Sending email: Hello via email" 출력
+```
+
+위의 예에서, 의존성 주입으로 `NotificationService`는 `Notifier` 인터페이스에만 의존합니다. 이를 통해
+`EmailNotifier`나 `SMSNotifier` 같은 구체적인 구현체에 대한 의존성을 피할 수 있습니다. 새로운 알림
+방법을 추가할 때도 `Notifier` 인터페이스만 구현하면 되므로, 기존 코드를 수정할 필요가 없습니다. 이는
+클린 아키텍처의 핵심 원칙인 의존성 규칙을 잘 따르는 예시입니다.
+
+Python에서는 클래스 계층 구조를 사용하지 않고도 같은 클린 아키텍처 원칙을 구현할 수 있으며, 대신
+Python의 **덕 타이핑(duck typing)**을 활용할 수 있습니다.
+
+즉, 객체가 어떤 클래스에서 왔는지보다, 필요한 기능(메서드)이 있는지가 중요하다는 거예요.
+
+- If it walks like a duck and quacks like a duck, it’s a duck.
+
+```python
+class EmailNotifier:
+    def send_notification(self, message: str) -> None:
+        print(f"Sending email: {message}")
+
+class SMSNotifier:
+    def send_notification(self, message: str) -> None:
+        print(f"Sending SMS: {message}")
+
+def notify_user(notifier: Notifier, message: str) -> None:
+    notifier.send_notification(message)
+
+email_notifier = EmailNotifier()
+sms_notifier = SMSNotifier()
+
+notify_user(email_notifier, "Hello via email")
+notify_user(sms_notifier, "Hello via SMS")
+```
+
+파이썬은 동적 타이핑 언어이기 때문에, 인터페이스를 명시적으로 정의하지 않아도 됩니다. 대신,
+`send_notification` 메서드가 있는 객체라면 어떤 객체든 `notify_user` 함수에 전달할 수 있습니다. 이는
+파이썬의 유연성을 활용한 클린 아키텍처 구현 방법입니다.
+
+```python
+from typing import Protocol
+
+class Notifier(Protocol):
+    def send_notification(self, message: str) -> None:
+        ...
+
+class EmailNotifier:
+    def send_notification(self, message: str) -> None:
+        print(f"Email: {message}")
+
+class SMSNotifier:
+    def send_notification(self, message: str) -> None:
+        print(f"SMS: {message}")
+
+def notify_user(notifier: Notifier, message: str):
+    notifier.send_notification(message)
+
+# ✅ 타입 검사기(MyPy 등)는 이걸 문제없이 통과시킵니다.
+notify_user(EmailNotifier(), "Hello!")
+notify_user(SMSNotifier(), "Hi!")
+```

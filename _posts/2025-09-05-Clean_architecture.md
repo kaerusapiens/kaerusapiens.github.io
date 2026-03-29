@@ -19,11 +19,11 @@ Concerns)와 Dependency Rule을 엄격히 적용한 아키텍처 패턴입니다
 이 아키텍처 접근 방식은 특정 프레임워크나 기술로부터 독립적으로 도메인 로직을 보호함으로써, 기술
 변화에 따른 투자 비용을 보호합니다.
 
-- Robert C. Martin calls a Screaming Architecture : 좋은 아키텍쳐는 그것 자신으로 목적과
-  유스케이스를 “소리내어 말해야(scream)”합니다. 프레임이나 툴로써가 아니라. 아키텍쳐자체가 서류이자
-  그 시스템의 코어 목적을 나타내고 기능을 전반적으로 히해할수있는 도구어이어ㅑ 한다 ( The
+- Robert C. Martin calls a Screaming Architecture : 좋은 아키텍처는 그것 자신으로 목적과
+  유스케이스를 “소리 내어 말해야(scream)” 합니다. 프레임이나 툴로서가 아니라, 아키텍처 자체가
+  문서이자 그 시스템의 코어 목적을 나타내고 기능을 전반적으로 이해할 수 있는 도구여야 한다 ( The
   architecture itself becomes a form of documentation, revealing the system’s core purpose and
-  functionality at a glance) 특정 기술 프레임워크가 아니라 그 자체가 비지니스로직을 내포하고 있어야
+  functionality at a glance) 특정 기술 프레임워크가 아니라 그 자체가 비즈니스 로직을 내포하고 있어야
   한다.
 
 ### Key Principle: Strategic Postponement

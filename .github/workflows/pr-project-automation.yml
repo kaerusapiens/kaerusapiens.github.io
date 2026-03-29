@@ -1,0 +1,159 @@
+name: PR Project Automation
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  sync-pr-metadata:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_OWNER: kaerusapiens
+      PROJECT_NUMBER: 4
+      PROJECT_DATE_FIELD_NAME: pr_opened_at
+      PR_DEFAULT_ASSIGNEE: ${{ vars.PR_DEFAULT_ASSIGNEE }}
+
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.PR_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.PR_AUTOMATION_APP_PRIVATE_KEY }}
+          owner: ${{ env.PROJECT_OWNER }}
+
+      - name: Assign PR author
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const assignee = process.env.PR_DEFAULT_ASSIGNEE || context.payload.pull_request.user.login;
+
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              assignees: [assignee],
+            });
+
+      - name: Add PR to project and update opened date
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = process.env.PROJECT_OWNER;
+            const projectNumber = Number(process.env.PROJECT_NUMBER);
+            const dateFieldName = process.env.PROJECT_DATE_FIELD_NAME;
+            const prNodeId = context.payload.pull_request.node_id;
+            const openedDate = context.payload.pull_request.created_at.slice(0, 10);
+
+            const query = `
+              query($owner: String!, $projectNumber: Int!) {
+                user(login: $owner) {
+                  projectV2(number: $projectNumber) {
+                    id
+                    fields(first: 50) {
+                      nodes {
+                        ... on ProjectV2Field {
+                          id
+                          name
+                        }
+                        ... on ProjectV2IterationField {
+                          id
+                          name
+                        }
+                        ... on ProjectV2SingleSelectField {
+                          id
+                          name
+                        }
+                      }
+                    }
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content {
+                          __typename
+                          ... on PullRequest {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const result = await github.graphql(query, {
+              owner,
+              projectNumber,
+            });
+
+            const project = result.user?.projectV2;
+
+            if (!project) {
+              core.setFailed(`Could not find project ${owner}/${projectNumber}.`);
+              return;
+            }
+
+            const dateField = project.fields.nodes.find((field) => field?.name === dateFieldName);
+
+            if (!dateField) {
+              core.setFailed(`Could not find project field "${dateFieldName}".`);
+              return;
+            }
+
+            let itemId = project.items.nodes.find(
+              (item) => item.content?.__typename === "PullRequest" && item.content.id === prNodeId,
+            )?.id;
+
+            if (!itemId) {
+              const addItemMutation = `
+                mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                    item {
+                      id
+                    }
+                  }
+                }
+              `;
+
+              const addItemResult = await github.graphql(addItemMutation, {
+                projectId: project.id,
+                contentId: prNodeId,
+              });
+
+              itemId = addItemResult.addProjectV2ItemById.item.id;
+            }
+
+            const updateFieldMutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $openedDate: Date!) {
+                updateProjectV2ItemFieldValue(
+                  input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: { date: $openedDate }
+                  }
+                ) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+
+            await github.graphql(updateFieldMutation, {
+              projectId: project.id,
+              itemId,
+              fieldId: dateField.id,
+              openedDate,
+            });

@@ -31,129 +31,86 @@ jobs:
           owner: ${{ env.PROJECT_OWNER }}
 
       - name: Assign PR author
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            const assignee = process.env.PR_DEFAULT_ASSIGNEE || context.payload.pull_request.user.login;
-
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              assignees: [assignee],
-            });
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          ASSIGNEE: ${{ vars.PR_DEFAULT_ASSIGNEE || github.event.pull_request.user.login }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api \
+            --method POST \
+            "repos/$REPO/issues/$PR_NUMBER/assignees" \
+            -f "assignees[]=$ASSIGNEE"
 
       - name: Add PR to project and update opened date
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            const owner = process.env.PROJECT_OWNER;
-            const projectNumber = Number(process.env.PROJECT_NUMBER);
-            const dateFieldName = process.env.PROJECT_DATE_FIELD_NAME;
-            const prNodeId = context.payload.pull_request.node_id;
-            const openedDate = context.payload.pull_request.created_at.slice(0, 10);
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NODE_ID: ${{ github.event.pull_request.node_id }}
+          OPENED_DATE: ${{ github.event.pull_request.created_at }}
+        run: |
+          OPENED_DATE="${OPENED_DATE%%T*}"
 
-            const query = `
-              query($owner: String!, $projectNumber: Int!) {
-                user(login: $owner) {
-                  projectV2(number: $projectNumber) {
-                    id
-                    fields(first: 50) {
-                      nodes {
-                        ... on ProjectV2Field {
-                          id
-                          name
-                        }
-                        ... on ProjectV2IterationField {
-                          id
-                          name
-                        }
-                        ... on ProjectV2SingleSelectField {
-                          id
-                          name
-                        }
-                      }
-                    }
-                    items(first: 100) {
-                      nodes {
+          project_json="$(gh api graphql -f query='
+            query($owner: String!, $number: Int!) {
+              user(login: $owner) {
+                projectV2(number: $number) {
+                  id
+                  fields(first: 50) {
+                    nodes {
+                      ... on ProjectV2FieldCommon {
                         id
-                        content {
-                          __typename
-                          ... on PullRequest {
-                            id
-                          }
+                        name
+                      }
+                    }
+                  }
+                  items(first: 100) {
+                    nodes {
+                      id
+                      content {
+                        __typename
+                        ... on PullRequest {
+                          id
                         }
                       }
                     }
                   }
                 }
               }
-            `;
-
-            const result = await github.graphql(query, {
-              owner,
-              projectNumber,
-            });
-
-            const project = result.user?.projectV2;
-
-            if (!project) {
-              core.setFailed(`Could not find project ${owner}/${projectNumber}.`);
-              return;
             }
+          ' -F owner="$PROJECT_OWNER" -F number="$PROJECT_NUMBER")"
 
-            const dateField = project.fields.nodes.find((field) => field?.name === dateFieldName);
+          project_id="$(jq -r '.data.user.projectV2.id' <<<"$project_json")"
+          field_id="$(jq -r --arg name "$PROJECT_DATE_FIELD_NAME" '.data.user.projectV2.fields.nodes[] | select(.name == $name) | .id' <<<"$project_json")"
+          item_id="$(jq -r --arg pr_id "$PR_NODE_ID" '.data.user.projectV2.items.nodes[] | select(.content.id == $pr_id) | .id' <<<"$project_json")"
 
-            if (!dateField) {
-              core.setFailed(`Could not find project field "${dateFieldName}".`);
-              return;
-            }
+          [ -n "$project_id" ] && [ "$project_id" != "null" ] || { echo "Project not found"; exit 1; }
+          [ -n "$field_id" ] && [ "$field_id" != "null" ] || { echo "Field not found: $PROJECT_DATE_FIELD_NAME"; exit 1; }
 
-            let itemId = project.items.nodes.find(
-              (item) => item.content?.__typename === "PullRequest" && item.content.id === prNodeId,
-            )?.id;
-
-            if (!itemId) {
-              const addItemMutation = `
-                mutation($projectId: ID!, $contentId: ID!) {
-                  addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
-                    item {
-                      id
-                    }
-                  }
-                }
-              `;
-
-              const addItemResult = await github.graphql(addItemMutation, {
-                projectId: project.id,
-                contentId: prNodeId,
-              });
-
-              itemId = addItemResult.addProjectV2ItemById.item.id;
-            }
-
-            const updateFieldMutation = `
-              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $openedDate: Date!) {
-                updateProjectV2ItemFieldValue(
-                  input: {
-                    projectId: $projectId
-                    itemId: $itemId
-                    fieldId: $fieldId
-                    value: { date: $openedDate }
-                  }
-                ) {
-                  projectV2Item {
+          if [ -z "$item_id" ] || [ "$item_id" = "null" ]; then
+            item_id="$(gh api graphql -f query='
+              mutation($projectId: ID!, $contentId: ID!) {
+                addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
+                  item {
                     id
                   }
                 }
               }
-            `;
+            ' -F projectId="$project_id" -F contentId="$PR_NODE_ID" --jq '.data.addProjectV2ItemById.item.id')"
+          fi
 
-            await github.graphql(updateFieldMutation, {
-              projectId: project.id,
-              itemId,
-              fieldId: dateField.id,
-              openedDate,
-            });
+          gh api graphql -f query='
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: Date!) {
+              updateProjectV2ItemFieldValue(
+                input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: {date: $date}
+                }
+              ) {
+                projectV2Item {
+                  id
+                }
+              }
+            }
+          ' -F projectId="$project_id" -F itemId="$item_id" -F fieldId="$field_id" -F date="$OPENED_DATE" >/dev/null

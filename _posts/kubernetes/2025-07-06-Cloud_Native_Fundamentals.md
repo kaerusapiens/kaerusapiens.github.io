@@ -173,7 +173,7 @@ Native Computing Ubiquitous"라는 목표 아래, 클라우드 네이티브 애�
 지원하는 다양한 프로젝트를 호스팅하고 있습니다. CNCF는 Kubernetes, Prometheus, Envoy 등과 같은 주요
 오픈 소스 프로젝트를 관리하며, 클라우드 네이티브 생태계의 상호 운용성을 높이고, 개발자들이 다양한
 플랫폼에서 클라우드 네이티브 기술을 쉽게 사용할 수 있도록 합니다.
-<img src="/img/CNCF-graduation-criteria.png" alt="CNCF Graduation Criteria">
+<img src="/assets/img/posts/CNCF-graduation-criteria.png" alt="CNCF Graduation Criteria">
 
 - the chasm : Early adopters, Early majority사이의 균열 단계. Incubated -> Graudated. 적절한 기능,
   세큐리티, 퍼포먼스등을 만족할수 있는가가 검토되는 단계.

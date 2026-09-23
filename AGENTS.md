@@ -148,6 +148,10 @@ JEKYLL_ENV=production bundle exec jekyll build -d _site
 bundle exec htmlproofer _site \
   --disable-external \
   --ignore-urls "/^http:\/\/127.0.0.1/,/^http:\/\/0.0.0.0/,/^http:\/\/localhost/"
+
+# GitHub CLI (gh) 배포 상태 및 로그 확인
+gh run list --limit 5
+gh run view <run-id> --log-failed
 ```
 
 ---

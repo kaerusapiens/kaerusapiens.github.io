@@ -24,7 +24,7 @@ permalink: /game/
           </div>
         </div>
         <p class="card-text opacity-75 flex-grow-1">
-          7 Wonders Duel 보드게임 종료 후 점수를 편리하고 정확하게 계산하는 모바일 최적화 점수판입니다. 카드/원더별 원터치 개별 더하기와 동전(3개당 1점) 자동 계산 기능을 제공합니다.
+          7 Wonders Duel 보드게임 종료 후 점수를 편리하고 정확하게 계산하는 모바일 최적화 점수판입니다. 카드/피라미드별 원터치 개별 더하기와 동전(3개당 1점) 자동 계산 기능을 제공합니다.
         </p>
         <a href="{{ '/boardgames/seven-wonders-duel/' | relative_url }}" class="btn btn-primary w-100 fw-bold py-2 mt-3 shadow-sm" style="border-radius: 8px;">
           <i class="fas fa-calculator me-1"></i> 점수 계산기 바로가기

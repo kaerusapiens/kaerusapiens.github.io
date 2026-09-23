@@ -72,7 +72,7 @@
       <!-- the real tabs -->
       {% for tab in site.tabs %}
         {% capture tab_name %}{{ tab.url | split: '/' }}{% endcapture %}
-        <li class="nav-item{% if tab.url == page.url or (tab.url == '/game/' and page.url contains '/boardgames/') %}{{ " active" }}{% endif %}">
+        <li class="nav-item{% if tab.url == page.url or (tab.url == '/game/' and (page.url contains '/boardgames/' or page.url contains '/game/')) %}{{ " active" }}{% endif %}">
           <a href="{{ tab.url | relative_url }}" class="nav-link">
             <i class="fa-fw {{ tab.icon }}"></i>
             <span>{{ site.data.locales[include.lang].tabs.[tab_name] | default: tab.title | upcase }}</span>
@@ -80,6 +80,7 @@
 
           {% if tab_name == 'game' or tab.url contains '/game/' %}
             <ul class="nav flex-column sub-categories-nav">
+              <!-- 보드게임 서브 메뉴 -->
               <li class="nav-item category-sub-item">
                 <a href="{{ '/game/' | relative_url }}" class="sub-nav-link">
                   <i class="far fa-folder-open fa-fw"></i>
@@ -90,6 +91,20 @@
                 <a href="{{ '/boardgames/seven-wonders-duel/' | relative_url }}" class="sub-nav-link sub-child-link {% if page.url contains '/boardgames/seven-wonders-duel/' %}active fw-bold{% endif %}">
                   <i class="far fa-folder fa-fw"></i>
                   <span class="category-title">seven-wonders-duel</span>
+                </a>
+              </li>
+
+              <!-- 플레이스테이션 서브 메뉴 -->
+              <li class="nav-item category-sub-item">
+                <a href="{{ '/game/' | relative_url }}" class="sub-nav-link">
+                  <i class="far fa-folder-open fa-fw"></i>
+                  <span class="category-title">play-station</span>
+                </a>
+              </li>
+              <li class="nav-item category-sub-item">
+                <a href="{{ '/game/play-station/witcher3/' | relative_url }}" class="sub-nav-link sub-child-link {% if page.url contains '/game/play-station/witcher3/' %}active fw-bold{% endif %}">
+                  <i class="far fa-folder fa-fw"></i>
+                  <span class="category-title">witcher3</span>
                 </a>
               </li>
             </ul>

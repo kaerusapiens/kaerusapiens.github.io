@@ -165,3 +165,8 @@ gh run view <run-id> --log-failed
      `permissions(pages: write, id-token: write)` 및 빌드 스텝을 훼손하지 마십시오.
 3. **인코딩**:
    - 모든 파일은 UTF-8 인코딩을 유지해야 합니다.
+4. **사이드바 메뉴 동기화 (`_includes/sidebar.html`)**:
+   - 새로운 게임 카테고리나 웹 유틸리티/독립 페이지(예: `boardgames/`, `game/play-station/` 등)를
+     신규 추가하거나 경로를 확장할 경우, 방문자가 사이드바를 통해 편리하게 접근할 수 있도록 반드시
+     `_includes/sidebar.html`의 해당 탭 서브 네비게이션(`sub-categories-nav`) 목록도 함께 갱신해야
+     합니다.

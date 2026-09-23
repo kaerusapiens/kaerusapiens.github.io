@@ -1,8 +1,8 @@
 /**
  * ==============================================================================
  * 더 위쳐 3: 와일드 헌트 궨트 카드 전체 체크리스트 클라이언트 엔진
- * - 199장 전체 카드 데이터셋 내장
- * - 진영(카테고리), 지역(리젼), 텍스트 검색, 미보유 카드 필터링
+ * - 199장 전체 카드 데이터셋 내장 (16장 지휘관 카드 고유 능력 포함)
+ * - 진영(카테고리), 지휘관 전용, 지역(리젼), 텍스트 검색, 미보유 카드 필터링
  * - localStorage 연동 (영구 저장 및 JSON 백업/복원)
  * - 카드 이미지 확대 모달 지원
  * ==============================================================================
@@ -12,7 +12,7 @@
   'use strict';
 
   /**
-   * 199장 전체 궨트 카드 데이터셋 (한국어/영어 명칭 완벽 매핑)
+   * 199장 전체 궨트 카드 데이터셋 (한국어/영어 명칭 및 지휘관 능력 완벽 매핑)
    */
   const GWENT_CARDS = [
   {
@@ -34,7 +34,9 @@
     "obtain_display": "노비그라드 근처 벌목꾼의 오두막(Loggers' Hut) 남쪽에 있는 스코이아'텔 상인과의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat the Scoia'tael merchant just south of Loggers' Hut , near Novigrad . Obtainable during Gwent: Big City Players)</div>",
     "obtain_raw": "Beat the Scoia'tael merchant just south of Loggers' Hut , near Novigrad . Obtainable during Gwent: Big City Players",
     "is_base_deck": false,
-    "obtain_ko": "노비그라드 근처 벌목꾼의 오두막(Loggers' Hut) 남쪽에 있는 스코이아'텔 상인과의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼)"
+    "obtain_ko": "노비그라드 근처 벌목꾼의 오두막(Loggers' Hut) 남쪽에 있는 스코이아'텔 상인과의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 2,
@@ -55,7 +57,9 @@
     "obtain_display": "총 5곳 중 3곳에서 구매/획득 가능: 교차로 여관(Inn at the Crossroads) 여관주인, 옥센푸르트 여관주인 스체판(Stjepan), 린덴베일(Lindenvale) 여관주인, 파시플로라(Passiflora)의 마르키즈 세레니티, 카르스텐(Carsten) 북쪽 서커스 유랑단 상인 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(5 possible obtainable locations: Innkeep at Inn at the Crossroads , Innkeep Stjepan at Oxenfurt, Innkeep at Lindenvale , Marquise Serenity at Passiflora near St. Gregory's Bridge , the merchant in the circus troupe north of Carsten . You can only have 3 Commander's Horn cards, but they are obtainable at 5 total locations.)</div>",
     "obtain_raw": "5 possible obtainable locations: Innkeep at Inn at the Crossroads , Innkeep Stjepan at Oxenfurt, Innkeep at Lindenvale , Marquise Serenity at Passiflora near St. Gregory's Bridge , the merchant in the circus troupe north of Carsten . You can only have 3 Commander's Horn cards, but they are obtainable at 5 total locations.",
     "is_base_deck": false,
-    "obtain_ko": "총 5곳 중 3곳에서 구매/획득 가능: 교차로 여관(Inn at the Crossroads) 여관주인, 옥센푸르트 여관주인 스체판(Stjepan), 린덴베일(Lindenvale) 여관주인, 파시플로라(Passiflora)의 마르키즈 세레니티, 카르스텐(Carsten) 북쪽 서커스 유랑단 상인"
+    "obtain_ko": "총 5곳 중 3곳에서 구매/획득 가능: 교차로 여관(Inn at the Crossroads) 여관주인, 옥센푸르트 여관주인 스체판(Stjepan), 린덴베일(Lindenvale) 여관주인, 파시플로라(Passiflora)의 마르키즈 세레니티, 카르스텐(Carsten) 북쪽 서커스 유랑단 상인",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 3,
@@ -76,7 +80,9 @@
     "obtain_display": "총 5곳 중 3곳에서 구매/획득 가능: 교차로 여관(Inn at the Crossroads) 여관주인, 옥센푸르트 여관주인 스체판(Stjepan), 린덴베일(Lindenvale) 여관주인, 파시플로라(Passiflora)의 마르키즈 세레니티, 카르스텐(Carsten) 북쪽 서커스 유랑단 상인 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(5 possible obtainable locations: Innkeep at Inn at the Crossroads , Innkeep Stjepan at Oxenfurt, Innkeep at Lindenvale , Marquise Serenity at Passiflora near St. Gregory's Bridge , the merchant in the circus troupe north of Carsten . You can only have 3 Commander's Horn cards, but they are obtainable at 5 total locations.)</div>",
     "obtain_raw": "5 possible obtainable locations: Innkeep at Inn at the Crossroads , Innkeep Stjepan at Oxenfurt, Innkeep at Lindenvale , Marquise Serenity at Passiflora near St. Gregory's Bridge , the merchant in the circus troupe north of Carsten . You can only have 3 Commander's Horn cards, but they are obtainable at 5 total locations.",
     "is_base_deck": false,
-    "obtain_ko": "총 5곳 중 3곳에서 구매/획득 가능: 교차로 여관(Inn at the Crossroads) 여관주인, 옥센푸르트 여관주인 스체판(Stjepan), 린덴베일(Lindenvale) 여관주인, 파시플로라(Passiflora)의 마르키즈 세레니티, 카르스텐(Carsten) 북쪽 서커스 유랑단 상인"
+    "obtain_ko": "총 5곳 중 3곳에서 구매/획득 가능: 교차로 여관(Inn at the Crossroads) 여관주인, 옥센푸르트 여관주인 스체판(Stjepan), 린덴베일(Lindenvale) 여관주인, 파시플로라(Passiflora)의 마르키즈 세레니티, 카르스텐(Carsten) 북쪽 서커스 유랑단 상인",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 4,
@@ -97,7 +103,9 @@
     "obtain_display": "총 5곳 중 3곳에서 구매/획득 가능: 교차로 여관(Inn at the Crossroads) 여관주인, 옥센푸르트 여관주인 스체판(Stjepan), 린덴베일(Lindenvale) 여관주인, 파시플로라(Passiflora)의 마르키즈 세레니티, 카르스텐(Carsten) 북쪽 서커스 유랑단 상인 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(5 possible obtainable locations: Innkeep at Inn at the Crossroads , Innkeep Stjepan at Oxenfurt, Innkeep at Lindenvale , Marquise Serenity at Passiflora near St. Gregory's Bridge , the merchant in the circus troupe north of Carsten .)</div>",
     "obtain_raw": "5 possible obtainable locations: Innkeep at Inn at the Crossroads , Innkeep Stjepan at Oxenfurt, Innkeep at Lindenvale , Marquise Serenity at Passiflora near St. Gregory's Bridge , the merchant in the circus troupe north of Carsten .",
     "is_base_deck": false,
-    "obtain_ko": "총 5곳 중 3곳에서 구매/획득 가능: 교차로 여관(Inn at the Crossroads) 여관주인, 옥센푸르트 여관주인 스체판(Stjepan), 린덴베일(Lindenvale) 여관주인, 파시플로라(Passiflora)의 마르키즈 세레니티, 카르스텐(Carsten) 북쪽 서커스 유랑단 상인"
+    "obtain_ko": "총 5곳 중 3곳에서 구매/획득 가능: 교차로 여관(Inn at the Crossroads) 여관주인, 옥센푸르트 여관주인 스체판(Stjepan), 린덴베일(Lindenvale) 여관주인, 파시플로라(Passiflora)의 마르키즈 세레니티, 카르스텐(Carsten) 북쪽 서커스 유랑단 상인",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 5,
@@ -118,7 +126,9 @@
     "obtain_display": "베겔버드 영지(Vegelbud Residence) 안마당에서 열리는 궨트 토너먼트에서 참가자 3명 모두 격파 (퀘스트: 생사의 문제) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat all 3 players on the Gwent tournament on the courtyard of Vegelbud Residence during the quest A Matter of Life and Death .)</div>",
     "obtain_raw": "Beat all 3 players on the Gwent tournament on the courtyard of Vegelbud Residence during the quest A Matter of Life and Death .",
     "is_base_deck": false,
-    "obtain_ko": "베겔버드 영지(Vegelbud Residence) 안마당에서 열리는 궨트 토너먼트에서 참가자 3명 모두 격파 (퀘스트: 생사의 문제)"
+    "obtain_ko": "베겔버드 영지(Vegelbud Residence) 안마당에서 열리는 궨트 토너먼트에서 참가자 3명 모두 격파 (퀘스트: 생사의 문제)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 6,
@@ -139,7 +149,9 @@
     "obtain_display": "The Innkeep at White Orchard Inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(The Innkeep at White Orchard Inn)</div>",
     "obtain_raw": "The Innkeep at White Orchard Inn",
     "is_base_deck": false,
-    "obtain_ko": "The Innkeep at White Orchard Inn"
+    "obtain_ko": "The Innkeep at White Orchard Inn",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 7,
@@ -160,7 +172,9 @@
     "obtain_display": "The Innkeep at Seven Cats Inn in Novigrad outskirts <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(The Innkeep at Seven Cats Inn in Novigrad outskirts)</div>",
     "obtain_raw": "The Innkeep at Seven Cats Inn in Novigrad outskirts",
     "is_base_deck": false,
-    "obtain_ko": "The Innkeep at Seven Cats Inn in Novigrad outskirts"
+    "obtain_ko": "The Innkeep at Seven Cats Inn in Novigrad outskirts",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 8,
@@ -181,7 +195,9 @@
     "obtain_display": "Quartermaster at Crow's Perch <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Quartermaster at Crow's Perch)</div>",
     "obtain_raw": "Quartermaster at Crow's Perch",
     "is_base_deck": false,
-    "obtain_ko": "Quartermaster at Crow's Perch"
+    "obtain_ko": "Quartermaster at Crow's Perch",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 9,
@@ -202,7 +218,9 @@
     "obtain_display": "램버트(Lambert)와의 궨트 대결 승리. 노비그라드 갈 곳 없는 여관(Nowhere Inn) 또는 케어 모헨 전투 전후 획득 가능 (퀘스트: 궨트: 오랜 친구) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Lambert in a match - best locations are at Kaer Morhen after the battle or before, in Novigrad , The Nowhere Inn, west of Oxenfurt Gate signpost. Obtainable during Gwent: Old Pals)</div>",
     "obtain_raw": "Beat Lambert in a match - best locations are at Kaer Morhen after the battle or before, in Novigrad , The Nowhere Inn, west of Oxenfurt Gate signpost. Obtainable during Gwent: Old Pals",
     "is_base_deck": false,
-    "obtain_ko": "램버트(Lambert)와의 궨트 대결 승리. 노비그라드 갈 곳 없는 여관(Nowhere Inn) 또는 케어 모헨 전투 전후 획득 가능 (퀘스트: 궨트: 오랜 친구)"
+    "obtain_ko": "램버트(Lambert)와의 궨트 대결 승리. 노비그라드 갈 곳 없는 여관(Nowhere Inn) 또는 케어 모헨 전투 전후 획득 가능 (퀘스트: 궨트: 오랜 친구)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 10,
@@ -223,7 +241,9 @@
     "obtain_display": "주교 광장(Hierarch Square)의 은행가 빔 비발디(Vimme Vivaldi)와의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Vimme Vivaldi in a match, he is at Hierarch Square . Obtainable during Gwent: Big City Players)</div>",
     "obtain_raw": "Beat Vimme Vivaldi in a match, he is at Hierarch Square . Obtainable during Gwent: Big City Players",
     "is_base_deck": false,
-    "obtain_ko": "주교 광장(Hierarch Square)의 은행가 빔 비발디(Vimme Vivaldi)와의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼)"
+    "obtain_ko": "주교 광장(Hierarch Square)의 은행가 빔 비발디(Vimme Vivaldi)와의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 11,
@@ -244,7 +264,9 @@
     "obtain_display": "옥센푸르트 연금술 여관의 여관주인 스체판(Stjepan)과의 궨트 대결 승리 (퀘스트: 궨트: 여관주인과 대결) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Stjepan in a match – the Innkeeper in The Alchemy in Oxenfurt. Obtainable during Gwent: Playing Innkeeps)</div>",
     "obtain_raw": "Beat Stjepan in a match – the Innkeeper in The Alchemy in Oxenfurt. Obtainable during Gwent: Playing Innkeeps",
     "is_base_deck": false,
-    "obtain_ko": "옥센푸르트 연금술 여관의 여관주인 스체판(Stjepan)과의 궨트 대결 승리 (퀘스트: 궨트: 여관주인과 대결)"
+    "obtain_ko": "옥센푸르트 연금술 여관의 여관주인 스체판(Stjepan)과의 궨트 대결 승리 (퀘스트: 궨트: 여관주인과 대결)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 12,
@@ -265,7 +287,9 @@
     "obtain_display": "백색 과수원 여관의 학자 알더트 기어트(Aldert Geert)에게 승리하여 획득. 놓쳤을 경우 목매단 자의 나무(Hanged Man's Tree) 아래 그의 시체에서 루팅 가능 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Obtain from Aldert Geert in White Orchard Inn. If he dies, loot the card from his body under the Hanged Man's Tree .)</div>",
     "obtain_raw": "Obtain from Aldert Geert in White Orchard Inn. If he dies, loot the card from his body under the Hanged Man's Tree .",
     "is_base_deck": false,
-    "obtain_ko": "백색 과수원 여관의 학자 알더트 기어트(Aldert Geert)에게 승리하여 획득. 놓쳤을 경우 목매단 자의 나무(Hanged Man's Tree) 아래 그의 시체에서 루팅 가능"
+    "obtain_ko": "백색 과수원 여관의 학자 알더트 기어트(Aldert Geert)에게 승리하여 획득. 놓쳤을 경우 목매단 자의 나무(Hanged Man's Tree) 아래 그의 시체에서 루팅 가능",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 13,
@@ -286,7 +310,9 @@
     "obtain_display": "탈러(Thaler) 구출 후 그와의 궨트 대결에서 승리 (퀘스트: 궨트: 탈러와의 대결 또는 오랜 친구) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Thaler in a match just after saving him in a Reasons of State preparation quest. Obtainable during Gwent: Playing Thaler or Gwent: Old Pals , depending on your progress.)</div>",
     "obtain_raw": "Beat Thaler in a match just after saving him in a Reasons of State preparation quest. Obtainable during Gwent: Playing Thaler or Gwent: Old Pals , depending on your progress.",
     "is_base_deck": false,
-    "obtain_ko": "탈러(Thaler) 구출 후 그와의 궨트 대결에서 승리 (퀘스트: 궨트: 탈러와의 대결 또는 오랜 친구)"
+    "obtain_ko": "탈러(Thaler) 구출 후 그와의 궨트 대결에서 승리 (퀘스트: 궨트: 탈러와의 대결 또는 오랜 친구)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 14,
@@ -307,7 +333,9 @@
     "obtain_display": "스켈리게 드루이드 서클의 그레미스트(Gremist)와의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Gremist in the druid circle on Skellige . Obtainable during Gwent: Skellige Style)</div>",
     "obtain_raw": "Beat Gremist in the druid circle on Skellige . Obtainable during Gwent: Skellige Style",
     "is_base_deck": false,
-    "obtain_ko": "스켈리게 드루이드 서클의 그레미스트(Gremist)와의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일)"
+    "obtain_ko": "스켈리게 드루이드 서클의 그레미스트(Gremist)와의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 15,
@@ -328,7 +356,9 @@
     "obtain_display": "Obtain from the Cunny of the Goose Innkeep south of Novigrad <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Obtain from the Cunny of the Goose Innkeep south of Novigrad)</div>",
     "obtain_raw": "Obtain from the Cunny of the Goose Innkeep south of Novigrad",
     "is_base_deck": false,
-    "obtain_ko": "Obtain from the Cunny of the Goose Innkeep south of Novigrad"
+    "obtain_ko": "Obtain from the Cunny of the Goose Innkeep south of Novigrad",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 16,
@@ -349,7 +379,9 @@
     "obtain_display": "케어 트롤데 항구의 여관주인 요나스(Jonas)가 판매 . <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by Innkeep Jonas in Kaer Trolde Harbor .)</div>",
     "obtain_raw": "Sold by Innkeep Jonas in Kaer Trolde Harbor .",
     "is_base_deck": false,
-    "obtain_ko": "케어 트롤데 항구의 여관주인 요나스(Jonas)가 판매 ."
+    "obtain_ko": "케어 트롤데 항구의 여관주인 요나스(Jonas)가 판매 .",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 17,
@@ -370,7 +402,9 @@
     "obtain_display": "우리알라 항구(Urialla Harbor) 여관주인이 판매 , on An Skellig . <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeep in Urialla Harbor , on An Skellig .)</div>",
     "obtain_raw": "Sold by the Innkeep in Urialla Harbor , on An Skellig .",
     "is_base_deck": false,
-    "obtain_ko": "우리알라 항구(Urialla Harbor) 여관주인이 판매 , on An Skellig ."
+    "obtain_ko": "우리알라 항구(Urialla Harbor) 여관주인이 판매 , on An Skellig .",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 18,
@@ -391,7 +425,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 19,
@@ -412,7 +448,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 20,
@@ -433,7 +471,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop. Two more Biting Frost cards are already in the base deck.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop. Two more Biting Frost cards are already in the base deck.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음)"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 21,
@@ -454,7 +494,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop. Two more Clear Weather cards are already in the base deck.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop. Two more Clear Weather cards are already in the base deck.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음)"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 22,
@@ -475,7 +517,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop. Two more Impenetrable Fog cards are already in the base deck.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop. Two more Impenetrable Fog cards are already in the base deck.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음)"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 23,
@@ -496,7 +540,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop. Two more Torrential Rain cards are already in the base deck.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop. Two more Torrential Rain cards are already in the base deck.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음)"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 (※ 추가 카드는 기본 덱에 포함되어 있음)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 24,
@@ -517,7 +563,9 @@
     "obtain_display": "백색 과수원 여관(White Orchard Inn) 여관주인이 판매 Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeep at White Orchard Inn Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3.)</div>",
     "obtain_raw": "Sold by the Innkeep at White Orchard Inn Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3.",
     "is_base_deck": false,
-    "obtain_ko": "백색 과수원 여관(White Orchard Inn) 여관주인이 판매 Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3."
+    "obtain_ko": "백색 과수원 여관(White Orchard Inn) 여관주인이 판매 Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3.",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 25,
@@ -538,7 +586,9 @@
     "obtain_display": "Quartermaster at Crow's Perch – near the armorsmith. Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Quartermaster at Crow's Perch – near the armorsmith. Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3.)</div>",
     "obtain_raw": "Quartermaster at Crow's Perch – near the armorsmith. Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3.",
     "is_base_deck": false,
-    "obtain_ko": "Quartermaster at Crow's Perch – near the armorsmith. Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3."
+    "obtain_ko": "Quartermaster at Crow's Perch – near the armorsmith. Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3.",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 26,
@@ -559,7 +609,9 @@
     "obtain_display": "미드콥스(Midcopse) 상인이 판매 in Velen (the village where Keira Metz resides nearby) Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a merchant in Midcopse in Velen (the village where Keira Metz resides nearby) Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3.)</div>",
     "obtain_raw": "Sold by a merchant in Midcopse in Velen (the village where Keira Metz resides nearby) Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3.",
     "is_base_deck": false,
-    "obtain_ko": "미드콥스(Midcopse) 상인이 판매 in Velen (the village where Keira Metz resides nearby) Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3."
+    "obtain_ko": "미드콥스(Midcopse) 상인이 판매 in Velen (the village where Keira Metz resides nearby) Two more Blue Stripes Commando are in the Base Deck. Not every Commando is available on every version, minimum is 3.",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 27,
@@ -580,7 +632,9 @@
     "obtain_display": "백색 과수원 여관(White Orchard Inn) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeep at White Orchard Inn)</div>",
     "obtain_raw": "Sold by the Innkeep at White Orchard Inn",
     "is_base_deck": false,
-    "obtain_ko": "백색 과수원 여관(White Orchard Inn) 여관주인이 판매"
+    "obtain_ko": "백색 과수원 여관(White Orchard Inn) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 28,
@@ -601,7 +655,9 @@
     "obtain_display": "파시플로라(Passiflora)의 마르키즈 세레니티가 판매 Inn at St. Gregory's Bridge <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by Marquise Serenity at Passiflora Inn at St. Gregory's Bridge)</div>",
     "obtain_raw": "Sold by Marquise Serenity at Passiflora Inn at St. Gregory's Bridge",
     "is_base_deck": false,
-    "obtain_ko": "파시플로라(Passiflora)의 마르키즈 세레니티가 판매 Inn at St. Gregory's Bridge"
+    "obtain_ko": "파시플로라(Passiflora)의 마르키즈 세레니티가 판매 Inn at St. Gregory's Bridge",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 29,
@@ -622,7 +678,9 @@
     "obtain_display": "백색 과수원 여관(White Orchard Inn) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeep at White Orchard Inn)</div>",
     "obtain_raw": "Sold by the Innkeep at White Orchard Inn",
     "is_base_deck": false,
-    "obtain_ko": "백색 과수원 여관(White Orchard Inn) 여관주인이 판매"
+    "obtain_ko": "백색 과수원 여관(White Orchard Inn) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 30,
@@ -643,7 +701,9 @@
     "obtain_display": "미드콥스(Midcopse) 상인이 판매 in Velen (the village where Keira Metz resides nearby) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a merchant in Midcopse in Velen (the village where Keira Metz resides nearby))</div>",
     "obtain_raw": "Sold by a merchant in Midcopse in Velen (the village where Keira Metz resides nearby)",
     "is_base_deck": false,
-    "obtain_ko": "미드콥스(Midcopse) 상인이 판매 in Velen (the village where Keira Metz resides nearby)"
+    "obtain_ko": "미드콥스(Midcopse) 상인이 판매 in Velen (the village where Keira Metz resides nearby)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 31,
@@ -664,7 +724,9 @@
     "obtain_display": "미드콥스(Midcopse) 상인이 판매 or Claywich <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a merchant in Midcopse or Claywich)</div>",
     "obtain_raw": "Sold by a merchant in Midcopse or Claywich",
     "is_base_deck": false,
-    "obtain_ko": "미드콥스(Midcopse) 상인이 판매 or Claywich"
+    "obtain_ko": "미드콥스(Midcopse) 상인이 판매 or Claywich",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 32,
@@ -685,7 +747,9 @@
     "obtain_display": "노비그라드 목욕탕의 시기스문드 딕스트라(Sigismund Dijkstra)와의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Sigismund Djikstra in a Gwent match in the office of his bathhouse in Novigrad . Can be obtained during Gwent: Big City Players)</div>",
     "obtain_raw": "Beat Sigismund Djikstra in a Gwent match in the office of his bathhouse in Novigrad . Can be obtained during Gwent: Big City Players",
     "is_base_deck": false,
-    "obtain_ko": "노비그라드 목욕탕의 시기스문드 딕스트라(Sigismund Dijkstra)와의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼)"
+    "obtain_ko": "노비그라드 목욕탕의 시기스문드 딕스트라(Sigismund Dijkstra)와의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 33,
@@ -706,7 +770,9 @@
     "obtain_display": "퀘스트 '위험한 게임(A Dangerous Game)' 진행 중 졸탄의 정보에 따라 얼(Earl)에게서 획득 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Get the card from Earl after Zoltan tips you off in A Dangerous Game quest Can be obtained during A Dangerous Game)</div>",
     "obtain_raw": "Get the card from Earl after Zoltan tips you off in A Dangerous Game quest Can be obtained during A Dangerous Game",
     "is_base_deck": false,
-    "obtain_ko": "퀘스트 '위험한 게임(A Dangerous Game)' 진행 중 졸탄의 정보에 따라 얼(Earl)에게서 획득"
+    "obtain_ko": "퀘스트 '위험한 게임(A Dangerous Game)' 진행 중 졸탄의 정보에 따라 얼(Earl)에게서 획득",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 34,
@@ -727,7 +793,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 35,
@@ -748,7 +816,9 @@
     "obtain_display": "미드콥스(Midcopse) 상인이 판매 in Velen (the village where Keira Metz resides nearby) Two more Poor Fucking Infantry cards are alredy in the base deck. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a merchant in Midcopse in Velen (the village where Keira Metz resides nearby) Two more Poor Fucking Infantry cards are alredy in the base deck.)</div>",
     "obtain_raw": "Sold by a merchant in Midcopse in Velen (the village where Keira Metz resides nearby) Two more Poor Fucking Infantry cards are alredy in the base deck.",
     "is_base_deck": false,
-    "obtain_ko": "미드콥스(Midcopse) 상인이 판매 in Velen (the village where Keira Metz resides nearby) Two more Poor Fucking Infantry cards are alredy in the base deck."
+    "obtain_ko": "미드콥스(Midcopse) 상인이 판매 in Velen (the village where Keira Metz resides nearby) Two more Poor Fucking Infantry cards are alredy in the base deck.",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 36,
@@ -769,7 +839,9 @@
     "obtain_display": "린덴베일(Lindenvale) 상인이 판매 . Two more Poor Fucking Infantry cards are alredy in the base deck. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a merchant in Lindenvale . Two more Poor Fucking Infantry cards are alredy in the base deck.)</div>",
     "obtain_raw": "Sold by a merchant in Lindenvale . Two more Poor Fucking Infantry cards are alredy in the base deck.",
     "is_base_deck": false,
-    "obtain_ko": "린덴베일(Lindenvale) 상인이 판매 . Two more Poor Fucking Infantry cards are alredy in the base deck."
+    "obtain_ko": "린덴베일(Lindenvale) 상인이 판매 . Two more Poor Fucking Infantry cards are alredy in the base deck.",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 37,
@@ -790,7 +862,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 38,
@@ -811,7 +885,9 @@
     "obtain_display": "피의 남작(Bloody Baron)과의 궨트 대결 승리. 남작이 떠난 경우 남작의 집무실 책상 위에서 획득 가능 (퀘스트: 궨트: 벨렌의 도박꾼들) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat the Bloody Baron in a match of Gwent to receive this card. Can be obtained during Gwent: Velen Players)</div>",
     "obtain_raw": "Beat the Bloody Baron in a match of Gwent to receive this card. Can be obtained during Gwent: Velen Players",
     "is_base_deck": false,
-    "obtain_ko": "피의 남작(Bloody Baron)과의 궨트 대결 승리. 남작이 떠난 경우 남작의 집무실 책상 위에서 획득 가능 (퀘스트: 궨트: 벨렌의 도박꾼들)"
+    "obtain_ko": "피의 남작(Bloody Baron)과의 궨트 대결 승리. 남작이 떠난 경우 남작의 집무실 책상 위에서 획득 가능 (퀘스트: 궨트: 벨렌의 도박꾼들)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 39,
@@ -832,7 +908,9 @@
     "obtain_display": "Sold by the Innkeep at Arinbjorn on Skellige . Due to Madman Lugos and Blueboy Lugos questlines progressing in Arinbjorn after clearing the lighthouse, we recommend buying out the Innkeep as soon as you arrive in Arinbjorn . <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeep at Arinbjorn on Skellige . Due to Madman Lugos and Blueboy Lugos questlines progressing in Arinbjorn after clearing the lighthouse, we recommend buying out the Innkeep as soon as you arrive in Arinbjorn .)</div>",
     "obtain_raw": "Sold by the Innkeep at Arinbjorn on Skellige . Due to Madman Lugos and Blueboy Lugos questlines progressing in Arinbjorn after clearing the lighthouse, we recommend buying out the Innkeep as soon as you arrive in Arinbjorn .",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeep at Arinbjorn on Skellige . Due to Madman Lugos and Blueboy Lugos questlines progressing in Arinbjorn after clearing the lighthouse, we recommend buying out the Innkeep as soon as you arrive in Arinbjorn ."
+    "obtain_ko": "Sold by the Innkeep at Arinbjorn on Skellige . Due to Madman Lugos and Blueboy Lugos questlines progressing in Arinbjorn after clearing the lighthouse, we recommend buying out the Innkeep as soon as you arrive in Arinbjorn .",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 40,
@@ -853,7 +931,9 @@
     "obtain_display": "미드콥스(Midcopse)의 소년 하디(Haddy)와의 궨트 대결 승리 (퀘스트: 궨트: 벨렌의 도박꾼들) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat the young lad Haddy in a match of Gwent to receive this card. Can be obtained during Gwent: Velen Players)</div>",
     "obtain_raw": "Beat the young lad Haddy in a match of Gwent to receive this card. Can be obtained during Gwent: Velen Players",
     "is_base_deck": false,
-    "obtain_ko": "미드콥스(Midcopse)의 소년 하디(Haddy)와의 궨트 대결 승리 (퀘스트: 궨트: 벨렌의 도박꾼들)"
+    "obtain_ko": "미드콥스(Midcopse)의 소년 하디(Haddy)와의 궨트 대결 승리 (퀘스트: 궨트: 벨렌의 도박꾼들)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 41,
@@ -874,7 +954,9 @@
     "obtain_display": "백색 과수원 여관주인 또는 인근 유랑 상인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper near the the White Orchard Inn, or later, a merchant walking nearby)</div>",
     "obtain_raw": "Sold by the Innkeeper near the the White Orchard Inn, or later, a merchant walking nearby",
     "is_base_deck": false,
-    "obtain_ko": "백색 과수원 여관주인 또는 인근 유랑 상인이 판매"
+    "obtain_ko": "백색 과수원 여관주인 또는 인근 유랑 상인이 판매",
+    "is_leader": true,
+    "leader_ability": "전장에 나와 있는 모든 날씨 카드의 효과를 즉시 제거합니다. (맑은 날씨 효과)"
   },
   {
     "id": 42,
@@ -895,7 +977,9 @@
     "obtain_display": "비지마(Vizima) 왕궁 정원의 닐프가드 귀족과의 궨트 대결 승리 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat the Nilfgaardian Nobleman in a match of Gwent to receive this card. Can be done even after Geralt leaves Vizima after the prologue in White Orchard – you naturally return here before the Battle of Kaer Morhen main quest.)</div>",
     "obtain_raw": "Beat the Nilfgaardian Nobleman in a match of Gwent to receive this card. Can be done even after Geralt leaves Vizima after the prologue in White Orchard – you naturally return here before the Battle of Kaer Morhen main quest.",
     "is_base_deck": false,
-    "obtain_ko": "비지마(Vizima) 왕궁 정원의 닐프가드 귀족과의 궨트 대결 승리"
+    "obtain_ko": "비지마(Vizima) 왕궁 정원의 닐프가드 귀족과의 궨트 대결 승리",
+    "is_leader": true,
+    "leader_ability": "아군의 모든 공성 전투 부대 위력을 2배로 증가시킵니다. (사령관의 뿔나팔과 중첩 불가)"
   },
   {
     "id": 43,
@@ -916,7 +1000,9 @@
     "obtain_display": "파시플로라(Passiflora) 토너먼트에서 버나드 툴(Bernard Tulle) 격파 (퀘스트: 궨트: 최고 스테이크) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Bernard Tulle in the Passiflora Inn tournament. Can be obtained during Gwent: High Stakes)</div>",
     "obtain_raw": "Beat Bernard Tulle in the Passiflora Inn tournament. Can be obtained during Gwent: High Stakes",
     "is_base_deck": false,
-    "obtain_ko": "파시플로라(Passiflora) 토너먼트에서 버나드 툴(Bernard Tulle) 격파 (퀘스트: 궨트: 최고 스테이크)"
+    "obtain_ko": "파시플로라(Passiflora) 토너먼트에서 버나드 툴(Bernard Tulle) 격파 (퀘스트: 궨트: 최고 스테이크)",
+    "is_leader": true,
+    "leader_ability": "상대 공성 부대 위력 총합이 10 이상일 경우, 상대의 가장 강력한 공성 전투 부대를 파괴합니다."
   },
   {
     "id": 44,
@@ -937,7 +1023,9 @@
     "obtain_display": "까마귀 횃대(Crow's Perch) 상인이 판매 or Devil's Pit <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Shopkeeper in Crow's Perch or Devil's Pit)</div>",
     "obtain_raw": "Sold by a Shopkeeper in Crow's Perch or Devil's Pit",
     "is_base_deck": false,
-    "obtain_ko": "까마귀 횃대(Crow's Perch) 상인이 판매 or Devil's Pit"
+    "obtain_ko": "까마귀 횃대(Crow's Perch) 상인이 판매 or Devil's Pit",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 45,
@@ -958,7 +1046,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 46,
@@ -979,7 +1069,9 @@
     "obtain_display": "린덴베일(Lindenvale) 상인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Shopkeeper in Lindenvale)</div>",
     "obtain_raw": "Sold by a Shopkeeper in Lindenvale",
     "is_base_deck": false,
-    "obtain_ko": "린덴베일(Lindenvale) 상인이 판매"
+    "obtain_ko": "린덴베일(Lindenvale) 상인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 47,
@@ -1000,7 +1092,9 @@
     "obtain_display": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Shopkeeper in Claywich)</div>",
     "obtain_raw": "Sold by a Shopkeeper in Claywich",
     "is_base_deck": false,
-    "obtain_ko": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인)"
+    "obtain_ko": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 48,
@@ -1021,7 +1115,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 49,
@@ -1042,7 +1138,9 @@
     "obtain_display": "까마귀 횃대(Crow's Perch) 보급장교가 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Quartermaster in Crow's Perch)</div>",
     "obtain_raw": "Sold by the Quartermaster in Crow's Perch",
     "is_base_deck": false,
-    "obtain_ko": "까마귀 횃대(Crow's Perch) 보급장교가 판매"
+    "obtain_ko": "까마귀 횃대(Crow's Perch) 보급장교가 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 50,
@@ -1063,7 +1161,9 @@
     "obtain_display": "린덴베일(Lindenvale) 상인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Shopkeeper in Lindenvale)</div>",
     "obtain_raw": "Sold by a Shopkeeper in Lindenvale",
     "is_base_deck": false,
-    "obtain_ko": "린덴베일(Lindenvale) 상인이 판매"
+    "obtain_ko": "린덴베일(Lindenvale) 상인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 51,
@@ -1084,7 +1184,9 @@
     "obtain_display": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Shopkeeper in Claywich)</div>",
     "obtain_raw": "Sold by a Shopkeeper in Claywich",
     "is_base_deck": false,
-    "obtain_ko": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인)"
+    "obtain_ko": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 52,
@@ -1105,7 +1207,9 @@
     "obtain_display": "퀘스트 '위험한 게임(A Dangerous Game)' 진행 중 획득. 놓친 경우 메인 퀘스트 '탈옥' 중 쓰러뜨린 교도소장에게서 루팅 가능 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Get this card during the A Dangerous Game quest with Zoltan. If you miss the quest, Fringilla Vigo card can also drop from the Prison Warden Geralt defeats during The Great Escape main quest.)</div>",
     "obtain_raw": "Get this card during the A Dangerous Game quest with Zoltan. If you miss the quest, Fringilla Vigo card can also drop from the Prison Warden Geralt defeats during The Great Escape main quest.",
     "is_base_deck": false,
-    "obtain_ko": "퀘스트 '위험한 게임(A Dangerous Game)' 진행 중 획득. 놓친 경우 메인 퀘스트 '탈옥' 중 쓰러뜨린 교도소장에게서 루팅 가능"
+    "obtain_ko": "퀘스트 '위험한 게임(A Dangerous Game)' 진행 중 획득. 놓친 경우 메인 퀘스트 '탈옥' 중 쓰러뜨린 교도소장에게서 루팅 가능",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 53,
@@ -1126,7 +1230,9 @@
     "obtain_display": "린덴베일(Lindenvale) 상인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Shopkeeper in Lindenvale)</div>",
     "obtain_raw": "Sold by a Shopkeeper in Lindenvale",
     "is_base_deck": false,
-    "obtain_ko": "린덴베일(Lindenvale) 상인이 판매"
+    "obtain_ko": "린덴베일(Lindenvale) 상인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 54,
@@ -1147,7 +1253,9 @@
     "obtain_display": "교차로 여관(Inn at the Crossroads) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeep in Inn at the Crossroads)</div>",
     "obtain_raw": "Sold by the Innkeep in Inn at the Crossroads",
     "is_base_deck": false,
-    "obtain_ko": "교차로 여관(Inn at the Crossroads) 여관주인이 판매"
+    "obtain_ko": "교차로 여관(Inn at the Crossroads) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 55,
@@ -1168,7 +1276,9 @@
     "obtain_display": "까마귀 횃대(Crow's Perch) 상인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Shopkeeper in Crow's Perch)</div>",
     "obtain_raw": "Sold by a Shopkeeper in Crow's Perch",
     "is_base_deck": false,
-    "obtain_ko": "까마귀 횃대(Crow's Perch) 상인이 판매"
+    "obtain_ko": "까마귀 횃대(Crow's Perch) 상인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 56,
@@ -1189,7 +1299,9 @@
     "obtain_display": "일곱 마리 고양이 여관(Seven Cats Inn) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeep at Seven Cats Inn)</div>",
     "obtain_raw": "Sold by the Innkeep at Seven Cats Inn",
     "is_base_deck": false,
-    "obtain_ko": "일곱 마리 고양이 여관(Seven Cats Inn) 여관주인이 판매"
+    "obtain_ko": "일곱 마리 고양이 여관(Seven Cats Inn) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 57,
@@ -1210,7 +1322,9 @@
     "obtain_display": "암거위 여관(Cunny of the Goose) 여관주인이 판매 inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeep at Cunny of the Goose inn)</div>",
     "obtain_raw": "Sold by the Innkeep at Cunny of the Goose inn",
     "is_base_deck": false,
-    "obtain_ko": "암거위 여관(Cunny of the Goose) 여관주인이 판매 inn"
+    "obtain_ko": "암거위 여관(Cunny of the Goose) 여관주인이 판매 inn",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 58,
@@ -1231,7 +1345,9 @@
     "obtain_display": "오레톤(Oreton)의 배 무늬공과의 궨트 대결 승리 (퀘스트: 궨트: 벨렌의 도박꾼들) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat the Boatwright in Oreton in a game of gwent. Part of the quest Gwent: Velen Players)</div>",
     "obtain_raw": "Beat the Boatwright in Oreton in a game of gwent. Part of the quest Gwent: Velen Players",
     "is_base_deck": false,
-    "obtain_ko": "오레톤(Oreton)의 배 무늬공과의 궨트 대결 승리 (퀘스트: 궨트: 벨렌의 도박꾼들)"
+    "obtain_ko": "오레톤(Oreton)의 배 무늬공과의 궨트 대결 승리 (퀘스트: 궨트: 벨렌의 도박꾼들)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 59,
@@ -1252,7 +1368,9 @@
     "obtain_display": "교차로 여관(Inn at the Crossroads)의 여관주인과의 궨트 대결 승리 (퀘스트: 궨트: 여관주인과 대결) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat the Innkeep in Inn at the Crossroads in a game of gwent. Part of the quest Gwent: Playing Innkeeps)</div>",
     "obtain_raw": "Beat the Innkeep in Inn at the Crossroads in a game of gwent. Part of the quest Gwent: Playing Innkeeps",
     "is_base_deck": false,
-    "obtain_ko": "교차로 여관(Inn at the Crossroads)의 여관주인과의 궨트 대결 승리 (퀘스트: 궨트: 여관주인과 대결)"
+    "obtain_ko": "교차로 여관(Inn at the Crossroads)의 여관주인과의 궨트 대결 승리 (퀘스트: 궨트: 여관주인과 대결)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 60,
@@ -1273,7 +1391,9 @@
     "obtain_display": "미드콥스(Midcopse) 상인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Shopkeeper in Midcopse)</div>",
     "obtain_raw": "Sold by a Shopkeeper in Midcopse",
     "is_base_deck": false,
-    "obtain_ko": "미드콥스(Midcopse) 상인이 판매"
+    "obtain_ko": "미드콥스(Midcopse) 상인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 61,
@@ -1294,7 +1414,9 @@
     "obtain_display": "파시플로라의 마르키즈 세레니티(Marquise Serenity)와의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Marquise Serenity in a game of gwent. Part of the quest Gwent: Big City Players)</div>",
     "obtain_raw": "Beat Marquise Serenity in a game of gwent. Part of the quest Gwent: Big City Players",
     "is_base_deck": false,
-    "obtain_ko": "파시플로라의 마르키즈 세레니티(Marquise Serenity)와의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼)"
+    "obtain_ko": "파시플로라의 마르키즈 세레니티(Marquise Serenity)와의 궨트 대결 승리 (퀘스트: 궨트: 대도시의 도박꾼)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 62,
@@ -1315,7 +1437,9 @@
     "obtain_display": "Sold by a Quartermaster in Crow's Perch <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Quartermaster in Crow's Perch)</div>",
     "obtain_raw": "Sold by a Quartermaster in Crow's Perch",
     "is_base_deck": false,
-    "obtain_ko": "Sold by a Quartermaster in Crow's Perch"
+    "obtain_ko": "Sold by a Quartermaster in Crow's Perch",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 63,
@@ -1336,7 +1460,9 @@
     "obtain_display": "까마귀 횃대(Crow's Perch) 상인이 판매 or Devil's Pit <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by a Shopkeeper in Crow's Perch or Devil's Pit)</div>",
     "obtain_raw": "Sold by a Shopkeeper in Crow's Perch or Devil's Pit",
     "is_base_deck": false,
-    "obtain_ko": "까마귀 횃대(Crow's Perch) 상인이 판매 or Devil's Pit"
+    "obtain_ko": "까마귀 횃대(Crow's Perch) 상인이 판매 or Devil's Pit",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 64,
@@ -1357,7 +1483,9 @@
     "obtain_display": "교차로 여관(Inn at the Crossroads) 여관주인이 판매 or Lindenvale <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper at Inn at the Crossroads or Lindenvale)</div>",
     "obtain_raw": "Sold by the Innkeeper at Inn at the Crossroads or Lindenvale",
     "is_base_deck": false,
-    "obtain_ko": "교차로 여관(Inn at the Crossroads) 여관주인이 판매 or Lindenvale"
+    "obtain_ko": "교차로 여관(Inn at the Crossroads) 여관주인이 판매 or Lindenvale",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 65,
@@ -1378,7 +1506,9 @@
     "obtain_display": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Shopkeeper in Claywich)</div>",
     "obtain_raw": "Sold by the Shopkeeper in Claywich",
     "is_base_deck": false,
-    "obtain_ko": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인)"
+    "obtain_ko": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 66,
@@ -1399,7 +1529,9 @@
     "obtain_display": "Sold by the Shopkeeper in Lindenvale <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Shopkeeper in Lindenvale)</div>",
     "obtain_raw": "Sold by the Shopkeeper in Lindenvale",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Shopkeeper in Lindenvale"
+    "obtain_ko": "Sold by the Shopkeeper in Lindenvale",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 67,
@@ -1420,7 +1552,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 68,
@@ -1441,7 +1575,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 69,
@@ -1462,7 +1598,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 70,
@@ -1483,7 +1621,9 @@
     "obtain_display": "교차로 여관(Inn at the Crossroads) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper at Inn at the Crossroads)</div>",
     "obtain_raw": "Sold by the Innkeeper at Inn at the Crossroads",
     "is_base_deck": false,
-    "obtain_ko": "교차로 여관(Inn at the Crossroads) 여관주인이 판매"
+    "obtain_ko": "교차로 여관(Inn at the Crossroads) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 71,
@@ -1504,7 +1644,9 @@
     "obtain_display": "황금 철갑상어 여관(The Golden Sturgeon) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper at the Golden Sturgeon)</div>",
     "obtain_raw": "Sold by the Innkeeper at the Golden Sturgeon",
     "is_base_deck": false,
-    "obtain_ko": "황금 철갑상어 여관(The Golden Sturgeon) 여관주인이 판매"
+    "obtain_ko": "황금 철갑상어 여관(The Golden Sturgeon) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 72,
@@ -1525,7 +1667,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 73,
@@ -1546,7 +1690,9 @@
     "obtain_display": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Shopkeeper in Claywich)</div>",
     "obtain_raw": "Sold by the Shopkeeper in Claywich",
     "is_base_deck": false,
-    "obtain_ko": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인)"
+    "obtain_ko": "클레이위치(Claywich) 상인이 판매 (사람 잡는 악마들 구출 상인)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 74,
@@ -1567,7 +1713,9 @@
     "obtain_display": "노비그라드 킹피셔 여관의 올리비에(Olivier)와의 궨트 대결 승리 (퀘스트: 궨트: 여관주인과 대결). 놓쳤을 경우 여관 내부 방에서 루팅 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Olivier (The Kingfisher Innkeep ) in a game of gwent. Part of the quest Gwent: Playing Innkeeps)</div>",
     "obtain_raw": "Beat Olivier (The Kingfisher Innkeep ) in a game of gwent. Part of the quest Gwent: Playing Innkeeps",
     "is_base_deck": false,
-    "obtain_ko": "노비그라드 킹피셔 여관의 올리비에(Olivier)와의 궨트 대결 승리 (퀘스트: 궨트: 여관주인과 대결). 놓쳤을 경우 여관 내부 방에서 루팅"
+    "obtain_ko": "노비그라드 킹피셔 여관의 올리비에(Olivier)와의 궨트 대결 승리 (퀘스트: 궨트: 여관주인과 대결). 놓쳤을 경우 여관 내부 방에서 루팅",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 75,
@@ -1588,7 +1736,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 76,
@@ -1609,7 +1759,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 77,
@@ -1630,7 +1782,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 78,
@@ -1651,7 +1805,9 @@
     "obtain_display": "일곱 마리 고양이 여관(Seven Cats Inn) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper at the Seven Cats Inn)</div>",
     "obtain_raw": "Sold by the Innkeeper at the Seven Cats Inn",
     "is_base_deck": false,
-    "obtain_ko": "일곱 마리 고양이 여관(Seven Cats Inn) 여관주인이 판매"
+    "obtain_ko": "일곱 마리 고양이 여관(Seven Cats Inn) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 79,
@@ -1672,7 +1828,9 @@
     "obtain_display": "Sold by the Innkeeper at the Cunny of the Goose inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper at the Cunny of the Goose inn)</div>",
     "obtain_raw": "Sold by the Innkeeper at the Cunny of the Goose inn",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper at the Cunny of the Goose inn"
+    "obtain_ko": "Sold by the Innkeeper at the Cunny of the Goose inn",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 80,
@@ -1693,7 +1851,9 @@
     "obtain_display": "Sold by the Shopkeeper in Crow's Perch <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Shopkeeper in Crow's Perch)</div>",
     "obtain_raw": "Sold by the Shopkeeper in Crow's Perch",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Shopkeeper in Crow's Perch"
+    "obtain_ko": "Sold by the Shopkeeper in Crow's Perch",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 81,
@@ -1714,7 +1874,9 @@
     "obtain_display": "Sold by the Innkeepers at Inn at the Crossroads and in Lindenvale <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeepers at Inn at the Crossroads and in Lindenvale)</div>",
     "obtain_raw": "Sold by the Innkeepers at Inn at the Crossroads and in Lindenvale",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeepers at Inn at the Crossroads and in Lindenvale"
+    "obtain_ko": "Sold by the Innkeepers at Inn at the Crossroads and in Lindenvale",
+    "is_leader": true,
+    "leader_ability": "상대방의 손패에서 무작위 카드 3장을 골라 살펴봅니다."
   },
   {
     "id": 82,
@@ -1735,7 +1897,9 @@
     "obtain_display": "파시플로라 토너먼트에서 사샤(Sasha) 격파 (퀘스트: 궨트: 최고 스테이크) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Defeat Sasha in a game of gwent. Part of the Gwent: High Stakes quest)</div>",
     "obtain_raw": "Defeat Sasha in a game of gwent. Part of the Gwent: High Stakes quest",
     "is_base_deck": false,
-    "obtain_ko": "파시플로라 토너먼트에서 사샤(Sasha) 격파 (퀘스트: 궨트: 최고 스테이크)"
+    "obtain_ko": "파시플로라 토너먼트에서 사샤(Sasha) 격파 (퀘스트: 궨트: 최고 스테이크)",
+    "is_leader": true,
+    "leader_ability": "상대방의 버린 카드 더미(무덤)에서 카드 1장을 가져와 내 손패로 넣습니다."
   },
   {
     "id": 83,
@@ -1756,7 +1920,9 @@
     "obtain_display": "퀘스트 '궨트: 스켈리게 스타일(Gwent: Skellige Style)'의 모든 궨트 대결 완료 보상 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Complete all gwent matches in Gwent: Skellige Style quest.)</div>",
     "obtain_raw": "Complete all gwent matches in Gwent: Skellige Style quest.",
     "is_base_deck": false,
-    "obtain_ko": "퀘스트 '궨트: 스켈리게 스타일(Gwent: Skellige Style)'의 모든 궨트 대결 완료 보상"
+    "obtain_ko": "퀘스트 '궨트: 스켈리게 스타일(Gwent: Skellige Style)'의 모든 궨트 대결 완료 보상",
+    "is_leader": true,
+    "leader_ability": "상대방의 지휘관 특수 능력을 즉시 취소/무력화합니다."
   },
   {
     "id": 84,
@@ -1777,7 +1943,9 @@
     "obtain_display": "Sold by the Innkeeper of The Golden Sturgeon <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper of The Golden Sturgeon)</div>",
     "obtain_raw": "Sold by the Innkeeper of The Golden Sturgeon",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper of The Golden Sturgeon"
+    "obtain_ko": "Sold by the Innkeeper of The Golden Sturgeon",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 85,
@@ -1798,7 +1966,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 86,
@@ -1819,7 +1989,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 87,
@@ -1840,7 +2012,9 @@
     "obtain_display": "파시플로라(Passiflora)의 마르키즈 세레니티가 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by Marquise Serenity at the Passiflora Inn)</div>",
     "obtain_raw": "Sold by Marquise Serenity at the Passiflora Inn",
     "is_base_deck": false,
-    "obtain_ko": "파시플로라(Passiflora)의 마르키즈 세레니티가 판매"
+    "obtain_ko": "파시플로라(Passiflora)의 마르키즈 세레니티가 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 88,
@@ -1861,7 +2035,9 @@
     "obtain_display": "Sold by the Innkeeper of The Golden Sturgeon <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper of The Golden Sturgeon)</div>",
     "obtain_raw": "Sold by the Innkeeper of The Golden Sturgeon",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper of The Golden Sturgeon"
+    "obtain_ko": "Sold by the Innkeeper of The Golden Sturgeon",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 89,
@@ -1882,7 +2058,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 90,
@@ -1903,7 +2081,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 91,
@@ -1924,7 +2104,9 @@
     "obtain_display": "옥센푸르트 연금술 여관(The Alchemy) 여관주인 스체판이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by Stjepan in The Alchemy Inn in Oxenfurt)</div>",
     "obtain_raw": "Sold by Stjepan in The Alchemy Inn in Oxenfurt",
     "is_base_deck": false,
-    "obtain_ko": "옥센푸르트 연금술 여관(The Alchemy) 여관주인 스체판이 판매"
+    "obtain_ko": "옥센푸르트 연금술 여관(The Alchemy) 여관주인 스체판이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 92,
@@ -1945,7 +2127,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 93,
@@ -1966,7 +2150,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 94,
@@ -1987,7 +2173,9 @@
     "obtain_display": "졸탄 치베이(Zoltan Chivay)와의 궨트 대결 승리 (퀘스트: 궨트: 오랜 친구) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Zoltan in a match of gwent. Part of Gwent: Old Pals quest.)</div>",
     "obtain_raw": "Beat Zoltan in a match of gwent. Part of Gwent: Old Pals quest.",
     "is_base_deck": false,
-    "obtain_ko": "졸탄 치베이(Zoltan Chivay)와의 궨트 대결 승리 (퀘스트: 궨트: 오랜 친구)"
+    "obtain_ko": "졸탄 치베이(Zoltan Chivay)와의 궨트 대결 승리 (퀘스트: 궨트: 오랜 친구)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 95,
@@ -2008,7 +2196,9 @@
     "obtain_display": "우리알라 항구(Urialla Harbor) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper at Urialla Harbor)</div>",
     "obtain_raw": "Sold by the Innkeeper at Urialla Harbor",
     "is_base_deck": false,
-    "obtain_ko": "우리알라 항구(Urialla Harbor) 여관주인이 판매"
+    "obtain_ko": "우리알라 항구(Urialla Harbor) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 96,
@@ -2029,7 +2219,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 97,
@@ -2050,7 +2242,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 98,
@@ -2071,7 +2265,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 99,
@@ -2092,7 +2288,9 @@
     "obtain_display": "킹피셔 여관(The Kingfisher) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper of The Kingfisher Inn)</div>",
     "obtain_raw": "Sold by the Innkeeper of The Kingfisher Inn",
     "is_base_deck": false,
-    "obtain_ko": "킹피셔 여관(The Kingfisher) 여관주인이 판매"
+    "obtain_ko": "킹피셔 여관(The Kingfisher) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 100,
@@ -2113,7 +2311,9 @@
     "obtain_display": "암거위 여관(Cunny of the Goose) 여관주인이 판매 inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper of Cunny of the Goose inn)</div>",
     "obtain_raw": "Sold by the Innkeeper of Cunny of the Goose inn",
     "is_base_deck": false,
-    "obtain_ko": "암거위 여관(Cunny of the Goose) 여관주인이 판매 inn"
+    "obtain_ko": "암거위 여관(Cunny of the Goose) 여관주인이 판매 inn",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 101,
@@ -2134,7 +2334,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 102,
@@ -2155,7 +2357,9 @@
     "obtain_display": "킹피셔 여관(The Kingfisher) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper of The Kingfisher Inn)</div>",
     "obtain_raw": "Sold by the Innkeeper of The Kingfisher Inn",
     "is_base_deck": false,
-    "obtain_ko": "킹피셔 여관(The Kingfisher) 여관주인이 판매"
+    "obtain_ko": "킹피셔 여관(The Kingfisher) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 103,
@@ -2176,7 +2380,9 @@
     "obtain_display": "Sold by the Innkeeper of Seven Cats Inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper of Seven Cats Inn)</div>",
     "obtain_raw": "Sold by the Innkeeper of Seven Cats Inn",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper of Seven Cats Inn"
+    "obtain_ko": "Sold by the Innkeeper of Seven Cats Inn",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 104,
@@ -2197,7 +2403,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 105,
@@ -2218,7 +2426,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 106,
@@ -2239,7 +2449,9 @@
     "obtain_display": "스켈리게 퀘스트 '충격 요법(Shock Therapy)' 완료 보상 (말 못하는 척하는 드루이드 골려주기) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Complete the Shock Therapy side quest - where Geralt tricks a druid pretending to be mute.)</div>",
     "obtain_raw": "Complete the Shock Therapy side quest - where Geralt tricks a druid pretending to be mute.",
     "is_base_deck": false,
-    "obtain_ko": "스켈리게 퀘스트 '충격 요법(Shock Therapy)' 완료 보상 (말 못하는 척하는 드루이드 골려주기)"
+    "obtain_ko": "스켈리게 퀘스트 '충격 요법(Shock Therapy)' 완료 보상 (말 못하는 척하는 드루이드 골려주기)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 107,
@@ -2260,7 +2472,9 @@
     "obtain_display": "퀘스트 '위험한 게임(A Dangerous Game)' 진행 중 제드의 집에서 강도의 시체 루팅 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Loot from the body of a bandit in Zed's house when helping Zoltan. Part of A Dangerous Game quest.)</div>",
     "obtain_raw": "Loot from the body of a bandit in Zed's house when helping Zoltan. Part of A Dangerous Game quest.",
     "is_base_deck": false,
-    "obtain_ko": "퀘스트 '위험한 게임(A Dangerous Game)' 진행 중 제드의 집에서 강도의 시체 루팅"
+    "obtain_ko": "퀘스트 '위험한 게임(A Dangerous Game)' 진행 중 제드의 집에서 강도의 시체 루팅",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 108,
@@ -2281,7 +2495,9 @@
     "obtain_display": "킹피셔 여관(The Kingfisher) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper of The Kingfisher Inn)</div>",
     "obtain_raw": "Sold by the Innkeeper of The Kingfisher Inn",
     "is_base_deck": false,
-    "obtain_ko": "킹피셔 여관(The Kingfisher) 여관주인이 판매"
+    "obtain_ko": "킹피셔 여관(The Kingfisher) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 109,
@@ -2302,7 +2518,9 @@
     "obtain_display": "Sold by the Innkeeper of The Golden Sturgeon <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper of The Golden Sturgeon)</div>",
     "obtain_raw": "Sold by the Innkeeper of The Golden Sturgeon",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper of The Golden Sturgeon"
+    "obtain_ko": "Sold by the Innkeeper of The Golden Sturgeon",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 110,
@@ -2323,7 +2541,9 @@
     "obtain_display": "Sold by the Innkeeper of Seven Cats Inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper of Seven Cats Inn)</div>",
     "obtain_raw": "Sold by the Innkeeper of Seven Cats Inn",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper of Seven Cats Inn"
+    "obtain_ko": "Sold by the Innkeeper of Seven Cats Inn",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 111,
@@ -2344,7 +2564,9 @@
     "obtain_display": "파시플로라(Passiflora)의 마르키즈 세레니티가 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by Marquise Serenity at the Passiflora Inn)</div>",
     "obtain_raw": "Sold by Marquise Serenity at the Passiflora Inn",
     "is_base_deck": false,
-    "obtain_ko": "파시플로라(Passiflora)의 마르키즈 세레니티가 판매"
+    "obtain_ko": "파시플로라(Passiflora)의 마르키즈 세레니티가 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 112,
@@ -2365,7 +2587,9 @@
     "obtain_display": "옥센푸르트 연금술 여관(The Alchemy) 여관주인 스체판이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by Stjepan in The Alchemy Inn in Oxenfurt)</div>",
     "obtain_raw": "Sold by Stjepan in The Alchemy Inn in Oxenfurt",
     "is_base_deck": false,
-    "obtain_ko": "옥센푸르트 연금술 여관(The Alchemy) 여관주인 스체판이 판매"
+    "obtain_ko": "옥센푸르트 연금술 여관(The Alchemy) 여관주인 스체판이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 113,
@@ -2386,7 +2610,9 @@
     "obtain_display": "트리스와 함께 잠입하는 베겔버드 영지 미니 토너먼트에서 승리 (퀘스트: 생사의 문제) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Obtain the Milva card during a mini tournament at Vegelbud Residence when you infiltrate with Triss. Part of A Matter of Life and Death side quest.)</div>",
     "obtain_raw": "Obtain the Milva card during a mini tournament at Vegelbud Residence when you infiltrate with Triss. Part of A Matter of Life and Death side quest.",
     "is_base_deck": false,
-    "obtain_ko": "트리스와 함께 잠입하는 베겔버드 영지 미니 토너먼트에서 승리 (퀘스트: 생사의 문제)"
+    "obtain_ko": "트리스와 함께 잠입하는 베겔버드 영지 미니 토너먼트에서 승리 (퀘스트: 생사의 문제)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 114,
@@ -2407,7 +2633,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 115,
@@ -2428,7 +2656,9 @@
     "obtain_display": "테메리아 유격대 은신처의 버논 로치(Vernon Roche)와의 궨트 대결 승리 (퀘스트: 궨트: 오랜 친구) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Vernon Roche in a match of gwent. Part of Gwent: Old Pals quest.)</div>",
     "obtain_raw": "Beat Vernon Roche in a match of gwent. Part of Gwent: Old Pals quest.",
     "is_base_deck": false,
-    "obtain_ko": "테메리아 유격대 은신처의 버논 로치(Vernon Roche)와의 궨트 대결 승리 (퀘스트: 궨트: 오랜 친구)"
+    "obtain_ko": "테메리아 유격대 은신처의 버논 로치(Vernon Roche)와의 궨트 대결 승리 (퀘스트: 궨트: 오랜 친구)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 116,
@@ -2449,7 +2679,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 117,
@@ -2470,7 +2702,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 118,
@@ -2491,7 +2725,9 @@
     "obtain_display": "옥센푸르트 연금술 여관(The Alchemy) 여관주인 스체판이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by Stjepan in The Alchemy Inn in Oxenfurt)</div>",
     "obtain_raw": "Sold by Stjepan in The Alchemy Inn in Oxenfurt",
     "is_base_deck": false,
-    "obtain_ko": "옥센푸르트 연금술 여관(The Alchemy) 여관주인 스체판이 판매"
+    "obtain_ko": "옥센푸르트 연금술 여관(The Alchemy) 여관주인 스체판이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 119,
@@ -2512,7 +2748,9 @@
     "obtain_display": "Sold by Innkeeper in The Kingfisher Inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by Innkeeper in The Kingfisher Inn)</div>",
     "obtain_raw": "Sold by Innkeeper in The Kingfisher Inn",
     "is_base_deck": false,
-    "obtain_ko": "Sold by Innkeeper in The Kingfisher Inn"
+    "obtain_ko": "Sold by Innkeeper in The Kingfisher Inn",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 120,
@@ -2533,7 +2771,9 @@
     "obtain_display": "케어 트롤데 항구의 재단사 슈스타(Sjusta)와의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Sjusta in a match of gwent. Part of Gwent: Skellige Style quest.)</div>",
     "obtain_raw": "Beat Sjusta in a match of gwent. Part of Gwent: Skellige Style quest.",
     "is_base_deck": false,
-    "obtain_ko": "케어 트롤데 항구의 재단사 슈스타(Sjusta)와의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일)"
+    "obtain_ko": "케어 트롤데 항구의 재단사 슈스타(Sjusta)와의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 121,
@@ -2554,7 +2794,9 @@
     "obtain_display": "Sold by Cunny of the Goose Innkeeper <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by Cunny of the Goose Innkeeper)</div>",
     "obtain_raw": "Sold by Cunny of the Goose Innkeeper",
     "is_base_deck": false,
-    "obtain_ko": "Sold by Cunny of the Goose Innkeeper"
+    "obtain_ko": "Sold by Cunny of the Goose Innkeeper",
+    "is_leader": true,
+    "leader_ability": "전투 개시 시(1라운드 시작 시) 카드 1장을 추가로 뽑습니다."
   },
   {
     "id": 122,
@@ -2575,7 +2817,9 @@
     "obtain_display": "Beat Fineas during the gwent tournament at Passiflora Inn . Part of Gwent: High Stakes quest. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Fineas during the gwent tournament at Passiflora Inn . Part of Gwent: High Stakes quest.)</div>",
     "obtain_raw": "Beat Fineas during the gwent tournament at Passiflora Inn . Part of Gwent: High Stakes quest.",
     "is_base_deck": false,
-    "obtain_ko": "Beat Fineas during the gwent tournament at Passiflora Inn . Part of Gwent: High Stakes quest."
+    "obtain_ko": "Beat Fineas during the gwent tournament at Passiflora Inn . Part of Gwent: High Stakes quest.",
+    "is_leader": true,
+    "leader_ability": "상대 근접 부대 위력 총합이 10 이상일 경우, 상대의 가장 강력한 근접 전투 부대를 파괴합니다."
   },
   {
     "id": 123,
@@ -2596,7 +2840,9 @@
     "obtain_display": "Beat all gwent players that are part of Gwent: Big City Players quest. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat all gwent players that are part of Gwent: Big City Players quest.)</div>",
     "obtain_raw": "Beat all gwent players that are part of Gwent: Big City Players quest.",
     "is_base_deck": false,
-    "obtain_ko": "Beat all gwent players that are part of Gwent: Big City Players quest."
+    "obtain_ko": "Beat all gwent players that are part of Gwent: Big City Players quest.",
+    "is_leader": true,
+    "leader_ability": "아군의 모든 원거리 전투 부대 위력을 2배로 증가시킵니다. (사령관의 뿔나팔과 중첩 불가)"
   },
   {
     "id": 124,
@@ -2617,7 +2863,9 @@
     "obtain_display": "아린비에른(Arinbjorn) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Arinbjorn)</div>",
     "obtain_raw": "Sold by the Innkeeper in Arinbjorn",
     "is_base_deck": false,
-    "obtain_ko": "아린비에른(Arinbjorn) 여관주인이 판매"
+    "obtain_ko": "아린비에른(Arinbjorn) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 125,
@@ -2638,7 +2886,9 @@
     "obtain_display": "Sold by the Innkeeper in Urialla Harbor <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Urialla Harbor)</div>",
     "obtain_raw": "Sold by the Innkeeper in Urialla Harbor",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper in Urialla Harbor"
+    "obtain_ko": "Sold by the Innkeeper in Urialla Harbor",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 126,
@@ -2659,7 +2909,9 @@
     "obtain_display": "스보를라그(Svorlag) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Svorlag)</div>",
     "obtain_raw": "Sold by the Innkeeper in Svorlag",
     "is_base_deck": false,
-    "obtain_ko": "스보를라그(Svorlag) 여관주인이 판매"
+    "obtain_ko": "스보를라그(Svorlag) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 127,
@@ -2680,7 +2932,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 128,
@@ -2701,7 +2955,9 @@
     "obtain_display": "Sold by the Innkeeper Jonas at New Port Inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper Jonas at New Port Inn)</div>",
     "obtain_raw": "Sold by the Innkeeper Jonas at New Port Inn",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper Jonas at New Port Inn"
+    "obtain_ko": "Sold by the Innkeeper Jonas at New Port Inn",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 129,
@@ -2722,7 +2978,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 130,
@@ -2743,7 +3001,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 131,
@@ -2764,7 +3024,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 132,
@@ -2785,7 +3047,9 @@
     "obtain_display": "Beat the Old Sage in Benek in a match of gwent. Part of Gwent: Velen Players <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat the Old Sage in Benek in a match of gwent. Part of Gwent: Velen Players)</div>",
     "obtain_raw": "Beat the Old Sage in Benek in a match of gwent. Part of Gwent: Velen Players",
     "is_base_deck": false,
-    "obtain_ko": "Beat the Old Sage in Benek in a match of gwent. Part of Gwent: Velen Players"
+    "obtain_ko": "Beat the Old Sage in Benek in a match of gwent. Part of Gwent: Velen Players",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 133,
@@ -2806,7 +3070,9 @@
     "obtain_display": "아린비에른(Arinbjorn) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Arinbjorn)</div>",
     "obtain_raw": "Sold by the Innkeeper in Arinbjorn",
     "is_base_deck": false,
-    "obtain_ko": "아린비에른(Arinbjorn) 여관주인이 판매"
+    "obtain_ko": "아린비에른(Arinbjorn) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 134,
@@ -2827,7 +3093,9 @@
     "obtain_display": "케어 트롤데의 크라흐 안 크라이트(Crach an Craite)와의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Crach an Craite in a match of gwent. Part of Gwent: Skellige Style)</div>",
     "obtain_raw": "Beat Crach an Craite in a match of gwent. Part of Gwent: Skellige Style",
     "is_base_deck": false,
-    "obtain_ko": "케어 트롤데의 크라흐 안 크라이트(Crach an Craite)와의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일)"
+    "obtain_ko": "케어 트롤데의 크라흐 안 크라이트(Crach an Craite)와의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 135,
@@ -2848,7 +3116,9 @@
     "obtain_display": "Sold by the Innkeeper Jonas at New Port Inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper Jonas at New Port Inn)</div>",
     "obtain_raw": "Sold by the Innkeeper Jonas at New Port Inn",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper Jonas at New Port Inn"
+    "obtain_ko": "Sold by the Innkeeper Jonas at New Port Inn",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 136,
@@ -2869,7 +3139,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 137,
@@ -2890,7 +3162,9 @@
     "obtain_display": "아린비에른(Arinbjorn) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Arinbjorn)</div>",
     "obtain_raw": "Sold by the Innkeeper in Arinbjorn",
     "is_base_deck": false,
-    "obtain_ko": "아린비에른(Arinbjorn) 여관주인이 판매"
+    "obtain_ko": "아린비에른(Arinbjorn) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 138,
@@ -2911,7 +3185,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 139,
@@ -2932,7 +3208,9 @@
     "obtain_display": "스보를라그(Svorlag) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Svorlag)</div>",
     "obtain_raw": "Sold by the Innkeeper in Svorlag",
     "is_base_deck": false,
-    "obtain_ko": "스보를라그(Svorlag) 여관주인이 판매"
+    "obtain_ko": "스보를라그(Svorlag) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 140,
@@ -2953,7 +3231,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 141,
@@ -2974,7 +3254,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 142,
@@ -2995,7 +3277,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 143,
@@ -3016,7 +3300,9 @@
     "obtain_display": "하르비켄(Harviken) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Harviken)</div>",
     "obtain_raw": "Sold by the Innkeeper in Harviken",
     "is_base_deck": false,
-    "obtain_ko": "하르비켄(Harviken) 여관주인이 판매"
+    "obtain_ko": "하르비켄(Harviken) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 144,
@@ -3037,7 +3323,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 145,
@@ -3058,7 +3346,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 146,
@@ -3079,7 +3369,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 147,
@@ -3100,7 +3392,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 148,
@@ -3121,7 +3415,9 @@
     "obtain_display": "하르비켄(Harviken) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Harviken)</div>",
     "obtain_raw": "Sold by the Innkeeper in Harviken",
     "is_base_deck": false,
-    "obtain_ko": "하르비켄(Harviken) 여관주인이 판매"
+    "obtain_ko": "하르비켄(Harviken) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 149,
@@ -3142,7 +3438,9 @@
     "obtain_display": "스보를라그(Svorlag) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Svorlag)</div>",
     "obtain_raw": "Sold by the Innkeeper in Svorlag",
     "is_base_deck": false,
-    "obtain_ko": "스보를라그(Svorlag) 여관주인이 판매"
+    "obtain_ko": "스보를라그(Svorlag) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 150,
@@ -3163,7 +3461,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 151,
@@ -3184,7 +3484,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 152,
@@ -3205,7 +3507,9 @@
     "obtain_display": "에르미온(Ermion/Mousesack)과의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Ermion in a match of gwent. Part of Gwent: Skellige Style quest)</div>",
     "obtain_raw": "Beat Ermion in a match of gwent. Part of Gwent: Skellige Style quest",
     "is_base_deck": false,
-    "obtain_ko": "에르미온(Ermion/Mousesack)과의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일)"
+    "obtain_ko": "에르미온(Ermion/Mousesack)과의 궨트 대결 승리 (퀘스트: 궨트: 스켈리게 스타일)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 153,
@@ -3226,7 +3530,9 @@
     "obtain_display": "Loot Hammond's body after encountering Jad Karadin Part of the Following the Thread side quest with Lambert <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Loot Hammond's body after encountering Jad Karadin Part of the Following the Thread side quest with Lambert)</div>",
     "obtain_raw": "Loot Hammond's body after encountering Jad Karadin Part of the Following the Thread side quest with Lambert",
     "is_base_deck": false,
-    "obtain_ko": "Loot Hammond's body after encountering Jad Karadin Part of the Following the Thread side quest with Lambert"
+    "obtain_ko": "Loot Hammond's body after encountering Jad Karadin Part of the Following the Thread side quest with Lambert",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 154,
@@ -3247,7 +3553,9 @@
     "obtain_display": "하르비켄(Harviken) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Harviken)</div>",
     "obtain_raw": "Sold by the Innkeeper in Harviken",
     "is_base_deck": false,
-    "obtain_ko": "하르비켄(Harviken) 여관주인이 판매"
+    "obtain_ko": "하르비켄(Harviken) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 155,
@@ -3268,7 +3576,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 156,
@@ -3289,7 +3599,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 157,
@@ -3310,7 +3622,9 @@
     "obtain_display": "트리스와 함께 잠입하는 베겔버드 영지 미니 토너먼트에서 승리 (퀘스트: 생사의 문제) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Obtain the Vampire: Bruxa card during a mini tournament at Vegelbud Residence when you infiltrate with Triss. Part of A Matter of Life and Death side quest.)</div>",
     "obtain_raw": "Obtain the Vampire: Bruxa card during a mini tournament at Vegelbud Residence when you infiltrate with Triss. Part of A Matter of Life and Death side quest.",
     "is_base_deck": false,
-    "obtain_ko": "트리스와 함께 잠입하는 베겔버드 영지 미니 토너먼트에서 승리 (퀘스트: 생사의 문제)"
+    "obtain_ko": "트리스와 함께 잠입하는 베겔버드 영지 미니 토너먼트에서 승리 (퀘스트: 생사의 문제)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 158,
@@ -3331,7 +3645,9 @@
     "obtain_display": "스보를라그(Svorlag) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Svorlag)</div>",
     "obtain_raw": "Sold by the Innkeeper in Svorlag",
     "is_base_deck": false,
-    "obtain_ko": "스보를라그(Svorlag) 여관주인이 판매"
+    "obtain_ko": "스보를라그(Svorlag) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 159,
@@ -3352,7 +3668,9 @@
     "obtain_display": "하르비켄(Harviken) 여관주인이 판매 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Harviken)</div>",
     "obtain_raw": "Sold by the Innkeeper in Harviken",
     "is_base_deck": false,
-    "obtain_ko": "하르비켄(Harviken) 여관주인이 판매"
+    "obtain_ko": "하르비켄(Harviken) 여관주인이 판매",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 160,
@@ -3373,7 +3691,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 161,
@@ -3394,7 +3714,9 @@
     "obtain_display": "Beat Madman Lugos in a match of gwent. Part of Gwent: Skellige Style quest. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Madman Lugos in a match of gwent. Part of Gwent: Skellige Style quest.)</div>",
     "obtain_raw": "Beat Madman Lugos in a match of gwent. Part of Gwent: Skellige Style quest.",
     "is_base_deck": false,
-    "obtain_ko": "Beat Madman Lugos in a match of gwent. Part of Gwent: Skellige Style quest."
+    "obtain_ko": "Beat Madman Lugos in a match of gwent. Part of Gwent: Skellige Style quest.",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 162,
@@ -3415,7 +3737,9 @@
     "obtain_display": "Sold by the Innkeeper in Urialla Harbor <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper in Urialla Harbor)</div>",
     "obtain_raw": "Sold by the Innkeeper in Urialla Harbor",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper in Urialla Harbor"
+    "obtain_ko": "Sold by the Innkeeper in Urialla Harbor",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 163,
@@ -3436,7 +3760,9 @@
     "obtain_display": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭 <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(This card is randomly dropped after defeating a Gwent player without an assigned item drop.)</div>",
     "obtain_raw": "This card is randomly dropped after defeating a Gwent player without an assigned item drop.",
     "is_base_deck": false,
-    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭"
+    "obtain_ko": "지정 고유 카드가 없는 일반 궨트 대결 상대(대장장이, 상인 등) 승리 시 무작위 드롭",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 164,
@@ -3457,7 +3783,9 @@
     "obtain_display": "Beat Count Tybalt during the gwent tournament at the Passiflora Inn . Part of Gwent: High Stakes quest. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat Count Tybalt during the gwent tournament at the Passiflora Inn . Part of Gwent: High Stakes quest.)</div>",
     "obtain_raw": "Beat Count Tybalt during the gwent tournament at the Passiflora Inn . Part of Gwent: High Stakes quest.",
     "is_base_deck": false,
-    "obtain_ko": "Beat Count Tybalt during the gwent tournament at the Passiflora Inn . Part of Gwent: High Stakes quest."
+    "obtain_ko": "Beat Count Tybalt during the gwent tournament at the Passiflora Inn . Part of Gwent: High Stakes quest.",
+    "is_leader": true,
+    "leader_ability": "내 카드 2장을 버리고 덱에서 원하는 카드 1장을 찾아 손패로 가져옵니다."
   },
   {
     "id": 165,
@@ -3478,7 +3806,9 @@
     "obtain_display": "Sold by the Innkeeper Jonas at New Port Inn <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Sold by the Innkeeper Jonas at New Port Inn)</div>",
     "obtain_raw": "Sold by the Innkeeper Jonas at New Port Inn",
     "is_base_deck": false,
-    "obtain_ko": "Sold by the Innkeeper Jonas at New Port Inn"
+    "obtain_ko": "Sold by the Innkeeper Jonas at New Port Inn",
+    "is_leader": true,
+    "leader_ability": "덱에서 날씨 카드 중 원하는 카드 1장을 찾아 즉시 사용합니다."
   },
   {
     "id": 166,
@@ -3499,7 +3829,9 @@
     "obtain_display": "Beat all gwent players that are part of Gwent: Velen Players quest. <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Beat all gwent players that are part of Gwent: Velen Players quest.)</div>",
     "obtain_raw": "Beat all gwent players that are part of Gwent: Velen Players quest.",
     "is_base_deck": false,
-    "obtain_ko": "Beat all gwent players that are part of Gwent: Velen Players quest."
+    "obtain_ko": "Beat all gwent players that are part of Gwent: Velen Players quest.",
+    "is_leader": true,
+    "leader_ability": "내 버린 카드 더미(무덤)에서 카드 1장을 골라 손패로 되돌립니다."
   },
   {
     "id": 167,
@@ -3520,7 +3852,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Ballista #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Ballista #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 168,
@@ -3541,7 +3875,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Ballista #2 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Ballista #2 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 169,
@@ -3562,7 +3898,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Blue Stripes Commando #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Blue Stripes Commando #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 170,
@@ -3583,7 +3921,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Blue Stripes Commando #2 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Blue Stripes Commando #2 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 171,
@@ -3604,7 +3944,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Dethmold at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Dethmold at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 172,
@@ -3625,7 +3967,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Dun Banner Medic at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Dun Banner Medic at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 173,
@@ -3646,7 +3990,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Foltest: King of Temeria at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Foltest: King of Temeria at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": true,
+    "leader_ability": "덱에서 짙은 안개(Impenetrable Fog) 카드를 찾아 즉시 사용합니다."
   },
   {
     "id": 174,
@@ -3667,7 +4013,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Kaedweni Siege Expert #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Kaedweni Siege Expert #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 175,
@@ -3688,7 +4036,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Kaedweni Siege Expert #2 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Kaedweni Siege Expert #2 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 176,
@@ -3709,7 +4059,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Kaedweni Siege Expert #3 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Kaedweni Siege Expert #3 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 177,
@@ -3730,7 +4082,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Keira Metz at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Keira Metz at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 178,
@@ -3751,7 +4105,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Poor Fucking Infantry #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Poor Fucking Infantry #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 179,
@@ -3772,7 +4128,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Poor Fucking Infantry #2 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Poor Fucking Infantry #2 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 180,
@@ -3793,7 +4151,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Prince Stennis at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Prince Stennis at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 181,
@@ -3814,7 +4174,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Redanian Foot Soldier #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Redanian Foot Soldier #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 182,
@@ -3835,7 +4197,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Redanian Foot Soldier #2 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Redanian Foot Soldier #2 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 183,
@@ -3856,7 +4220,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Sabrina Glevissig at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Sabrina Glevissig at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 184,
@@ -3877,7 +4243,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Sheldon Skaggs at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Sheldon Skaggs at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 185,
@@ -3898,7 +4266,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Siegfried of Denesle at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Siegfried of Denesle at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 186,
@@ -3919,7 +4289,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Síle de Tansarville at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Síle de Tansarville at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 187,
@@ -3940,7 +4312,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Trebuchet #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Trebuchet #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 188,
@@ -3961,7 +4335,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Trebuchet #2 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Trebuchet #2 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 189,
@@ -3982,7 +4358,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Ves at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Ves at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 190,
@@ -4003,7 +4381,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Yarpen Zigrin at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Yarpen Zigrin at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 191,
@@ -4024,7 +4404,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Francesca Findabair: Pureblood Elf at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Francesca Findabair: Pureblood Elf at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": true,
+    "leader_ability": "덱에서 살을 에는 듯한 추위(Biting Frost) 카드를 찾아 즉시 사용합니다."
   },
   {
     "id": 192,
@@ -4045,7 +4427,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Emhyr var Emreis: His Imperial Majesty at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Emhyr var Emreis: His Imperial Majesty at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": true,
+    "leader_ability": "덱에서 쏟아지는 폭우(Torrential Rain) 카드를 찾아 즉시 사용합니다."
   },
   {
     "id": 193,
@@ -4066,7 +4450,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Eredin: King of the Wild Hunt at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Eredin: King of the Wild Hunt at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": true,
+    "leader_ability": "아군의 모든 근접 전투 부대 위력을 2배로 증가시킵니다. (사령관의 뿔나팔과 중첩 불가)"
   },
   {
     "id": 194,
@@ -4087,7 +4473,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Biting Frost #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Biting Frost #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 195,
@@ -4108,7 +4496,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Biting Frost #2 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Biting Frost #2 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 196,
@@ -4129,7 +4519,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Clear Weather #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Clear Weather #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 197,
@@ -4150,7 +4542,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Impenetrable Fog #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Impenetrable Fog #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 198,
@@ -4171,7 +4565,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Impenetrable Fog #2 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Impenetrable Fog #2 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   },
   {
     "id": 199,
@@ -4192,7 +4588,9 @@
     "obtain_display": "기본 덱 (게임 시작 시 게롤트가 기본 보유) <div class='obtain-en-sub text-muted mt-1' style='font-size:0.85em; opacity:0.8;'>(Part of the Base Deck. Geralt starts with Torrential Rain #1 at the beginning of the game.)</div>",
     "obtain_raw": "Part of the Base Deck. Geralt starts with Torrential Rain #1 at the beginning of the game.",
     "is_base_deck": true,
-    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)"
+    "obtain_ko": "기본 덱 (게임 시작 시 게롤트가 기본 보유)",
+    "is_leader": false,
+    "leader_ability": ""
   }
 ];
 
@@ -4290,7 +4688,7 @@
       });
     }
 
-    // 4. 진영(카테고리) 탭 버튼 클릭 이벤트
+    // 4. 진영(카테고리) 및 지휘관 탭 버튼 클릭 이벤트
     const tabButtons = document.querySelectorAll('.faction-tab-btn');
     tabButtons.forEach(function (btn) {
       btn.addEventListener('click', function (e) {
@@ -4419,8 +4817,10 @@
         return false;
       }
 
-      // 2. 진영(카테고리) 필터링
-      if (currentFilter.category === 'base-deck') {
+      // 2. 진영 / 지휘관 / 기본덱 필터링
+      if (currentFilter.category === 'leader') {
+        if (!card.is_leader) return false;
+      } else if (currentFilter.category === 'base-deck') {
         if (!card.is_base_deck) return false;
       } else if (currentFilter.category !== 'all') {
         if (card.category_key !== currentFilter.category) return false;
@@ -4433,12 +4833,12 @@
         }
       }
 
-      // 4. 검색어 필터링
+      // 4. 검색어 필터링 (카드명 한글/영문, 사인포스트, 획득처, 지휘관 능력)
       if (currentFilter.search) {
         const q = currentFilter.search;
         const matchName = card.name_display.toLowerCase().indexOf(q) !== -1;
         const matchSign = card.signpost_display.toLowerCase().indexOf(q) !== -1;
-        const matchObtain = (card.obtain_ko + ' ' + card.obtain_raw).toLowerCase().indexOf(q) !== -1;
+        const matchObtain = (card.obtain_ko + ' ' + card.obtain_raw + ' ' + (card.leader_ability || '')).toLowerCase().indexOf(q) !== -1;
         const matchRegion = card.region_display.toLowerCase().indexOf(q) !== -1;
         if (!matchName && !matchSign && !matchObtain && !matchRegion) {
           return false;
@@ -4524,12 +4924,12 @@
       };
       img.addEventListener('click', function (e) {
         e.stopPropagation();
-        openModal(card.image, card.name_display, card.category_display);
+        openModal(card.image, card.name_display, (card.is_leader ? '👑 지휘관 카드 | ' : '') + card.category_display);
       });
       tdImg.appendChild(img);
       tr.appendChild(tdImg);
 
-      // 3. 카드 이름 TD
+      // 3. 카드 이름 TD (지휘관 배지 및 기본덱 배지)
       const tdName = document.createElement('td');
       const nameDiv = document.createElement('div');
       nameDiv.className = 'fw-bold card-name-text';
@@ -4543,6 +4943,14 @@
       nameSub.style.lineHeight = '1.2';
       nameSub.textContent = '(' + card.name_en + ')';
       tdName.appendChild(nameSub);
+
+      if (card.is_leader) {
+        const leaderBadge = document.createElement('span');
+        leaderBadge.className = 'badge bg-warning text-dark mt-1 me-1';
+        leaderBadge.style.fontSize = '0.7rem';
+        leaderBadge.innerHTML = '<i class="fas fa-crown me-1"></i>지휘관';
+        tdName.appendChild(leaderBadge);
+      }
 
       if (card.is_base_deck) {
         const baseBadge = document.createElement('span');
@@ -4586,11 +4994,23 @@
       tdSign.innerHTML = card.signpost_display;
       tr.appendChild(tdSign);
 
-      // 7. 얻는법 TD
+      // 7. 얻는법 TD (지휘관 카드일 경우 고유 능력 박스 강조 표기)
       const tdObtain = document.createElement('td');
       tdObtain.style.fontSize = '0.83rem';
       tdObtain.style.lineHeight = '1.38';
-      tdObtain.innerHTML = card.obtain_display;
+
+      let obtainHtml = card.obtain_display;
+      if (card.is_leader && card.leader_ability) {
+        obtainHtml = (
+          '<div class="mb-2 p-2 rounded" style="background: rgba(197, 160, 89, 0.12); border: 1px solid rgba(197, 160, 89, 0.35); font-size: 0.82rem;">' +
+          '<span class="fw-bold" style="color: #b45309;"><i class="fas fa-crown text-warning me-1"></i>지휘관 능력:</span> ' +
+          '<span>' + card.leader_ability + '</span>' +
+          '</div>' +
+          obtainHtml
+        );
+      }
+
+      tdObtain.innerHTML = obtainHtml;
       tr.appendChild(tdObtain);
 
       // 행 클릭 시 체크박스 토글
@@ -4662,7 +5082,7 @@
       progressBarFill.style.width = percentage + '%';
     }
 
-    // 진영별 수집 집계
+    // 진영별 수집 집계 및 지휘관 집계
     const factionCounts = {
       neutral: { name: '중립', total: 0, collected: 0, color: '#64748b' },
       'northern-realms': { name: '북부 왕국', total: 0, collected: 0, color: '#2563eb' },
@@ -4670,6 +5090,9 @@
       scoiatael: { name: "스코이아'텔", total: 0, collected: 0, color: '#16a34a' },
       monsters: { name: '괴물', total: 0, collected: 0, color: '#dc2626' }
     };
+
+    let leaderTotal = 0;
+    let leaderCollected = 0;
 
     GWENT_CARDS.forEach(function (card) {
       const k = card.category_key;
@@ -4679,11 +5102,17 @@
           factionCounts[k].collected += 1;
         }
       }
+      if (card.is_leader) {
+        leaderTotal += 1;
+        if (collectedSet.has(card.key)) {
+          leaderCollected += 1;
+        }
+      }
     });
 
     const badgeContainer = document.getElementById('deckStatBadges');
     if (badgeContainer) {
-      badgeContainer.innerHTML = Object.keys(factionCounts).map(function (key) {
+      const factionBadges = Object.keys(factionCounts).map(function (key) {
         const f = factionCounts[key];
         const isCompleted = f.collected === f.total;
         return (
@@ -4695,6 +5124,17 @@
           '</div>'
         );
       }).join('');
+
+      const leaderBadge = (
+        '<div class="deck-stat-badge" style="background: rgba(197, 160, 89, 0.15); border-color: rgba(197, 160, 89, 0.4);">' +
+        '<span style="color: #eab308; font-weight: 700;">👑</span>' +
+        '<span>지휘관:</span>' +
+        '<strong style="' + (leaderCollected === leaderTotal ? 'color: #16a34a;' : 'color: #b45309;') + '">' + leaderCollected + '/' + leaderTotal + '</strong>' +
+        (leaderCollected === leaderTotal ? '<i class="fas fa-check-circle text-success ms-1"></i>' : '') +
+        '</div>'
+      );
+
+      badgeContainer.innerHTML = leaderBadge + factionBadges;
     }
   }
 

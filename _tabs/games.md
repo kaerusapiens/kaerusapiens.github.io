@@ -1,12 +1,12 @@
 ---
 layout: page
-title: 게임
+title: games
 icon: fas fa-gamepad
 order: 2
-permalink: /game/
+permalink: /games/
 ---
 
-## 🎮 게임 목록
+## 🎮 games 목록
 
 보드게임 및 게임 유틸리티 목록입니다.
 
@@ -27,7 +27,7 @@ permalink: /game/
         <p class="card-text opacity-75 flex-grow-1">
           7 Wonders Duel 보드게임 종료 후 점수를 편리하고 정확하게 계산하는 모바일 최적화 점수판입니다. 카드/피라미드별 원터치 개별 더하기와 동전(3개당 1점) 자동 계산 기능을 제공합니다.
         </p>
-        <a href="{{ '/boardgames/seven-wonders-duel/' | relative_url }}" class="btn btn-primary w-100 fw-bold py-2 mt-3 shadow-sm" style="border-radius: 8px;">
+        <a href="{{ '/games/boardgames/seven-wonders-duel/' | relative_url }}" class="btn btn-primary w-100 fw-bold py-2 mt-3 shadow-sm" style="border-radius: 8px;">
           <i class="fas fa-calculator me-1"></i> 점수 계산기 바로가기
         </a>
       </div>
@@ -50,7 +50,7 @@ permalink: /game/
         <p class="card-text opacity-75 flex-grow-1">
           더 위쳐 3: 와일드 헌트 199장 전체 궨트 카드 수집 트래커입니다. 내가 가지고 있지 않은 카드 실시간 필터링, 진영/지역별 분류, 카드 이미지 확대 뷰 및 자동 저장 기능을 제공합니다.
         </p>
-        <a href="{{ '/game/play-station/witcher3/' | relative_url }}" class="btn btn-info text-white w-100 fw-bold py-2 mt-3 shadow-sm" style="border-radius: 8px; background: linear-gradient(135deg, #0052cc, #0070d1); border: none;">
+        <a href="{{ '/games/play-station/witcher3/' | relative_url }}" class="btn btn-info text-white w-100 fw-bold py-2 mt-3 shadow-sm" style="border-radius: 8px; background: linear-gradient(135deg, #0052cc, #0070d1); border: none;">
           <i class="fas fa-layer-group me-1"></i> 궨트 체크리스트 바로가기
         </a>
       </div>

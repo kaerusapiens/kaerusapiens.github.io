@@ -229,18 +229,46 @@ permalink: /boardgames/seven-wonders-duel/
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
   }
 
-  /* Bottom Sticky Total Score Banner */
-  .bottom-total-banner {
+  /* Toggleable Bottom Sticky Total Score Drawer */
+  .bottom-total-drawer {
     position: sticky;
-    bottom: 20px;
+    bottom: 16px;
     z-index: 99;
     background: linear-gradient(135deg, #1e1b4b, #312e81);
     color: #ffffff;
     border-radius: 20px;
-    padding: 18px 24px;
+    padding: 14px 20px;
     margin-top: 24px;
-    box-shadow: 0 10px 30px rgba(30, 27, 75, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 30px rgba(30, 27, 75, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+  }
+
+  .drawer-header {
+    user-select: none;
+  }
+
+  .drawer-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0, 1, 0, 1), opacity 0.25s ease;
+    opacity: 0;
+  }
+
+  .bottom-total-drawer.expanded .drawer-content {
+    max-height: 300px;
+    opacity: 1;
+    transition: max-height 0.35s ease-in-out, opacity 0.3s ease;
+  }
+
+  #drawer-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .bottom-total-drawer.expanded #drawer-icon {
+    transform: rotate(180deg);
   }
 
   #grand-total-display {
@@ -272,7 +300,7 @@ permalink: /boardgames/seven-wonders-duel/
     <div>
       <h6 class="fw-bold mb-1"><i class="fas fa-sparkles text-warning me-1"></i>간편 점수 계산기</h6>
       <p class="mb-0 small text-muted">
-        각 항목별 <span class="badge bg-primary">+1, +2, +3...</span> 버튼을 눌러 <i class="fas fa-award text-warning me-1"></i><strong>카드의 월계수의 값의 합산을 하세요.</strong> 동전은 개수만 입력하면 <strong>3개당 1점</strong>이 자동 합산되며 맨 아래 합계가 실시간으로 갱신됩니다!
+        각 항목별 <span class="badge bg-primary">+1, +2, +3...</span> 버튼을 눌러 <i class="fas fa-award text-warning me-1"></i><strong>카드의 월계수의 값의 합산을 하세요.</strong> 동전은 개수만 입력하면 <strong>3개당 1점</strong>이 자동 합산되며 하단 토글 합계바가 실시간으로 갱신됩니다!
       </p>
     </div>
   </div>
@@ -416,24 +444,48 @@ permalink: /boardgames/seven-wonders-duel/
     </div>
   </div>
 
-  <!-- Bottom Auto-Updating Total Score Banner -->
-  <div class="bottom-total-banner">
-    <div class="d-flex align-items-center justify-content-between">
-      <div>
-        <div class="small text-uppercase opacity-75 fw-bold mb-1">최종 합계 점수</div>
-        <div class="display-5 fw-extrabold" id="grand-total-display">0 점</div>
+  <!-- Page Bottom Actions (Clear & Copy) -->
+  <div class="d-flex flex-wrap gap-3 justify-content-center mt-4 pt-3 border-top">
+    <button type="button" class="btn btn-outline-danger btn-action" onclick="window.resetSheet()">
+      <i class="fas fa-redo-alt me-1"></i> 게임 초기화
+    </button>
+    <button type="button" class="btn btn-primary btn-action shadow-sm" onclick="window.copyResult()">
+      <i class="fas fa-copy me-1"></i> 점수 결과 복사하기
+    </button>
+  </div>
+
+  <!-- Toggleable Bottom Sticky Total Score Drawer -->
+  <div class="bottom-total-drawer shadow-lg" id="total-drawer">
+    <!-- Header Bar (Always Visible / Sticky) -->
+    <div class="drawer-header d-flex align-items-center justify-content-between" onclick="window.toggleDrawer()" role="button">
+      <div class="d-flex align-items-center gap-2">
+        <span class="fs-4">🏆</span>
+        <div>
+          <span class="small opacity-75 d-block fw-bold" style="font-size: 0.75rem; line-height: 1;">최종 합계</span>
+          <span class="fs-4 fw-extrabold" id="grand-total-display">0 점</span>
+        </div>
       </div>
-      <div class="text-end">
-        <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 me-1" onclick="window.resetSheet()">
-          <i class="fas fa-redo-alt me-1"></i> 초기화
-        </button>
-        <button type="button" class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-dark" onclick="window.copyResult()">
-          <i class="fas fa-copy me-1"></i> 복사
-        </button>
-      </div>
+      <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1" id="drawer-toggle-btn">
+        <span id="drawer-btn-text">상세보기</span>
+        <i class="fas fa-chevron-up" id="drawer-icon"></i>
+      </button>
     </div>
-    <div class="small opacity-75 mt-2 pt-2 border-top border-white-10" id="breakdown-summary">
-      시민: 0 | 과학: 0 | 상업: 0 | 길드: 0 | 피라미드: 0 | 토큰: 0 | 동전: 0 | 군사: 0
+
+    <!-- Expandable Breakdown Content -->
+    <div class="drawer-content" id="drawer-content">
+      <div class="pt-3 mt-2 border-top border-white-10">
+        <div class="small fw-bold opacity-75 mb-2"><i class="fas fa-list-ol me-1"></i> 항목별 점수 요약</div>
+        <div class="row row-cols-2 row-cols-sm-4 g-2 text-center small">
+          <div class="bg-white bg-opacity-10 p-2 rounded-3">시민: <strong id="sum-blue">0점</strong></div>
+          <div class="bg-white bg-opacity-10 p-2 rounded-3">과학: <strong id="sum-green">0점</strong></div>
+          <div class="bg-white bg-opacity-10 p-2 rounded-3">상업: <strong id="sum-yellow">0점</strong></div>
+          <div class="bg-white bg-opacity-10 p-2 rounded-3">길드: <strong id="sum-purple">0점</strong></div>
+          <div class="bg-white bg-opacity-10 p-2 rounded-3">피라미드: <strong id="sum-wonder">0점</strong></div>
+          <div class="bg-white bg-opacity-10 p-2 rounded-3">토큰: <strong id="sum-token">0점</strong></div>
+          <div class="bg-white bg-opacity-10 p-2 rounded-3">동전: <strong id="sum-coin">0점</strong></div>
+          <div class="bg-white bg-opacity-10 p-2 rounded-3">군사: <strong id="sum-military">0점</strong></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -449,6 +501,18 @@ permalink: /boardgames/seven-wonders-duel/
     token: [],
     coins: 0,
     military: 0
+  };
+
+  window.toggleDrawer = function() {
+    const drawer = document.getElementById('total-drawer');
+    const btnText = document.getElementById('drawer-btn-text');
+    if (!drawer) return;
+
+    drawer.classList.toggle('expanded');
+    const isExpanded = drawer.classList.contains('expanded');
+    if (btnText) {
+      btnText.textContent = isExpanded ? '접기' : '상세보기';
+    }
   };
 
   window.addScore = function(category, val) {
@@ -543,6 +607,16 @@ permalink: /boardgames/seven-wonders-duel/
     updateText('coin-score', `${coinVp}점`);
     updateText('military-score', `${militaryVal}점`);
 
+    // Update Breakdown Grid numbers
+    updateText('sum-blue', `${blueSum}점`);
+    updateText('sum-green', `${greenSum}점`);
+    updateText('sum-yellow', `${yellowSum}점`);
+    updateText('sum-purple', `${purpleSum}점`);
+    updateText('sum-wonder', `${wonderSum}점`);
+    updateText('sum-token', `${tokenSum}점`);
+    updateText('sum-coin', `${coinVp}점`);
+    updateText('sum-military', `${militaryVal}점`);
+
     const grandTotal = blueSum + greenSum + yellowSum + purpleSum + wonderSum + tokenSum + coinVp + militaryVal;
 
     // Trigger visual pop animation on total display
@@ -553,8 +627,6 @@ permalink: /boardgames/seven-wonders-duel/
       void grandTotalEl.offsetWidth;
       grandTotalEl.classList.add('total-pop');
     }
-
-    updateText('breakdown-summary', `시민: ${blueSum} | 과학: ${greenSum} | 상업: ${yellowSum} | 길드: ${purpleSum} | 피라미드: ${wonderSum} | 토큰: ${tokenSum} | 동전: ${coinVp} | 군사: ${militaryVal}`);
   };
 
   window.resetSheet = function() {

@@ -72,11 +72,30 @@
       <!-- the real tabs -->
       {% for tab in site.tabs %}
         {% capture tab_name %}{{ tab.url | split: '/' }}{% endcapture %}
-        <li class="nav-item{% if tab.url == page.url %}{{ " active" }}{% endif %}">
+        <li class="nav-item{% if tab.url == page.url or (tab.url == '/game/' and page.url contains '/boardgames/') %}{{ " active" }}{% endif %}">
           <a href="{{ tab.url | relative_url }}" class="nav-link">
             <i class="fa-fw {{ tab.icon }}"></i>
             <span>{{ site.data.locales[include.lang].tabs.[tab_name] | default: tab.title | upcase }}</span>
           </a>
+
+          {% if tab_name == 'game' or tab.url contains '/game/' %}
+            <ul class="nav flex-column ps-3 sub-categories-nav small my-1">
+              <li class="nav-item w-100">
+                <a href="{{ '/game/' | relative_url }}" class="nav-link py-1 opacity-75 d-flex align-items-center">
+                  <i class="fas fa-chess-board fa-fw me-1"></i>
+                  <span>boardgames</span>
+                </a>
+                <ul class="nav flex-column ps-3">
+                  <li class="nav-item w-100">
+                    <a href="{{ '/boardgames/seven-wonders-duel/' | relative_url }}" class="nav-link py-1 opacity-75 d-flex align-items-center {% if page.url contains '/boardgames/seven-wonders-duel/' %}active fw-bold opacity-100{% endif %}">
+                      <i class="fas fa-dice-d6 fa-fw me-1"></i>
+                      <span>seven-wonders-duel</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          {% endif %}
 
           {% if tab_name == 'categories' %}
             <ul class="nav flex-column sub-categories-nav">
@@ -129,16 +148,6 @@
   </nav>
 
   <div class="sidebar-bottom d-flex flex-wrap  align-items-center w-100">
-    {% unless site.theme_mode %}
-      <button type="button" class="btn btn-link nav-link" aria-label="Switch Mode" id="mode-toggle">
-        <i class="fas fa-adjust"></i>
-      </button>
-
-      {% if site.data.contact.size > 0 %}
-        <span class="icon-border"></span>
-      {% endif %}
-    {% endunless %}
-
     {% for entry in site.data.contact %}
       {% case entry.type %}
         {% when 'github', 'twitter' %}

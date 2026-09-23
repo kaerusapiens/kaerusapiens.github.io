@@ -170,30 +170,45 @@ permalink: /game/play-station/witcher3/
     box-shadow: 0 2px 8px rgba(197, 160, 89, 0.35);
   }
 
-  /* 테이블 컨테이너 및 반응형 스크롤 */
+  /* 전폭(Full Width) 레이아웃: 우측 패널 숨김 및 메인 컨텐츠 100% 확장 */
+  #panel-wrapper {
+    display: none !important;
+  }
+  main[aria-label="Main Content"],
+  #core-wrapper main {
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    padding-right: 1rem !important;
+  }
+  #main-wrapper {
+    max-width: 100% !important;
+  }
+
+  /* 테이블 컨테이너 및 반응형 레이아웃 */
   .table-responsive-wrapper {
     overflow-x: auto;
     border-radius: 12px;
     border: 1px solid var(--card-table-border);
     background: var(--card-bg, #ffffff);
     box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    width: 100%;
   }
   .gwent-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.92rem;
-    min-width: 860px;
+    font-size: 0.86rem;
   }
   .gwent-table th {
     background: rgba(0, 0, 0, 0.04);
-    padding: 12px 14px;
+    padding: 9px 8px;
     font-weight: 700;
     text-align: left;
     border-bottom: 2px solid var(--card-table-border);
     white-space: nowrap;
   }
   .gwent-table td {
-    padding: 12px 14px;
+    padding: 7px 8px;
     border-bottom: 1px solid var(--card-table-border);
     vertical-align: middle;
   }
@@ -219,28 +234,28 @@ permalink: /game/play-station/witcher3/
 
   /* 체크박스 디자인 */
   .card-checkbox {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     cursor: pointer;
     accent-color: #16a34a;
   }
 
-  /* 카드 썸네일 이미지 */
+  /* 카드 썸네일 이미지: 짤림 없이(object-fit: contain) 카드 원본 온전히 표시 */
   .card-thumb-img {
-    width: 48px;
-    height: 90px;
-    object-fit: cover;
+    width: 44px;
+    height: 76px;
+    object-fit: contain;
     border-radius: 4px;
-    border: 1px solid rgba(0,0,0,0.2);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    border: 1px solid rgba(0,0,0,0.15);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.12);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: zoom-in;
-    background: #1e1e24;
+    background: rgba(0, 0, 0, 0.03);
   }
   .card-thumb-img:hover {
-    transform: scale(1.15);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 5;
+    transform: scale(1.25);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    z-index: 10;
     position: relative;
   }
 
@@ -431,13 +446,13 @@ permalink: /game/play-station/witcher3/
     <table class="gwent-table" id="gwentCardTable">
       <thead>
         <tr>
-          <th style="width: 48px; text-align: center;">✓</th>
-          <th style="width: 70px; text-align: center;">그림</th>
-          <th style="width: 22%;">카드이름 (Card Name)</th>
-          <th style="width: 14%;">리젼 (Region)</th>
-          <th style="width: 14%;">카테고리 (Category)</th>
-          <th style="width: 18%;">사인포스트 (Signpost)</th>
-          <th>얻는법 (How to Obtain)</th>
+          <th style="width: 36px; text-align: center;">✓</th>
+          <th style="width: 52px; text-align: center;">그림</th>
+          <th style="width: 18%; min-width: 120px;">카드이름 (Name)</th>
+          <th style="width: 11%; min-width: 85px;">리젼 (Region)</th>
+          <th style="width: 11%; min-width: 85px;">카테고리</th>
+          <th style="width: 15%; min-width: 110px;">사인포스트</th>
+          <th style="min-width: 180px;">얻는법 (How to Obtain)</th>
         </tr>
       </thead>
       <tbody id="cardTableBody">

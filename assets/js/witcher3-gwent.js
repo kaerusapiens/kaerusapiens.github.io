@@ -4533,13 +4533,21 @@
       const tdName = document.createElement('td');
       const nameDiv = document.createElement('div');
       nameDiv.className = 'fw-bold card-name-text';
-      nameDiv.style.fontSize = '0.96rem';
-      nameDiv.textContent = card.name_display;
+      nameDiv.style.fontSize = '0.9rem';
+      nameDiv.textContent = card.name_ko;
       tdName.appendChild(nameDiv);
+
+      const nameSub = document.createElement('div');
+      nameSub.className = 'text-muted';
+      nameSub.style.fontSize = '0.78rem';
+      nameSub.style.lineHeight = '1.2';
+      nameSub.textContent = '(' + card.name_en + ')';
+      tdName.appendChild(nameSub);
+
       if (card.is_base_deck) {
         const baseBadge = document.createElement('span');
         baseBadge.className = 'badge bg-secondary mt-1';
-        baseBadge.style.fontSize = '0.7rem';
+        baseBadge.style.fontSize = '0.68rem';
         baseBadge.textContent = '기본 덱';
         tdName.appendChild(baseBadge);
       }
@@ -4547,30 +4555,41 @@
 
       // 4. 리젼 TD
       const tdRegion = document.createElement('td');
-      const spanRegion = document.createElement('span');
-      spanRegion.style.fontSize = '0.88rem';
-      spanRegion.textContent = card.region_display;
-      tdRegion.appendChild(spanRegion);
+      const regDiv = document.createElement('div');
+      regDiv.style.fontWeight = '500';
+      regDiv.textContent = card.region_ko;
+      tdRegion.appendChild(regDiv);
+      const regSub = document.createElement('div');
+      regSub.className = 'text-muted';
+      regSub.style.fontSize = '0.76rem';
+      regSub.textContent = '(' + card.region_en + ')';
+      tdRegion.appendChild(regSub);
       tr.appendChild(tdRegion);
 
       // 5. 카테고리 TD
       const tdCat = document.createElement('td');
       const spanCat = document.createElement('span');
       spanCat.className = 'badge-faction ' + getFactionBadgeClass(card.category_key);
-      spanCat.textContent = card.category_display;
+      spanCat.textContent = card.category_ko;
       tdCat.appendChild(spanCat);
+      const catSub = document.createElement('div');
+      catSub.className = 'text-muted mt-1';
+      catSub.style.fontSize = '0.75rem';
+      catSub.textContent = '(' + card.category_en + ')';
+      tdCat.appendChild(catSub);
       tr.appendChild(tdCat);
 
       // 6. 사인포스트 TD
       const tdSign = document.createElement('td');
-      tdSign.style.fontSize = '0.86rem';
-      tdSign.textContent = card.signpost_display;
+      tdSign.style.fontSize = '0.82rem';
+      tdSign.style.lineHeight = '1.35';
+      tdSign.innerHTML = card.signpost_display;
       tr.appendChild(tdSign);
 
       // 7. 얻는법 TD
       const tdObtain = document.createElement('td');
-      tdObtain.style.fontSize = '0.88rem';
-      tdObtain.style.lineHeight = '1.45';
+      tdObtain.style.fontSize = '0.83rem';
+      tdObtain.style.lineHeight = '1.38';
       tdObtain.innerHTML = card.obtain_display;
       tr.appendChild(tdObtain);
 

@@ -46,12 +46,19 @@
 ├── .github/workflows/
 │   └── pages-deploy.yml     # GitHub Actions 배포 워크플로우
 ├── _config.yml              # Jekyll 및 Chirpy 사이트 전역 설정
-├── _data/                   # 사이트 데이터 (share, contact, locales 등)
+├── _data/                   # 사이트 데이터 (share, contact 등)
 ├── _includes/               # 재사용 HTML 컴포넌트
+├── _layouts/                # 커스텀 레이아웃 (home.html 등 확장)
 ├── _plugins/                # Chirpy 테마 플러그인 (기본 GitHub Jekyll 빌더 호환 불가 원인)
-├── _posts/                  # 블로그 포스트 마크다운 파일 (YYYY-MM-DD-title.md)
-├── _tabs/                   # 상단/사이드바 탭 네비게이션 (about, archives, categories 등)
-├── assets/                  # 정적 리소스 (img, CSS, JS)
+├── _posts/                  # 블로그 포스트 (카테고리별 하위 디렉토리 구성)
+│   ├── architecture/        # Architecture 포스트
+│   ├── aws/                 # AWS 포스트
+│   ├── data/                # Data 포스트
+│   └── kubernetes/          # Kubernetes 포스트
+├── _tabs/                   # 상단/사이드바 탭 네비게이션 (about, archives, categories, game)
+├── assets/                  # 정적 리소스 (img/posts, favicons, CSS, JS)
+├── boardgames/              # 게임/웹 유틸리티 페이지 (세븐 원더스 듀얼 등)
+├── docs/                    # 테마 및 설정 가이드 문서 (Jekyll 빌드 제외)
 ├── Gemfile / Gemfile.lock   # Ruby 의존성 관리
 └── index.html               # 메인 페이지 진입점
 ```
@@ -84,11 +91,37 @@ toc: true # 목차 표시 여부
 ---
 ```
 
-### 4.3 링크 및 이미지 규칙 (HTMLProofer 통과 필수)
+### 4.3 카테고리 및 디렉토리 관리 규칙 (중요)
+
+1. **Jekyll 엔진의 카테고리 동작 원리**:
+   - 블로그 사이트 내 카테고리 분류 및 카테고리별 페이지(`/categories/{category-slug}/`) 자동 생성은
+     **Front Matter의 `categories: [...]`**를 기준으로 동작합니다.
+   - 물리적 서브폴더(`_posts/{category}/`)의 존재 여부 자체가 Jekyll 빌드 실패를 일으키지는 않지만,
+     **저장소 구조의 가독성과 파일 체계 유지**를 위해 반드시 카테고리별 서브디렉토리에 배치하는
+     원칙을 준수합니다.
+
+2. **새 카테고리 추가 절차**:
+   - 새로운 대분류 카테고리를 추가할 때는:
+     1. `_posts/{소문자_카테고리명}/` 디렉토리를 신규 생성합니다. (예: `_posts/security/`)
+     2. 해당 폴더 하위에 마크다운 포스트 파일(`YYYY-MM-DD-title.md`)을 배치합니다.
+     3. Front Matter의 `categories:`에 일관된 카테고리명을 기입합니다. (예:
+        `categories: [Security]`)
+
+3. **카테고리 입력 시 핵심 주의사항 (빌드 및 URL 깨짐 방지)**:
+   - **대소문자 일관성**: 동일한 카테고리인데 글마다 대소문자가 다르면(예: `[Kubernetes]` vs
+     `[kubernetes]`) 카테고리가 서로 다른 2개로 분리되어 사이트 메뉴가 오염됩니다. 기존 명칭(`AWS`,
+     `Architecture`, `Data`, `Kubernetes`)을 엄격히 통일하여 사용합니다.
+   - **특수문자 및 공백 최소화**: 카테고리명은 URL 경로로 변환되므로 슬래시(`/`), 물음표(`?`),
+     콜론(`:`) 등 특수문자 사용을 금지하고 영문 중심의 명확한 단어를 권장합니다.
+   - **계층 깊이 제한**: Chirpy 테마는 최대 2단계 계층(`categories: [대분류, 소분류]`)을 지원하므로
+     3단계 이상의 중첩 카테고리를 지정하지 마십시오.
+
+### 4.4 링크 및 이미지 규칙 (HTMLProofer 통과 필수)
 
 - **내부 링크**: 깨진 내부 앵커나 상대 경로 링크가 없어야 합니다. 워크플로우에서 `htmlproofer`
   검사가 실행되므로 깨진 링크가 하나라도 있으면 빌드가 실패합니다.
-- **이미지 경로**: `/assets/img/...` 절대 경로 또는 유효한 상대 경로를 사용합니다.
+- **이미지 경로**: `/assets/img/...` 절대 경로 또는 유효한 상대 경로를 사용합니다. 루트의 임의의
+  `img/` 폴더를 생성하지 마십시오.
 - **외부 URL**: 워크플로우에서 `--disable-external`이 적용되어 있으나 유효하고 안전한 URL만
   사용합니다.
 

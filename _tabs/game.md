@@ -11,6 +11,7 @@ permalink: /game/
 보드게임 및 게임 유틸리티 목록입니다.
 
 <div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
+  <!-- 세븐 원더스 듀얼 점수 계산기 (보드게임) -->
   <div class="col">
     <div class="card h-100 shadow-sm border-0" style="border-radius: 14px; background: var(--card-bg, rgba(255, 255, 255, 0.05)); border: 1px solid var(--main-border-color, rgba(0,0,0,0.1)) !important;">
       <div class="card-body d-flex flex-column p-4">
@@ -28,6 +29,29 @@ permalink: /game/
         </p>
         <a href="{{ '/boardgames/seven-wonders-duel/' | relative_url }}" class="btn btn-primary w-100 fw-bold py-2 mt-3 shadow-sm" style="border-radius: 8px;">
           <i class="fas fa-calculator me-1"></i> 점수 계산기 바로가기
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 더 위쳐 3: 와일드 헌트 궨트 카드 체크리스트 (PlayStation / Console) -->
+  <div class="col">
+    <div class="card h-100 shadow-sm border-0" style="border-radius: 14px; background: var(--card-bg, rgba(255, 255, 255, 0.05)); border: 1px solid var(--main-border-color, rgba(0,0,0,0.1)) !important;">
+      <div class="card-body d-flex flex-column p-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="p-3 rounded-circle me-3 text-white" style="background: linear-gradient(135deg, #003791, #0070d1);">
+            <i class="fab fa-playstation fa-2x"></i>
+          </div>
+          <div>
+            <span class="badge bg-info text-dark mb-1">PlayStation</span>
+            <h4 class="card-title mb-0 font-weight-bold">더 위쳐 3 궨트 카드 체크리스트</h4>
+          </div>
+        </div>
+        <p class="card-text opacity-75 flex-grow-1">
+          더 위쳐 3: 와일드 헌트 199장 전체 궨트 카드 수집 트래커입니다. 내가 가지고 있지 않은 카드 실시간 필터링, 진영/지역별 분류, 카드 이미지 확대 뷰 및 자동 저장 기능을 제공합니다.
+        </p>
+        <a href="{{ '/game/play-station/witcher3/' | relative_url }}" class="btn btn-info text-white w-100 fw-bold py-2 mt-3 shadow-sm" style="border-radius: 8px; background: linear-gradient(135deg, #0052cc, #0070d1); border: none;">
+          <i class="fas fa-layer-group me-1"></i> 궨트 체크리스트 바로가기
         </a>
       </div>
     </div>

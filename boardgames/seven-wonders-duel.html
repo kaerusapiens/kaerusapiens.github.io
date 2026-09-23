@@ -64,6 +64,15 @@ permalink: /boardgames/seven-wonders-duel/
   .sw-card.coin { background: var(--sw-coin-bg); border-color: var(--sw-coin-border); }
   .sw-card.military { background: var(--sw-military-bg); border-color: var(--sw-military-border); }
 
+  .sw-card.blue .sw-card-title, .sw-card.blue .sw-badge-score { color: var(--sw-blue) !important; }
+  .sw-card.green .sw-card-title, .sw-card.green .sw-badge-score { color: var(--sw-green) !important; }
+  .sw-card.yellow .sw-card-title, .sw-card.yellow .sw-badge-score { color: var(--sw-yellow) !important; }
+  .sw-card.purple .sw-card-title, .sw-card.purple .sw-badge-score { color: var(--sw-purple) !important; }
+  .sw-card.wonder .sw-card-title, .sw-card.wonder .sw-badge-score { color: var(--sw-wonder) !important; }
+  .sw-card.token .sw-card-title, .sw-card.token .sw-badge-score { color: var(--sw-token) !important; }
+  .sw-card.coin .sw-card-title, .sw-card.coin .sw-badge-score { color: var(--sw-coin) !important; }
+  .sw-card.military .sw-card-title, .sw-card.military .sw-badge-score { color: var(--sw-military) !important; }
+
   .sw-card-header {
     display: flex;
     justify-content: space-between;
@@ -339,10 +348,10 @@ permalink: /boardgames/seven-wonders-duel/
     <!-- Blue Cards -->
     <div class="sw-card blue">
       <div class="sw-card-header">
-        <h6 class="sw-card-title text-primary"><i class="fas fa-building"></i> 시민 건물</h6>
+        <h6 class="sw-card-title" style="color: #2563eb;"><i class="fas fa-building"></i> 시민 건물</h6>
         <div class="d-flex align-items-center gap-2">
           <button type="button" class="btn-cat-clear" onclick="clearCategory('blue')"><i class="fas fa-undo-alt"></i> 초기화</button>
-          <span class="sw-badge-score text-primary" id="blue-score">0점</span>
+          <span class="sw-badge-score" style="color: #2563eb;" id="blue-score">0점</span>
         </div>
       </div>
       <div class="tally-btn-group">
@@ -360,10 +369,10 @@ permalink: /boardgames/seven-wonders-duel/
     <!-- Green Cards -->
     <div class="sw-card green">
       <div class="sw-card-header">
-        <h6 class="sw-card-title text-success"><i class="fas fa-flask"></i> 과학 건물</h6>
+        <h6 class="sw-card-title" style="color: #059669;"><i class="fas fa-flask"></i> 과학 건물</h6>
         <div class="d-flex align-items-center gap-2">
           <button type="button" class="btn-cat-clear" onclick="clearCategory('green')"><i class="fas fa-undo-alt"></i> 초기화</button>
-          <span class="sw-badge-score text-success" id="green-score">0점</span>
+          <span class="sw-badge-score" style="color: #059669;" id="green-score">0점</span>
         </div>
       </div>
       <div class="tally-btn-group">
@@ -380,10 +389,10 @@ permalink: /boardgames/seven-wonders-duel/
     <!-- Yellow Cards -->
     <div class="sw-card yellow">
       <div class="sw-card-header">
-        <h6 class="sw-card-title text-warning"><i class="fas fa-store"></i> 상업 건물</h6>
+        <h6 class="sw-card-title" style="color: #d97706;"><i class="fas fa-store"></i> 상업 건물</h6>
         <div class="d-flex align-items-center gap-2">
           <button type="button" class="btn-cat-clear" onclick="clearCategory('yellow')"><i class="fas fa-undo-alt"></i> 초기화</button>
-          <span class="sw-badge-score text-warning" id="yellow-score">0점</span>
+          <span class="sw-badge-score" style="color: #d97706;" id="yellow-score">0점</span>
         </div>
       </div>
       <div class="tally-btn-group">
@@ -473,8 +482,8 @@ permalink: /boardgames/seven-wonders-duel/
     <!-- Military Track -->
     <div class="sw-card military">
       <div class="sw-card-header">
-        <h6 class="sw-card-title text-danger"><i class="fas fa-shield-alt"></i> 군사 트랙 점수</h6>
-        <span class="sw-badge-score text-danger" id="military-score">0점</span>
+        <h6 class="sw-card-title" style="color: #dc2626;"><i class="fas fa-shield-alt"></i> 군사 트랙 점수</h6>
+        <span class="sw-badge-score" style="color: #dc2626;" id="military-score">0점</span>
       </div>
       <div class="military-btn-group">
         <div class="military-pill selected" onclick="setMilitary(0, this)">0점</div>

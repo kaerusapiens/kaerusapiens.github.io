@@ -87,6 +87,7 @@ permalink: /boardgames/seven-wonders-duel/
     border-radius: 20px;
     background: rgba(255, 255, 255, 0.85);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease;
   }
 
   [data-mode="dark"] .sw-badge-score,
@@ -125,8 +126,8 @@ permalink: /boardgames/seven-wonders-duel/
 
   .tally-btn:active {
     transform: scale(0.92);
-    background: #4f46e5;
-    color: white;
+    background: #4f46e5 !important;
+    color: white !important;
   }
 
   /* Item Chip Tags */
@@ -212,6 +213,7 @@ permalink: /boardgames/seven-wonders-duel/
     text-align: center;
     cursor: pointer;
     transition: all 0.15s ease;
+    user-select: none;
   }
 
   [data-mode="dark"] .military-pill,
@@ -239,6 +241,21 @@ permalink: /boardgames/seven-wonders-duel/
     margin-top: 24px;
     box-shadow: 0 10px 30px rgba(30, 27, 75, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  #grand-total-display {
+    display: inline-block;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  @keyframes totalPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.18); color: #fbbf24; }
+    100% { transform: scale(1); }
+  }
+
+  .total-pop {
+    animation: totalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
   .btn-action {
@@ -269,14 +286,14 @@ permalink: /boardgames/seven-wonders-duel/
         <span class="sw-badge-score text-primary" id="blue-score">0점</span>
       </div>
       <div class="tally-btn-group">
-        <button class="tally-btn" onclick="addScore('blue', 1)">+1</button>
-        <button class="tally-btn" onclick="addScore('blue', 2)">+2</button>
-        <button class="tally-btn" onclick="addScore('blue', 3)">+3</button>
-        <button class="tally-btn" onclick="addScore('blue', 4)">+4</button>
-        <button class="tally-btn" onclick="addScore('blue', 5)">+5</button>
-        <button class="tally-btn" onclick="addScore('blue', 6)">+6</button>
-        <button class="tally-btn" onclick="addScore('blue', 7)">+7</button>
-        <button class="tally-btn text-danger ms-auto" onclick="clearCategory('blue')"><i class="fas fa-undo-alt"></i> 초기화</button>
+        <button type="button" class="tally-btn" data-cat="blue" data-val="1">+1</button>
+        <button type="button" class="tally-btn" data-cat="blue" data-val="2">+2</button>
+        <button type="button" class="tally-btn" data-cat="blue" data-val="3">+3</button>
+        <button type="button" class="tally-btn" data-cat="blue" data-val="4">+4</button>
+        <button type="button" class="tally-btn" data-cat="blue" data-val="5">+5</button>
+        <button type="button" class="tally-btn" data-cat="blue" data-val="6">+6</button>
+        <button type="button" class="tally-btn" data-cat="blue" data-val="7">+7</button>
+        <button type="button" class="tally-btn text-danger ms-auto" data-clear="blue"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="blue-chips"></div>
     </div>
@@ -288,13 +305,13 @@ permalink: /boardgames/seven-wonders-duel/
         <span class="sw-badge-score text-success" id="green-score">0점</span>
       </div>
       <div class="tally-btn-group">
-        <button class="tally-btn" onclick="addScore('green', 1)">+1</button>
-        <button class="tally-btn" onclick="addScore('green', 2)">+2</button>
-        <button class="tally-btn" onclick="addScore('green', 3)">+3</button>
-        <button class="tally-btn" onclick="addScore('green', 4)">+4</button>
-        <button class="tally-btn" onclick="addScore('green', 5)">+5</button>
-        <button class="tally-btn" onclick="addScore('green', 6)">+6</button>
-        <button class="tally-btn text-danger ms-auto" onclick="clearCategory('green')"><i class="fas fa-undo-alt"></i> 초기화</button>
+        <button type="button" class="tally-btn" data-cat="green" data-val="1">+1</button>
+        <button type="button" class="tally-btn" data-cat="green" data-val="2">+2</button>
+        <button type="button" class="tally-btn" data-cat="green" data-val="3">+3</button>
+        <button type="button" class="tally-btn" data-cat="green" data-val="4">+4</button>
+        <button type="button" class="tally-btn" data-cat="green" data-val="5">+5</button>
+        <button type="button" class="tally-btn" data-cat="green" data-val="6">+6</button>
+        <button type="button" class="tally-btn text-danger ms-auto" data-clear="green"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="green-chips"></div>
     </div>
@@ -306,13 +323,13 @@ permalink: /boardgames/seven-wonders-duel/
         <span class="sw-badge-score text-warning" id="yellow-score">0점</span>
       </div>
       <div class="tally-btn-group">
-        <button class="tally-btn" onclick="addScore('yellow', 1)">+1</button>
-        <button class="tally-btn" onclick="addScore('yellow', 2)">+2</button>
-        <button class="tally-btn" onclick="addScore('yellow', 3)">+3</button>
-        <button class="tally-btn" onclick="addScore('yellow', 4)">+4</button>
-        <button class="tally-btn" onclick="addScore('yellow', 5)">+5</button>
-        <button class="tally-btn" onclick="addScore('yellow', 6)">+6</button>
-        <button class="tally-btn text-danger ms-auto" onclick="clearCategory('yellow')"><i class="fas fa-undo-alt"></i> 초기화</button>
+        <button type="button" class="tally-btn" data-cat="yellow" data-val="1">+1</button>
+        <button type="button" class="tally-btn" data-cat="yellow" data-val="2">+2</button>
+        <button type="button" class="tally-btn" data-cat="yellow" data-val="3">+3</button>
+        <button type="button" class="tally-btn" data-cat="yellow" data-val="4">+4</button>
+        <button type="button" class="tally-btn" data-cat="yellow" data-val="5">+5</button>
+        <button type="button" class="tally-btn" data-cat="yellow" data-val="6">+6</button>
+        <button type="button" class="tally-btn text-danger ms-auto" data-clear="yellow"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="yellow-chips"></div>
     </div>
@@ -324,15 +341,15 @@ permalink: /boardgames/seven-wonders-duel/
         <span class="sw-badge-score" style="color: #7c3aed;" id="purple-score">0점</span>
       </div>
       <div class="tally-btn-group">
-        <button class="tally-btn" onclick="addScore('purple', 1)">+1</button>
-        <button class="tally-btn" onclick="addScore('purple', 2)">+2</button>
-        <button class="tally-btn" onclick="addScore('purple', 3)">+3</button>
-        <button class="tally-btn" onclick="addScore('purple', 4)">+4</button>
-        <button class="tally-btn" onclick="addScore('purple', 5)">+5</button>
-        <button class="tally-btn" onclick="addScore('purple', 6)">+6</button>
-        <button class="tally-btn" onclick="addScore('purple', 7)">+7</button>
-        <button class="tally-btn" onclick="addScore('purple', 8)">+8</button>
-        <button class="tally-btn text-danger ms-auto" onclick="clearCategory('purple')"><i class="fas fa-undo-alt"></i> 초기화</button>
+        <button type="button" class="tally-btn" data-cat="purple" data-val="1">+1</button>
+        <button type="button" class="tally-btn" data-cat="purple" data-val="2">+2</button>
+        <button type="button" class="tally-btn" data-cat="purple" data-val="3">+3</button>
+        <button type="button" class="tally-btn" data-cat="purple" data-val="4">+4</button>
+        <button type="button" class="tally-btn" data-cat="purple" data-val="5">+5</button>
+        <button type="button" class="tally-btn" data-cat="purple" data-val="6">+6</button>
+        <button type="button" class="tally-btn" data-cat="purple" data-val="7">+7</button>
+        <button type="button" class="tally-btn" data-cat="purple" data-val="8">+8</button>
+        <button type="button" class="tally-btn text-danger ms-auto" data-clear="purple"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="purple-chips"></div>
     </div>
@@ -344,13 +361,13 @@ permalink: /boardgames/seven-wonders-duel/
         <span class="sw-badge-score" style="color: #b45309;" id="wonder-score">0점</span>
       </div>
       <div class="tally-btn-group">
-        <button class="tally-btn" onclick="addScore('wonder', 2)">+2</button>
-        <button class="tally-btn" onclick="addScore('wonder', 3)">+3</button>
-        <button class="tally-btn" onclick="addScore('wonder', 4)">+4</button>
-        <button class="tally-btn" onclick="addScore('wonder', 5)">+5</button>
-        <button class="tally-btn" onclick="addScore('wonder', 6)">+6</button>
-        <button class="tally-btn" onclick="addScore('wonder', 9)">+9</button>
-        <button class="tally-btn text-danger ms-auto" onclick="clearCategory('wonder')"><i class="fas fa-undo-alt"></i> 초기화</button>
+        <button type="button" class="tally-btn" data-cat="wonder" data-val="2">+2</button>
+        <button type="button" class="tally-btn" data-cat="wonder" data-val="3">+3</button>
+        <button type="button" class="tally-btn" data-cat="wonder" data-val="4">+4</button>
+        <button type="button" class="tally-btn" data-cat="wonder" data-val="5">+5</button>
+        <button type="button" class="tally-btn" data-cat="wonder" data-val="6">+6</button>
+        <button type="button" class="tally-btn" data-cat="wonder" data-val="9">+9</button>
+        <button type="button" class="tally-btn text-danger ms-auto" data-clear="wonder"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="wonder-chips"></div>
     </div>
@@ -362,11 +379,11 @@ permalink: /boardgames/seven-wonders-duel/
         <span class="sw-badge-score" style="color: #047857;" id="token-score">0점</span>
       </div>
       <div class="tally-btn-group">
-        <button class="tally-btn" onclick="addScore('token', 2)">+2</button>
-        <button class="tally-btn" onclick="addScore('token', 3)">+3</button>
-        <button class="tally-btn" onclick="addScore('token', 4)">+4</button>
-        <button class="tally-btn" onclick="addScore('token', 6)">+6 (농업)</button>
-        <button class="tally-btn text-danger ms-auto" onclick="clearCategory('token')"><i class="fas fa-undo-alt"></i> 초기화</button>
+        <button type="button" class="tally-btn" data-cat="token" data-val="2">+2</button>
+        <button type="button" class="tally-btn" data-cat="token" data-val="3">+3</button>
+        <button type="button" class="tally-btn" data-cat="token" data-val="4">+4</button>
+        <button type="button" class="tally-btn" data-cat="token" data-val="6">+6 (농업)</button>
+        <button type="button" class="tally-btn text-danger ms-auto" data-clear="token"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="token-chips"></div>
     </div>
@@ -379,7 +396,7 @@ permalink: /boardgames/seven-wonders-duel/
       </div>
       <div class="coin-input-box">
         <label class="fw-bold">보유 동전:</label>
-        <input type="number" id="coin-count" value="0" min="0" class="coin-input" oninput="updateCoins()">
+        <input type="number" id="coin-count" value="0" min="0" class="coin-input" oninput="window.updateCoins()">
         <div class="small text-muted" id="coin-detail">0개 ➔ 0점 (나머지 0개)</div>
       </div>
     </div>
@@ -391,10 +408,10 @@ permalink: /boardgames/seven-wonders-duel/
         <span class="sw-badge-score text-danger" id="military-score">0점</span>
       </div>
       <div class="military-btn-group">
-        <div class="military-pill selected" onclick="setMilitary(0, this)">0점</div>
-        <div class="military-pill" onclick="setMilitary(2, this)">2점</div>
-        <div class="military-pill" onclick="setMilitary(5, this)">5점</div>
-        <div class="military-pill" onclick="setMilitary(10, this)">10점</div>
+        <div class="military-pill selected" data-mil="0" onclick="window.setMilitary(0, this)">0점</div>
+        <div class="military-pill" data-mil="2" onclick="window.setMilitary(2, this)">2점</div>
+        <div class="military-pill" data-mil="5" onclick="window.setMilitary(5, this)">5점</div>
+        <div class="military-pill" data-mil="10" onclick="window.setMilitary(10, this)">10점</div>
       </div>
     </div>
   </div>
@@ -407,10 +424,10 @@ permalink: /boardgames/seven-wonders-duel/
         <div class="display-5 fw-extrabold" id="grand-total-display">0 점</div>
       </div>
       <div class="text-end">
-        <button class="btn btn-sm btn-outline-light rounded-pill px-3 me-1" onclick="resetSheet()">
+        <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 me-1" onclick="window.resetSheet()">
           <i class="fas fa-redo-alt me-1"></i> 초기화
         </button>
-        <button class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-dark" onclick="copyResult()">
+        <button type="button" class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-dark" onclick="window.copyResult()">
           <i class="fas fa-copy me-1"></i> 복사
         </button>
       </div>
@@ -422,8 +439,8 @@ permalink: /boardgames/seven-wonders-duel/
 </div>
 
 <script>
-  // Page-Level State Object
-  const sheetState = {
+  // Explicitly attach global state & functions to window object
+  window.sheetState = {
     blue: [],
     green: [],
     yellow: [],
@@ -434,107 +451,131 @@ permalink: /boardgames/seven-wonders-duel/
     military: 0
   };
 
-  function addScore(category, val) {
-    sheetState[category].push(val);
-    renderChips(category);
-    recalculate();
-  }
+  window.addScore = function(category, val) {
+    if (!window.sheetState[category]) window.sheetState[category] = [];
+    window.sheetState[category].push(Number(val));
+    window.renderChips(category);
+    window.recalculate();
+  };
 
-  function removeScoreItem(category, index) {
-    sheetState[category].splice(index, 1);
-    renderChips(category);
-    recalculate();
-  }
+  window.removeScoreItem = function(category, index) {
+    if (window.sheetState[category]) {
+      window.sheetState[category].splice(index, 1);
+      window.renderChips(category);
+      window.recalculate();
+    }
+  };
 
-  function clearCategory(category) {
-    sheetState[category] = [];
-    renderChips(category);
-    recalculate();
-  }
+  window.clearCategory = function(category) {
+    if (window.sheetState[category]) {
+      window.sheetState[category] = [];
+      window.renderChips(category);
+      window.recalculate();
+    }
+  };
 
-  function renderChips(category) {
+  window.renderChips = function(category) {
     const chipsContainer = document.getElementById(`${category}-chips`);
     if (!chipsContainer) return;
 
     chipsContainer.innerHTML = '';
-    const items = sheetState[category];
+    const items = window.sheetState[category] || [];
 
     items.forEach((val, idx) => {
       const chip = document.createElement('span');
       chip.className = 'chip-tag';
-      chip.innerHTML = `${val}점 <span class="chip-remove" onclick="removeScoreItem('${category}', ${idx})">✕</span>`;
+      chip.innerHTML = `${val}점 <span class="chip-remove" role="button" onclick="window.removeScoreItem('${category}', ${idx})">✕</span>`;
       chipsContainer.appendChild(chip);
     });
-  }
+  };
 
-  function updateCoins() {
+  window.updateCoins = function() {
     const input = document.getElementById('coin-count');
-    let count = parseInt(input.value) || 0;
+    let count = parseInt(input ? input.value : 0) || 0;
     if (count < 0) count = 0;
-    sheetState.coins = count;
+    window.sheetState.coins = count;
 
     const vp = Math.floor(count / 3);
     const rem = count % 3;
-    document.getElementById('coin-detail').textContent = `${count}개 ➔ ${vp}점 (나머지 ${rem}개)`;
-    recalculate();
-  }
+    const detailEl = document.getElementById('coin-detail');
+    if (detailEl) detailEl.textContent = `${count}개 ➔ ${vp}점 (나머지 ${rem}개)`;
 
-  function setMilitary(score, element) {
-    sheetState.military = score;
+    window.recalculate();
+  };
 
-    const group = element.parentElement;
-    group.querySelectorAll('.military-pill').forEach(pill => pill.classList.remove('selected'));
-    element.classList.add('selected');
+  window.setMilitary = function(score, element) {
+    window.sheetState.military = Number(score);
 
-    recalculate();
-  }
+    if (element) {
+      const group = element.parentElement;
+      if (group) {
+        group.querySelectorAll('.military-pill').forEach(pill => pill.classList.remove('selected'));
+        element.classList.add('selected');
+      }
+    }
 
-  function recalculate() {
-    const sumArray = arr => arr.reduce((a, b) => a + b, 0);
+    window.recalculate();
+  };
 
-    const blueSum = sumArray(sheetState.blue);
-    const greenSum = sumArray(sheetState.green);
-    const yellowSum = sumArray(sheetState.yellow);
-    const purpleSum = sumArray(sheetState.purple);
-    const wonderSum = sumArray(sheetState.wonder);
-    const tokenSum = sumArray(sheetState.token);
-    const coinVp = Math.floor((sheetState.coins || 0) / 3);
-    const militaryVal = sheetState.military || 0;
+  window.recalculate = function() {
+    const sumArray = arr => (Array.isArray(arr) && arr.length) ? arr.reduce((a, b) => a + Number(b), 0) : 0;
 
-    // Update Category UI numbers
-    document.getElementById('blue-score').textContent = `${blueSum}점`;
-    document.getElementById('green-score').textContent = `${greenSum}점`;
-    document.getElementById('yellow-score').textContent = `${yellowSum}점`;
-    document.getElementById('purple-score').textContent = `${purpleSum}점`;
-    document.getElementById('wonder-score').textContent = `${wonderSum}점`;
-    document.getElementById('token-score').textContent = `${tokenSum}점`;
-    document.getElementById('coin-score').textContent = `${coinVp}점`;
-    document.getElementById('military-score').textContent = `${militaryVal}점`;
+    const blueSum = sumArray(window.sheetState.blue);
+    const greenSum = sumArray(window.sheetState.green);
+    const yellowSum = sumArray(window.sheetState.yellow);
+    const purpleSum = sumArray(window.sheetState.purple);
+    const wonderSum = sumArray(window.sheetState.wonder);
+    const tokenSum = sumArray(window.sheetState.token);
+    const coinVp = Math.floor((Number(window.sheetState.coins) || 0) / 3);
+    const militaryVal = Number(window.sheetState.military) || 0;
+
+    const updateText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    updateText('blue-score', `${blueSum}점`);
+    updateText('green-score', `${greenSum}점`);
+    updateText('yellow-score', `${yellowSum}점`);
+    updateText('purple-score', `${purpleSum}점`);
+    updateText('wonder-score', `${wonderSum}점`);
+    updateText('token-score', `${tokenSum}점`);
+    updateText('coin-score', `${coinVp}점`);
+    updateText('military-score', `${militaryVal}점`);
 
     const grandTotal = blueSum + greenSum + yellowSum + purpleSum + wonderSum + tokenSum + coinVp + militaryVal;
 
-    // Update Bottom Sticky Total Display
-    document.getElementById('grand-total-display').textContent = `${grandTotal} 점`;
-    document.getElementById('breakdown-summary').textContent =
-      `시민: ${blueSum} | 과학: ${greenSum} | 상업: ${yellowSum} | 길드: ${purpleSum} | 피라미드: ${wonderSum} | 토큰: ${tokenSum} | 동전: ${coinVp} | 군사: ${militaryVal}`;
-  }
+    // Trigger visual pop animation on total display
+    const grandTotalEl = document.getElementById('grand-total-display');
+    if (grandTotalEl) {
+      grandTotalEl.textContent = `${grandTotal} 점`;
+      grandTotalEl.classList.remove('total-pop');
+      void grandTotalEl.offsetWidth;
+      grandTotalEl.classList.add('total-pop');
+    }
 
-  function resetSheet() {
+    updateText('breakdown-summary', `시민: ${blueSum} | 과학: ${greenSum} | 상업: ${yellowSum} | 길드: ${purpleSum} | 피라미드: ${wonderSum} | 토큰: ${tokenSum} | 동전: ${coinVp} | 군사: ${militaryVal}`);
+  };
+
+  window.resetSheet = function() {
     if (!confirm('현재 계산판을 초기화하시겠습니까?')) return;
 
-    sheetState.blue = [];
-    sheetState.green = [];
-    sheetState.yellow = [];
-    sheetState.purple = [];
-    sheetState.wonder = [];
-    sheetState.token = [];
-    sheetState.coins = 0;
-    sheetState.military = 0;
+    window.sheetState = {
+      blue: [],
+      green: [],
+      yellow: [],
+      purple: [],
+      wonder: [],
+      token: [],
+      coins: 0,
+      military: 0
+    };
 
-    document.getElementById('coin-count').value = 0;
+    const coinInput = document.getElementById('coin-count');
+    if (coinInput) coinInput.value = 0;
 
     ['blue', 'green', 'yellow', 'purple', 'wonder', 'token'].forEach(cat => {
-      renderChips(cat);
+      window.renderChips(cat);
     });
 
     const milGroup = document.querySelector('.military-btn-group');
@@ -544,20 +585,20 @@ permalink: /boardgames/seven-wonders-duel/
       });
     }
 
-    recalculate();
-  }
+    window.recalculate();
+  };
 
-  function copyResult() {
-    const sumArray = arr => arr.reduce((a, b) => a + b, 0);
+  window.copyResult = function() {
+    const sumArray = arr => (Array.isArray(arr) && arr.length) ? arr.reduce((a, b) => a + Number(b), 0) : 0;
 
-    const blueSum = sumArray(sheetState.blue);
-    const greenSum = sumArray(sheetState.green);
-    const yellowSum = sumArray(sheetState.yellow);
-    const purpleSum = sumArray(sheetState.purple);
-    const wonderSum = sumArray(sheetState.wonder);
-    const tokenSum = sumArray(sheetState.token);
-    const coinVp = Math.floor((sheetState.coins || 0) / 3);
-    const militaryVal = sheetState.military || 0;
+    const blueSum = sumArray(window.sheetState.blue);
+    const greenSum = sumArray(window.sheetState.green);
+    const yellowSum = sumArray(window.sheetState.yellow);
+    const purpleSum = sumArray(window.sheetState.purple);
+    const wonderSum = sumArray(window.sheetState.wonder);
+    const tokenSum = sumArray(window.sheetState.token);
+    const coinVp = Math.floor((Number(window.sheetState.coins) || 0) / 3);
+    const militaryVal = Number(window.sheetState.military) || 0;
     const grandTotal = blueSum + greenSum + yellowSum + purpleSum + wonderSum + tokenSum + coinVp + militaryVal;
 
     const text = `🏛️ [7 Wonders Duel 점수 결과]\n` +
@@ -569,7 +610,7 @@ permalink: /boardgames/seven-wonders-duel/
       `🟣 길드 건물: ${purpleSum}점\n` +
       `🏛️ 피라미드: ${wonderSum}점\n` +
       `📜 토큰: ${tokenSum}점\n` +
-      `🪙 동전:${coinVp}점 (${sheetState.coins}개)\n` +
+      `🪙 동전:${coinVp}점 (${window.sheetState.coins}개)\n` +
       `⚔️ 군사트랙: ${militaryVal}점\n` +
       `───────────────────\n` +
       `계산기: Kaerusapiens Boardgame Sheet`;
@@ -579,10 +620,28 @@ permalink: /boardgames/seven-wonders-duel/
     }).catch(err => {
       alert('복사 결과:\n' + text);
     });
+  };
+
+  // Global Event Listener for robust event delegation
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.tally-btn');
+    if (btn) {
+      if (btn.dataset.cat && btn.dataset.val) {
+        window.addScore(btn.dataset.cat, Number(btn.dataset.val));
+      } else if (btn.dataset.clear) {
+        window.clearCategory(btn.dataset.clear);
+      }
+    }
+  });
+
+  // Execute immediate setup + DOMContentLoaded & PJAX load fallback
+  function initCalculator() {
+    window.recalculate();
   }
 
-  // Initial setup
-  document.addEventListener('DOMContentLoaded', () => {
-    recalculate();
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCalculator);
+  } else {
+    initCalculator();
+  }
 </script>

@@ -79,20 +79,18 @@
           </a>
 
           {% if tab_name == 'game' or tab.url contains '/game/' %}
-            <ul class="nav flex-column ps-3 sub-categories-nav small my-1">
-              <li class="nav-item w-100">
-                <a href="{{ '/game/' | relative_url }}" class="nav-link py-1 opacity-75 d-flex align-items-center">
-                  <i class="fas fa-chess-board fa-fw me-1"></i>
-                  <span>boardgames</span>
+            <ul class="nav flex-column sub-categories-nav">
+              <li class="nav-item category-sub-item">
+                <a href="{{ '/game/' | relative_url }}" class="sub-nav-link">
+                  <i class="far fa-folder-open fa-fw"></i>
+                  <span class="category-title">boardgames</span>
                 </a>
-                <ul class="nav flex-column ps-3">
-                  <li class="nav-item w-100">
-                    <a href="{{ '/boardgames/seven-wonders-duel/' | relative_url }}" class="nav-link py-1 opacity-75 d-flex align-items-center {% if page.url contains '/boardgames/seven-wonders-duel/' %}active fw-bold opacity-100{% endif %}">
-                      <i class="fas fa-dice-d6 fa-fw me-1"></i>
-                      <span>seven-wonders-duel</span>
-                    </a>
-                  </li>
-                </ul>
+              </li>
+              <li class="nav-item category-sub-item">
+                <a href="{{ '/boardgames/seven-wonders-duel/' | relative_url }}" class="sub-nav-link sub-child-link {% if page.url contains '/boardgames/seven-wonders-duel/' %}active fw-bold{% endif %}">
+                  <i class="far fa-folder fa-fw"></i>
+                  <span class="category-title">seven-wonders-duel</span>
+                </a>
               </li>
             </ul>
           {% endif %}
@@ -147,42 +145,17 @@
     </ul>
   </nav>
 
-  <div class="sidebar-bottom d-flex flex-wrap  align-items-center w-100">
+  <div class="sidebar-bottom d-flex flex-wrap align-items-center w-100">
     {% for entry in site.data.contact %}
-      {% case entry.type %}
-        {% when 'github', 'twitter' %}
-          {%- capture url -%}
-            https://{{ entry.type }}.com/{{ site[entry.type].username }}
-          {%- endcapture -%}
-        {% when 'email' %}
-          {% assign email = site.social.email | split: '@' %}
-          {%- capture url -%}
-            javascript:location.href = 'mailto:' + ['{{ email[0] }}','{{ email[1] }}'].join('@')
-          {%- endcapture -%}
-        {% when 'rss' %}
-          {% assign url = '/feed.xml' | relative_url %}
-        {% else %}
-          {% assign url = entry.url %}
-      {% endcase %}
-
-      {% if url %}
+      {% if entry.type == 'github' %}
+        {%- capture url -%}
+          https://github.com/{{ site.github.username }}
+        {%- endcapture -%}
         <a
           href="{{ url }}"
-          aria-label="{{ entry.type }}"
-          {% assign link_types = '' %}
-
-          {% unless entry.noblank %}
-            target="_blank"
-            {% assign link_types = 'noopener noreferrer' %}
-          {% endunless %}
-
-          {% if entry.type == 'mastodon' %}
-            {% assign link_types = link_types | append: ' me' | strip %}
-          {% endif %}
-
-          {% unless link_types == empty %}
-            rel="{{ link_types }}"
-          {% endunless %}
+          aria-label="github"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <i class="{{ entry.icon }}"></i>
         </a>

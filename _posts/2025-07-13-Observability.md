@@ -1,6 +1,6 @@
 ---
 title: "Observability"
-categories: [kubernetes]
+categories: [Kubernetes]
 ---
 
 ## Open Telemetry

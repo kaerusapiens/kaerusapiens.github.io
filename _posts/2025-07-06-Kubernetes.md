@@ -1,6 +1,6 @@
 ---
 title: "Kubernetes"
-categories: [kubernetes]
+categories: [Kubernetes]
 mermaid: true
 ---
 
@@ -288,6 +288,7 @@ Pod은 Kubernetes에서 가장 기본적인 실행 단위로, 하나 이상의 �
   - CNI 플러그인(Calico, Cilium, Flannel 등)이 Dual Stack을 지원해야 하며, 각 CNI마다 설정 방법이
     다릅니다.
   - Service의 `ipFamilies` 필드를 통해 IPv4, IPv6 또는 Dual Stack 모드를 선택할 수 있습니다.
+
   ```yaml
   apiVersion: v1
   kind: Service
@@ -304,6 +305,7 @@ Pod은 Kubernetes에서 가장 기본적인 실행 단위로, 하나 이상의 �
 
   - Pod의 네트워크 인터페이스에 IPv4와 IPv6 주소가 모두 할당되어, 외부 서비스와의 다양한 네트워크
     환경에서 호환성을 제공합니다.
+
 - restart policy
   - Always: Pod이 종료되면 항상 재시작합니다. 기본값입니다.
   - OnFailure: Pod이 비정상적으로 종료되면 재시작합니다.

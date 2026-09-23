@@ -1,6 +1,6 @@
 ---
 title: "Containers_with_Docker"
-categories: [kubernetes]
+categories: [Kubernetes]
 ---
 
 ## Isolation and Containerization

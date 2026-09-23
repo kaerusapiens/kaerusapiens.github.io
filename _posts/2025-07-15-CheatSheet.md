@@ -1,6 +1,6 @@
 ---
 title: Kubernetes Cheat Sheet
-categories: [kubernetes]
+categories: [Kubernetes]
 ---
 
 ## 관찰가능성과 모니터링 (Observability and Monitoring)

@@ -1,6 +1,6 @@
 ---
 title: "Cloud_Native_Fundamentals"
-categories: [kubernetes]
+categories: [Kubernetes]
 ---
 
 ---

@@ -130,6 +130,35 @@ permalink: /boardgames/seven-wonders-duel/
     color: white !important;
   }
 
+  /* Category Clear Button */
+  .btn-cat-clear {
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(255, 255, 255, 0.85);
+    color: #ef4444;
+    border-radius: 14px;
+    padding: 3px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    user-select: none;
+  }
+
+  [data-mode="dark"] .btn-cat-clear,
+  html[data-mode="dark"] .btn-cat-clear {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
+  }
+
+  .btn-cat-clear:hover, .btn-cat-clear:active {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+  }
+
   /* Item Chip Tags */
   .item-chips {
     display: flex;
@@ -312,7 +341,10 @@ permalink: /boardgames/seven-wonders-duel/
     <div class="sw-card blue">
       <div class="sw-card-header">
         <h6 class="sw-card-title text-primary"><i class="fas fa-building"></i> 시민 건물</h6>
-        <span class="sw-badge-score text-primary" id="blue-score">0점</span>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn-cat-clear" onclick="clearCategory('blue')"><i class="fas fa-undo-alt"></i> 초기화</button>
+          <span class="sw-badge-score text-primary" id="blue-score">0점</span>
+        </div>
       </div>
       <div class="tally-btn-group">
         <button type="button" class="tally-btn" onclick="addScore('blue', 1)">+1</button>
@@ -322,7 +354,6 @@ permalink: /boardgames/seven-wonders-duel/
         <button type="button" class="tally-btn" onclick="addScore('blue', 5)">+5</button>
         <button type="button" class="tally-btn" onclick="addScore('blue', 6)">+6</button>
         <button type="button" class="tally-btn" onclick="addScore('blue', 7)">+7</button>
-        <button type="button" class="tally-btn text-danger ms-auto" onclick="clearCategory('blue')"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="blue-chips"></div>
     </div>
@@ -331,7 +362,10 @@ permalink: /boardgames/seven-wonders-duel/
     <div class="sw-card green">
       <div class="sw-card-header">
         <h6 class="sw-card-title text-success"><i class="fas fa-flask"></i> 과학 건물</h6>
-        <span class="sw-badge-score text-success" id="green-score">0점</span>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn-cat-clear" onclick="clearCategory('green')"><i class="fas fa-undo-alt"></i> 초기화</button>
+          <span class="sw-badge-score text-success" id="green-score">0점</span>
+        </div>
       </div>
       <div class="tally-btn-group">
         <button type="button" class="tally-btn" onclick="addScore('green', 1)">+1</button>
@@ -340,7 +374,6 @@ permalink: /boardgames/seven-wonders-duel/
         <button type="button" class="tally-btn" onclick="addScore('green', 4)">+4</button>
         <button type="button" class="tally-btn" onclick="addScore('green', 5)">+5</button>
         <button type="button" class="tally-btn" onclick="addScore('green', 6)">+6</button>
-        <button type="button" class="tally-btn text-danger ms-auto" onclick="clearCategory('green')"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="green-chips"></div>
     </div>
@@ -349,7 +382,10 @@ permalink: /boardgames/seven-wonders-duel/
     <div class="sw-card yellow">
       <div class="sw-card-header">
         <h6 class="sw-card-title text-warning"><i class="fas fa-store"></i> 상업 건물</h6>
-        <span class="sw-badge-score text-warning" id="yellow-score">0점</span>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn-cat-clear" onclick="clearCategory('yellow')"><i class="fas fa-undo-alt"></i> 초기화</button>
+          <span class="sw-badge-score text-warning" id="yellow-score">0점</span>
+        </div>
       </div>
       <div class="tally-btn-group">
         <button type="button" class="tally-btn" onclick="addScore('yellow', 1)">+1</button>
@@ -358,7 +394,6 @@ permalink: /boardgames/seven-wonders-duel/
         <button type="button" class="tally-btn" onclick="addScore('yellow', 4)">+4</button>
         <button type="button" class="tally-btn" onclick="addScore('yellow', 5)">+5</button>
         <button type="button" class="tally-btn" onclick="addScore('yellow', 6)">+6</button>
-        <button type="button" class="tally-btn text-danger ms-auto" onclick="clearCategory('yellow')"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="yellow-chips"></div>
     </div>
@@ -367,7 +402,10 @@ permalink: /boardgames/seven-wonders-duel/
     <div class="sw-card purple">
       <div class="sw-card-header">
         <h6 class="sw-card-title" style="color: #7c3aed;"><i class="fas fa-landmark"></i> 길드 건물</h6>
-        <span class="sw-badge-score" style="color: #7c3aed;" id="purple-score">0점</span>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn-cat-clear" onclick="clearCategory('purple')"><i class="fas fa-undo-alt"></i> 초기화</button>
+          <span class="sw-badge-score" style="color: #7c3aed;" id="purple-score">0점</span>
+        </div>
       </div>
       <div class="tally-btn-group">
         <button type="button" class="tally-btn" onclick="addScore('purple', 1)">+1</button>
@@ -378,7 +416,6 @@ permalink: /boardgames/seven-wonders-duel/
         <button type="button" class="tally-btn" onclick="addScore('purple', 6)">+6</button>
         <button type="button" class="tally-btn" onclick="addScore('purple', 7)">+7</button>
         <button type="button" class="tally-btn" onclick="addScore('purple', 8)">+8</button>
-        <button type="button" class="tally-btn text-danger ms-auto" onclick="clearCategory('purple')"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="purple-chips"></div>
     </div>
@@ -387,7 +424,10 @@ permalink: /boardgames/seven-wonders-duel/
     <div class="sw-card wonder">
       <div class="sw-card-header">
         <h6 class="sw-card-title" style="color: #b45309;"><i class="fas fa-archway"></i> 피라미드 점수</h6>
-        <span class="sw-badge-score" style="color: #b45309;" id="wonder-score">0점</span>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn-cat-clear" onclick="clearCategory('wonder')"><i class="fas fa-undo-alt"></i> 초기화</button>
+          <span class="sw-badge-score" style="color: #b45309;" id="wonder-score">0점</span>
+        </div>
       </div>
       <div class="tally-btn-group">
         <button type="button" class="tally-btn" onclick="addScore('wonder', 2)">+2</button>
@@ -396,7 +436,6 @@ permalink: /boardgames/seven-wonders-duel/
         <button type="button" class="tally-btn" onclick="addScore('wonder', 5)">+5</button>
         <button type="button" class="tally-btn" onclick="addScore('wonder', 6)">+6</button>
         <button type="button" class="tally-btn" onclick="addScore('wonder', 9)">+9</button>
-        <button type="button" class="tally-btn text-danger ms-auto" onclick="clearCategory('wonder')"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="wonder-chips"></div>
     </div>
@@ -405,14 +444,16 @@ permalink: /boardgames/seven-wonders-duel/
     <div class="sw-card token">
       <div class="sw-card-header">
         <h6 class="sw-card-title" style="color: #047857;"><i class="fas fa-award"></i> 토큰 점수</h6>
-        <span class="sw-badge-score" style="color: #047857;" id="token-score">0점</span>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn-cat-clear" onclick="clearCategory('token')"><i class="fas fa-undo-alt"></i> 초기화</button>
+          <span class="sw-badge-score" style="color: #047857;" id="token-score">0점</span>
+        </div>
       </div>
       <div class="tally-btn-group">
         <button type="button" class="tally-btn" onclick="addScore('token', 2)">+2</button>
         <button type="button" class="tally-btn" onclick="addScore('token', 3)">+3</button>
         <button type="button" class="tally-btn" onclick="addScore('token', 4)">+4</button>
         <button type="button" class="tally-btn" onclick="addScore('token', 6)">+6</button>
-        <button type="button" class="tally-btn text-danger ms-auto" onclick="clearCategory('token')"><i class="fas fa-undo-alt"></i> 초기화</button>
       </div>
       <div class="item-chips" id="token-chips"></div>
     </div>

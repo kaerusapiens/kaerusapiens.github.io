@@ -4,7 +4,7 @@
     {
       "label": "Run Jekyll Server",
       "type": "shell",
-      "command": "./tools/run.sh",
+      "command": "bundle exec jekyll serve",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -15,12 +15,12 @@
     {
       "label": "Build Jekyll Site",
       "type": "shell",
-      "command": "./tools/test.sh",
+      "command": "bundle exec jekyll build",
       "group": {
         "kind": "build"
       },
       "problemMatcher": [],
-      "detail": "Build the Jekyll site for production."
+      "detail": "Build the Jekyll site."
     }
   ]
 }

@@ -4931,79 +4931,100 @@
 
       // 3. 카드 이름 TD (지휘관 배지 및 기본덱 배지)
       const tdName = document.createElement('td');
+      // 한국어 카드명 요소 생성
       const nameDiv = document.createElement('div');
       nameDiv.className = 'fw-bold card-name-text';
-      nameDiv.style.fontSize = '0.9rem';
+      nameDiv.style.fontSize = '0.84rem';
+      nameDiv.style.lineHeight = '1.2';
       nameDiv.textContent = card.name_ko;
       tdName.appendChild(nameDiv);
 
+      // 영문 카드명 보조 텍스트 생성
       const nameSub = document.createElement('div');
       nameSub.className = 'text-muted';
-      nameSub.style.fontSize = '0.78rem';
-      nameSub.style.lineHeight = '1.2';
+      nameSub.style.fontSize = '0.72rem';
+      nameSub.style.lineHeight = '1.15';
+      nameSub.style.marginTop = '1px';
       nameSub.textContent = '(' + card.name_en + ')';
       tdName.appendChild(nameSub);
 
+      // 지휘관 카드일 경우 소형 크라운 뱃지 표시
       if (card.is_leader) {
         const leaderBadge = document.createElement('span');
-        leaderBadge.className = 'badge bg-warning text-dark mt-1 me-1';
-        leaderBadge.style.fontSize = '0.7rem';
+        leaderBadge.className = 'badge bg-warning text-dark me-1';
+        leaderBadge.style.fontSize = '0.64rem';
+        leaderBadge.style.padding = '1px 4px';
+        leaderBadge.style.marginTop = '2px';
         leaderBadge.innerHTML = '<i class="fas fa-crown me-1"></i>지휘관';
         tdName.appendChild(leaderBadge);
       }
 
+      // 기본 덱 포함 카드일 경우 뱃지 표시
       if (card.is_base_deck) {
         const baseBadge = document.createElement('span');
-        baseBadge.className = 'badge bg-secondary mt-1';
-        baseBadge.style.fontSize = '0.68rem';
+        baseBadge.className = 'badge bg-secondary';
+        baseBadge.style.fontSize = '0.64rem';
+        baseBadge.style.padding = '1px 4px';
+        baseBadge.style.marginTop = '2px';
         baseBadge.textContent = '기본 덱';
         tdName.appendChild(baseBadge);
       }
       tr.appendChild(tdName);
 
-      // 4. 리젼 TD
+      // 4. 리젼(지역) TD
       const tdRegion = document.createElement('td');
+      // 한국어 지역명
       const regDiv = document.createElement('div');
       regDiv.style.fontWeight = '500';
+      regDiv.style.fontSize = '0.8rem';
+      regDiv.style.lineHeight = '1.2';
       regDiv.textContent = card.region_ko;
       tdRegion.appendChild(regDiv);
+      // 영문 지역명 보조 텍스트
       const regSub = document.createElement('div');
       regSub.className = 'text-muted';
-      regSub.style.fontSize = '0.76rem';
+      regSub.style.fontSize = '0.72rem';
+      regSub.style.lineHeight = '1.15';
+      regSub.style.marginTop = '1px';
       regSub.textContent = '(' + card.region_en + ')';
       tdRegion.appendChild(regSub);
       tr.appendChild(tdRegion);
 
-      // 5. 카테고리 TD
+      // 5. 카테고리(진영) TD
       const tdCat = document.createElement('td');
+      // 진영 뱃지
       const spanCat = document.createElement('span');
       spanCat.className = 'badge-faction ' + getFactionBadgeClass(card.category_key);
       spanCat.textContent = card.category_ko;
       tdCat.appendChild(spanCat);
+      // 영문 카테고리명 보조 텍스트
       const catSub = document.createElement('div');
-      catSub.className = 'text-muted mt-1';
-      catSub.style.fontSize = '0.75rem';
+      catSub.className = 'text-muted';
+      catSub.style.fontSize = '0.7rem';
+      catSub.style.lineHeight = '1.1';
+      catSub.style.marginTop = '1px';
       catSub.textContent = '(' + card.category_en + ')';
       tdCat.appendChild(catSub);
       tr.appendChild(tdCat);
 
-      // 6. 사인포스트 TD
+      // 6. 사인포스트(거점) TD
       const tdSign = document.createElement('td');
-      tdSign.style.fontSize = '0.82rem';
-      tdSign.style.lineHeight = '1.35';
+      tdSign.style.fontSize = '0.78rem';
+      tdSign.style.lineHeight = '1.25';
       tdSign.innerHTML = card.signpost_display;
       tr.appendChild(tdSign);
 
       // 7. 얻는법 TD (지휘관 카드일 경우 고유 능력 박스 강조 표기)
       const tdObtain = document.createElement('td');
-      tdObtain.style.fontSize = '0.83rem';
-      tdObtain.style.lineHeight = '1.38';
+      tdObtain.style.fontSize = '0.78rem';
+      tdObtain.style.lineHeight = '1.25';
 
       let obtainHtml = card.obtain_display;
+      // 지휘관 고유 스킬 배너를 컴팩트하게 구성
       if (card.is_leader && card.leader_ability) {
         obtainHtml = (
-          '<div class="mb-2 p-2 rounded" style="background: rgba(197, 160, 89, 0.12); border: 1px solid rgba(197, 160, 89, 0.35); font-size: 0.82rem;">' +
-          '<span class="fw-bold" style="color: #b45309;"><i class="fas fa-crown text-warning me-1"></i>지휘관 능력:</span> ' +
+          '<div class="mb-1 p-1 px-2 rounded" style="background: rgba(197, 160, 89, 0.12); border: 1px solid rgba(197, 160, 89, 0.35); font-size: 0.76rem; line-height: 1.25;">' +
+          '<span class="fw-bold" style="color: #b45309;"><i class="fas fa-crown text-warning me-1"></i>능력:</span> ' +
           '<span>' + card.leader_ability + '</span>' +
           '</div>' +
           obtainHtml

@@ -197,18 +197,19 @@ permalink: /game/play-station/witcher3/
   .gwent-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.86rem;
+    font-size: 0.82rem; /* 전체 글자 크기 컴팩트화 */
   }
   .gwent-table th {
     background: rgba(0, 0, 0, 0.04);
-    padding: 9px 8px;
+    padding: 6px 6px; /* 테이블 헤더 상하 패딩 축소 */
     font-weight: 700;
     text-align: left;
     border-bottom: 2px solid var(--card-table-border);
     white-space: nowrap;
+    font-size: 0.8rem;
   }
   .gwent-table td {
-    padding: 7px 8px;
+    padding: 3px 6px; /* 행 상하 패딩을 7px -> 3px로 축소하여 한 화면에 더 많은 행 표시 */
     border-bottom: 1px solid var(--card-table-border);
     vertical-align: middle;
   }
@@ -220,51 +221,57 @@ permalink: /game/play-station/witcher3/
     background: rgba(197, 160, 89, 0.06);
   }
 
-  /* 체크된 카드 행 스타일 */
+  /* 체크된 카드 행 스타일 (수집 완료 시 반투명 처리) */
   .gwent-table tr.is-collected {
     background: rgba(34, 197, 94, 0.04);
-    opacity: 0.65;
+    opacity: 0.6;
   }
   .gwent-table tr.is-collected:hover {
-    opacity: 0.9;
+    opacity: 0.85;
   }
   .gwent-table tr.is-collected .card-name-text {
     text-decoration: line-through;
   }
 
-  /* 체크박스 디자인 */
+  /* 체크박스 디자인 (크기 컴팩트화) */
   .card-checkbox {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
     accent-color: #16a34a;
+    vertical-align: middle;
   }
 
-  /* 카드 썸네일 이미지: 짤림 없이(object-fit: contain) 카드 원본 온전히 표시 */
+  /* 카드 썸네일 이미지: 상하 빈 공간(여백)을 완전히 제거하고 카드 원본 비율에 딱 맞춤 */
   .card-thumb-img {
-    width: 44px;
-    height: 76px;
+    height: 42px; /* 세로 높이를 76px -> 42px로 컴팩트하게 조정 */
+    width: auto;  /* 가로는 원본 비율에 맞춰 자동 계산 (상하 빈 공간 제거) */
+    max-width: 32px;
     object-fit: contain;
-    border-radius: 4px;
-    border: 1px solid rgba(0,0,0,0.15);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.12);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
     cursor: zoom-in;
-    background: rgba(0, 0, 0, 0.03);
+    vertical-align: middle;
+    display: block;
+    margin: 0 auto;
+    background: transparent; /* 불필요한 배경색 제거 */
   }
+  /* 마우스 호버 시 2.2배 확대하여 세부 일러스트 즉시 미리보기 가능 */
   .card-thumb-img:hover {
-    transform: scale(1.25);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-    z-index: 10;
+    transform: scale(2.2);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+    z-index: 30;
     position: relative;
   }
 
-  /* 진영별 뱃지 컬러 */
+  /* 진영별 뱃지 컬러 및 크기 컴팩트화 */
   .badge-faction {
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 6px;
+    padding: 2px 6px;
+    border-radius: 4px;
     display: inline-block;
   }
   .badge-neutral { background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid rgba(100, 116, 139, 0.3); }
@@ -449,13 +456,20 @@ permalink: /game/play-station/witcher3/
     <table class="gwent-table" id="gwentCardTable">
       <thead>
         <tr>
-          <th style="width: 36px; text-align: center;">✓</th>
-          <th style="width: 52px; text-align: center;">그림</th>
-          <th style="width: 18%; min-width: 120px;">카드이름 (Name)</th>
-          <th style="width: 11%; min-width: 85px;">리젼 (Region)</th>
-          <th style="width: 11%; min-width: 85px;">카테고리</th>
-          <th style="width: 15%; min-width: 110px;">사인포스트</th>
-          <th style="min-width: 180px;">얻는법 (How to Obtain)</th>
+          <!-- 체크박스 컬럼 -->
+          <th style="width: 30px; text-align: center;">✓</th>
+          <!-- 카드 썸네일 컬럼 -->
+          <th style="width: 42px; text-align: center;">그림</th>
+          <!-- 카드 이름 컬럼 -->
+          <th style="width: 19%; min-width: 110px;">카드이름 (Name)</th>
+          <!-- 지역 컬럼 -->
+          <th style="width: 10%; min-width: 80px;">리젼 (Region)</th>
+          <!-- 카테고리/진영 컬럼 -->
+          <th style="width: 10%; min-width: 75px;">카테고리</th>
+          <!-- 사인포스트/거점 컬럼 -->
+          <th style="width: 15%; min-width: 95px;">사인포스트</th>
+          <!-- 획득 방법 컬럼 -->
+          <th style="min-width: 160px;">얻는법 (How to Obtain)</th>
         </tr>
       </thead>
       <tbody id="cardTableBody">

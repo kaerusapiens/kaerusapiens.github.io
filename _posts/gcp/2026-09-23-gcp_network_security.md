@@ -81,29 +81,116 @@ GCP의 Virtual Private Cloud(VPC)는 전 세계 리전을 아우르는 글로벌
 
 ---
 
-## 4. GCP 라우터 & 게이트웨이 서비스 체계
+## 4. GCP 라우터 & 게이트웨이 핵심 서비스 5대 분류
 
-GCP의 네트워크 장비는 물리 장비가 아닌 소프트웨어 정의 네트워크(SDN, Andromeda 기반)로 동작하여 단일
-장애점(SPOF) 없이 수평 확장됩니다.
+트래픽의 **방향(Direction)**과 **목적지(Destination)**에 따라 사용해야 하는 GCP 네트워크 서비스가
+명확히 구분됩니다:
 
-1. **Cloud Router**:
-   - 온프레미스 장비나 타 클라우드와 BGP(Border Gateway Protocol)를 통해 동적으로 라우팅 정보를
-     교환하는 제어 평면(Control Plane) 가상 라우터입니다.
-   - 실제 데이터 패킷이 병목을 겪지 않도록 경로 정보만 제공하며, Cloud NAT, Cloud VPN, Cloud
-     Interconnect의 기반이 됩니다.
-2. **Cloud VPN (HA VPN)**:
-   - 공용 인터넷을 통과하는 IPsec 암호화 터널을 제공하며, 99.99% 가용성을 보장하는 고가용성 사이트
-     간(Site-to-Site) VPN 게이트웨이입니다.
-3. **Cloud Interconnect**:
-   - 데이터센터와 Google 망을 통신사 전용선(Direct Fiber)으로 물리 직결하여 대용량 저지연 트래픽을
-     공용 인터넷 노출 없이 전송하는 하이브리드 연결 방식입니다.
-4. **Private Service Connect (PSC)**:
-   - 다른 VPC의 서비스나 타사 SaaS, Google API를 내 서브넷 내부의 사설 IP(Endpoint)로 직접 연결하는
-     차세대 제로 트러스트 연결 방식입니다.
-   - VPC Peering과 달리 IP 대역 중복 문제가 없으며, 서비스 단위로만 최소 권한 노출이 가능합니다.
-5. **Serverless VPC Access**:
-   - Cloud Functions, Cloud Run 같은 서버리스 서비스가 VPC 내부의 사설 리소스(Cloud SQL 등)로 진입할
-     수 있도록 경로를 열어주는 내부 게이트웨이 커넥터입니다.
+- **외부 인터넷으로 나갈 때 (Outbound)**: `Cloud NAT`
+- **온프레미스/타 클라우드와 연결할 때 (Hybrid)**: `Cloud Router`, `Cloud VPN (HA VPN)`,
+  `Cloud Interconnect`
+- **VPC 간 또는 서비스 간 사설 연결 (Private)**: `VPC Peering`, `Private Service Connect (PSC)`
+- **외부에서 들어오는 대문 (Inbound)**: `Cloud Load Balancing (Gateway API)`
+
+```text
+               [ 온프레미스 / 타 클라우드 ]
+                     ▲             ▲
+                     │ (전용선)     │ (IPsec 암호화)
+             Cloud Interconnect   Cloud VPN (HA VPN)
+                     │             │
+                     ▼             ▼
+   [ VPC 경계 ] ───▶ [ Cloud Router ] (동적 경로 BGP 안내판)
+         │
+         ├───▶ [ Cloud NAT ] ─────────▶ [ 외부 공용 인터넷 (아웃바운드 전용) ]
+         │
+         ├───▶ [ Private Service Connect (PSC) ] ─▶ [ Google API / 타사 SaaS 사설 연동 ]
+         │
+         └───▶ [ VPC Peering ] ───────▶ [ 다른 사설 VPC ]
+```
+
+---
+
+### 4.1 네트워크의 두뇌 (동적 라우팅 안내판): Cloud Router
+
+- **역할**: 가상 라우터로서, 온프레미스나 타 클라우드 장비와 **BGP(Border Gateway Protocol)** 통신을
+  통해 실시간으로 네트워크 경로 정보를 주고받습니다.
+- **핵심 특징**:
+  - 실제 패킷 트래픽이 Cloud Router 장비를 통과하는 것이 아니라, **경로 정보(Control Plane)만
+    계산하여 가상 머신에 전달**합니다. (따라서 라우터 자체로 인한 대역폭 병목이 없습니다.)
+  - `Cloud NAT`, `Cloud VPN`, `Cloud Interconnect`를 구성하기 위한 필수 전제 조건입니다.
+
+---
+
+### 4.2 안전한 아웃바운드 인터넷 게이트웨이: Cloud NAT
+
+- **역할**: 외부 IP가 없는 내부 사설 VM들이 OS 패키지 다운로드(`apt-get`, `yum`), 외부 API 호출을
+  위해 **외부 인터넷으로 나갈 수 있게 해주는 단방향 출구**입니다.
+- **보안 포인트**:
+  - **아웃바운드(Outbound) 전용**: 외부 인터넷에서 내부 VM으로 직접 접속하는 인바운드는 원천
+    차단됩니다.
+  - 별도의 NAT 프록시 VM 인스턴스를 띄우지 않는 **서버리스(분산) 게이트웨이**이므로 단일
+    장애점(SPOF) 없이 고가용성이 보장됩니다.
+
+---
+
+### 4.3 온프레미스 & 하이브리드 연결 게이트웨이
+
+#### (1) Cloud VPN (HA VPN)
+
+- **역할**: 인터넷 공용망을 통해 온프레미스 장비와 GCP VPC 사이에 **IPsec 암호화 터널**을 뚫어주는
+  가상 게이트웨이입니다.
+- **보안 포인트**:
+  - **99.99% 가용성**을 보장하는 HA VPN은 두 개의 독립된 터널 인터페이스(Active/Active 또는
+    Active/Passive)를 필수로 구성하도록 강제합니다.
+
+#### (2) Cloud Interconnect
+
+- **역할**: 공용 인터넷을 타지 않고, 통신사 전용선(Direct Fiber)을 통해 기업 데이터센터와 Google
+  망을 물리적으로 직접 연결하는 **초고속 전용선 게이트웨이**입니다.
+- **보안 포인트**:
+  - 데이터가 공용 인터넷에 노출되지 않으며, 대용량 트래픽에 대한 보안성과 네트워크 안정성이 가장
+    높습니다.
+
+---
+
+### 4.4 VPC 간 및 서비스 사설 연결 (보안 시험 빈출!)
+
+#### (1) Private Service Connect (PSC) ⭐
+
+- **역할**: 다른 프로젝트의 VPC 서비스, 타사 SaaS, Google API를 **내 서브넷 내부의 사설
+  IP(Endpoint)로 직접 끌고 와서 연결**해 주는 차세대 제로 트러스트 연결 기술입니다.
+- **보안 포인트**:
+  - 기존 VPC Peering과 달리 **IP 대역 충돌(Overlapping IP) 문제가 발생하지 않습니다**.
+  - 양쪽 네트워크 전체를 연결하지 않고, 오직 **특정 서비스 단일 IP 엔드포인트만 노출**하므로 제로
+    트러스트(최소 권한) 원칙에 완벽히 부합합니다.
+
+#### (2) VPC Network Peering
+
+- **역할**: 서로 다른 두 VPC 네트워크를 연결하여, 양쪽 VPC의 모든 서브넷이 사설 IP로 통신할 수 있게
+  해줍니다.
+- **주의점**:
+  - 게이트웨이나 홉(Hop)이 없어 레이턴시와 비용 면에서 유리하지만, **양쪽 VPC의 IP 대역이 겹치면
+    피어링을 생성할 수 없습니다**.
+
+---
+
+### 4.5 서버리스를 위한 내부 진입로: Serverless VPC Access
+
+- **역할**: Cloud Functions, Cloud Run 같은 서버리스 환경은 기본적으로 VPC 외부에 있습니다. 이들이
+  VPC 내부의 사설 DB(Cloud SQL 사설 IP 등)로 안전하게 들어갈 수 있도록 통로를 열어주는 커넥터
+  게이트웨이입니다.
+
+---
+
+### 4.6 서비스 한눈에 비교하기 (Security 관점)
+
+| 서비스명           | 주요 목적                            | 트래픽 방향               | 외부 인터넷 노출 여부    |
+| :----------------- | :----------------------------------- | :------------------------ | :----------------------- |
+| **Cloud Router**   | BGP 기반 경로 동적 전파              | 제어 평면 (Control Plane) | ❌ 사설/공용 경로 제어   |
+| **Cloud NAT**      | 사설 VM의 인터넷 아웃바운드          | 내부 ➡️ 외부 (단방향)     | ⭕ 외부 공용 IP 경유     |
+| **HA VPN**         | 하이브리드 IPsec 암호화 연결         | 양방향 (Site-to-Site)     | ⭕ 인터넷 위 암호화 터널 |
+| **Interconnect**   | 전용선 물리 직결                     | 양방향                    | ❌ 완전 전용 사설망      |
+| **PSC (Endpoint)** | Google/타사 API 사설 엔드포인트 연결 | 내부 ➡️ 특정 서비스       | ❌ 완전 사설 통신        |
 
 ---
 

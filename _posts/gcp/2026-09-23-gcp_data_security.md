@@ -86,7 +86,68 @@ GCP에서 Cloud HSM은 별도의 콘솔이나 독립된 API를 가진 분리된 
 
 ---
 
-## 4. Tier 1: Cloud KMS (소프트웨어 기반)
+## 4. Cloud KMS 리소스 계층 구조와 CryptoKey 아키텍처
+
+### 4.1 Cloud KMS 리소스 계층 구조 (Key Hierarchy)
+
+Cloud KMS의 구조는 **'폴더와 파일'**의 관계와 같습니다:
+
+```text
+[ Google Cloud 프로젝트 (Project) ]
+  └── [ 리전 (Location, 예: asia-northeast3) ]
+        └── [ 키링 (KeyRing) ] : 키들을 모아두는 바구니 / 디렉토리
+              └── [ 크립토키 (CryptoKey) ] : 특정 목적의 논리적 키 객체 (예: db-user-key)
+                    ├── Version 1 (과거 버전 - 복호화 전용)
+                    ├── Version 2 (과거 버전 - 복호화 전용)
+                    └── Version 3 (최신 기본 버전 - 신규 암호화 및 복호화)
+```
+
+- **KeyRing (키링)**: 키들을 묶어서 관리하는 논리적 그룹(바구니)입니다.
+- **CryptoKey (크립토키)**: 실제로 데이터를 암호화/복호화하기 위해 애플리케이션이 호출하는 명명된 키
+  객체(컨테이너)입니다.
+
+### 4.2 CryptoKey와 CryptoKeyVersion: 왜 분리되어 있을까요?
+
+> **"회사의 대표 직인(도장)은 하나지만, 주기적으로 도장의 인영(버전)을 새로 파서 교체하는 것과
+> 같습니다."**
+
+만약 키가 단 하나의 고정된 문자열이라면:
+
+- 30일이 지나 키를 바꾸는 순간, 과거의 그 키로 암호화해 둔 수백만 건의 DB 데이터나 파일들을 전부
+  복호화해서 새 키로 다시 암호화해야 하는 대재앙이 일어납니다.
+
+하지만 GCP의 `CryptoKey`는 **내부에 여러 개의 '키 버전(CryptoKeyVersion)'**을 품고 있습니다:
+
+- **신규 데이터 암호화**: CryptoKey의 **가장 최신 기본 버전(Primary Version)**을 사용합니다.
+- **과거 데이터 복호화**: 데이터가 암호화될 당시 사용된 **과거 버전이 자동으로 매칭**되어
+  복호화됩니다.
+- **개발자 이점**: 개발자는 애플리케이션 코드에 복잡한 키 교체 로직을 짤 필요 없이, 오직 CryptoKey의
+  리소스 이름만 호출하면 됩니다.
+
+### 4.3 CryptoKey의 4대 핵심 설정 속성
+
+| 속성                             | 설명                                    | 실무 설정 예시                                                         |
+| :------------------------------- | :-------------------------------------- | :--------------------------------------------------------------------- |
+| **목적 (Purpose)**               | 키의 용도                               | 대칭 암호화(`ENCRYPT_DECRYPT`), 비대칭 서명(`ASYMMETRIC_SIGN`), MAC 등 |
+| **보호 수준 (Protection Level)** | 키가 존재하는 위치 (3대 티어)           | `SOFTWARE`, `HSM` (FIPS Level 3), `EXTERNAL` (EKM)                     |
+| **회전 주기 (Rotation Period)**  | 다음 새 버전을 자동 생성하는 주기       | 30일(`30d`), 90일(`90d`) 등                                            |
+| **라벨 (Labels)**                | 키를 분류하고 필터링하기 위한 메타 태그 | `compliance=pci-dss`, `env=prod`, `team=payment`                       |
+
+```bash
+# 30일 자동 회전 주기와 규제 라벨이 적용된 대칭 CryptoKey 생성 예시
+gcloud kms keys create payment-card-key \
+    --keyring=finance-keyring \
+    --location=asia-northeast3 \
+    --purpose=encryption \
+    --protection-level=hsm \
+    --rotation-period=30d \
+    --next-rotation-time=2026-10-26T00:00:00Z \
+    --labels=compliance=pci-dss,env=prod
+```
+
+---
+
+## 5. Tier 1: Cloud KMS (소프트웨어 기반)
 
 가장 대중적인 **'디지털 도어락'**입니다. Google 기본 키 대신 우리 회사의 보안 담당자가 키 회전
 주기와 접근 권한을 직접 통제하고 싶을 때(CMEK) 90% 이상의 기업이 기본으로 사용합니다.

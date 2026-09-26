@@ -1,8 +1,6 @@
 ---
 # 포스트 기본 메타데이터 설정
-title:
-  "GCP 보안 운영: Security Command Center(SCC)와 맞춤형 취약점 탐지 (SHA Custom Module, CEL, Mute
-  Rule)"
+title: "GCP 보안 운영: Security Command Center(SCC), SHA vs ETD, 그리고 맞춤형 위협 탐지"
 # 발행 일시 (타임존 +0900 명시)
 date: 2026-09-23 16:15:00 +0900
 # 카테고리: 대분류(GCP)와 소분류(Security)로 구조화
@@ -26,7 +24,8 @@ Module**을 직접 작성해야 합니다.
 
 이 글에서는 커스텀 모듈의 3대 핵심 구성 요소인 **`resource_selector`**, **`CEL Predicate`**,
 **`Dynamic Mute Rule`**의 동작 원리와, 자격증 시험 및 실무에서 가장 빈번하게 실수하는 **보안 탐지
-공백(Coverage Gap) 방지 아키텍처**를 정리합니다.
+공백(Coverage Gap) 방지 아키텍처**, 그리고 **SHA(상태 기반) vs ETD(이벤트 기반)의 핵심 차이**를
+정리합니다.
 
 ---
 
@@ -142,3 +141,68 @@ customConfig:
   description: "PCI-DSS 규제 대상 암호키의 회전 주기가 30일을 초과했습니다."
   recommendation: "gcloud kms keys update 명령어로 회전 주기를 30일 이하로 단축하세요."
 ```
+
+---
+
+## 6. Security Health Analytics (SHA) vs Event Threat Detection (ETD)
+
+SCC의 양대 탐지 엔진인 **SHA**와 **ETD**는 탐지 대상과 Finding의 수명 주기가 완전히 다릅니다.
+
+```text
+[ 방식 A : Security Health Analytics (SHA) - 상태 기반 스캐너 ]
+  외부 계정에 Owner 부여 ──▶ [ SHA 주기적 스캔: 취약점 경고 발생! ]
+                                   │
+  관리자가 권한 회수      ──▶ [ 상태가 정상으로 복구됨 -> Finding이 조용히 닫히고 사라짐! ❌ ]
+                               * 사후 침해 사고 조사(포렌식) 불가!
+
+--------------------------------------------------------------------------------
+
+[ 방식 B : Event Threat Detection (ETD) - 로그/이벤트 기반 위협 탐지 ]
+  외부 계정에 Owner 부여 ──▶ [ Cloud Audit Logs 발생 ]
+                                   │ (실시간 스트림 감지)
+                             [ ETD: "Persistence: IAM Anomalous Grant" 경고 생성! ]
+                                   │
+  관리자가 권한 회수      ──▶ [ 이미 발생한 보안 이벤트 기록(Finding)은 그대로 영구 보존! ⭕ ]
+                               * 분석가가 수동 해결(manually resolved)할 때까지 활성 상태 유지!
+```
+
+### 6.1 핵심 비교 요약표
+
+| 비교 항목             | Security Health Analytics (SHA)                        | Event Threat Detection (ETD)                                |
+| :-------------------- | :----------------------------------------------------- | :---------------------------------------------------------- |
+| **분석 대상**         | 클라우드 리소스의 **현재 구성 상태 (State)**           | **Cloud Audit Logs (실시간 감사 로그 스트림)**              |
+| **탐지 성격**         | 취약점 및 설정 오류 (Misconfigurations)                | 실시간 보안 위협 및 비정상 행위 (Threats/Attacks)           |
+| **권한 회수 시 동작** | **자동으로 비활성화되어 사라짐 (Silently Disappears)** | **수동 해결 전까지 활성 유지 (Stay Active Until Resolved)** |
+| **사후 조사(포렌식)** | ❌ 흔적이 지워지므로 조사 불가                         | ⭕ **완벽한 타임라인 및 침해 조사 가능**                    |
+
+---
+
+## 7. 실전 시나리오: 외부 계정 비정상 권한 부여 (Anomalous IAM Grants)
+
+### 7.1 시나리오 개요
+
+- 조직 내 어떤 프로젝트에서든 외부 개인 계정(`@gmail.com`)에 `Owner` 등 강력한 권한이 부여될 때
+  실시간 경보를 받아야 함.
+- 침해 사고 분석을 위해, **사후에 권한이 회수되더라도 Finding이 조용히 사라지지 않고
+  조사(Investigate)할 수 있도록 보존**되어야 함.
+
+### 7.2 정답 아키텍처: ETD + 조직 레벨 활성화
+
+1. **탐지 카테고리**: `Persistence: IAM Anomalous Grant`
+   - MITRE ATT&CK 지속성(Persistence) 전술에 기반하여, 외부 공격자나 내부 위협 행위자가 백도어
+     권한을 획득하는 행위를 즉시 탐지합니다.
+2. **조직 레벨(`at the organization level`) 활성화의 필수성**:
+   - **미래 예측 불가**: 수백 개 프로젝트 중 어느 프로젝트에 외부 권한이 부여될지 사전에 알 수
+     없습니다.
+   - **전사 거버넌스 보장**: 조직 상위에서 단 한 번 활성화하면, 현재의 모든 프로젝트뿐만 아니라
+     **미래에 생성될 신규 프로젝트까지 자동으로 보안 감시가 상속**됩니다.
+
+---
+
+## 8. 시험 대비 핵심 암기 공식
+
+| 문제 키워드                                                                      | 정답 연상 패턴                                                            | 오답 함정                                                                      |
+| :------------------------------------------------------------------------------- | :------------------------------------------------------------------------ | :----------------------------------------------------------------------------- |
+| **"조용히 사라지지 않고 조사 가능해야 함"<br>(rather than silently disappears)** | **Event Threat Detection (ETD)**<br>(stay active until manually resolved) | Security Health Analytics (SHA) ❌<br>(상태 복구 시 자동 비활성화됨)           |
+| **"조직 전체를 대상으로"<br>(across your entire organization)**                  | **At the organization level**                                             | At only the specific project level ❌<br>(사고 발생 프로젝트를 사전 예측 불가) |
+| **"정기 규정 준수 및 구성 오류 스캔"**                                           | **Security Health Analytics (SHA)**                                       | -                                                                              |

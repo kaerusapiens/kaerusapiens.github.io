@@ -268,6 +268,24 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
     탈취(Session Hijacking)할 위험이 생깁니다.
 - **GCP 매핑**: Cloud KMS의 소프트웨어 보호 수준(`protectionLevel: SOFTWARE`, FIPS 140-2 Level 1).
 
+#### Provisioning (프로비저닝) ⭐
+
+- **정의**: 사용자가 즉시 업무나 서비스를 수행할 수 있도록, **서버(컴퓨팅), 스토리지, 네트워크 등 IT
+  인프라 자원이나 사용자 계정 및 접근 권한을 사전에 준비하고 할당·배포하는 일련의 과정**을 뜻합니다.
+- **주요 프로비저닝 유형**:
+  - **인프라 프로비저닝 (Infra Provisioning)**: Terraform(IaC)이나 gcloud CLI를 통해 VM, 서브넷,
+    방화벽, 데이터베이스 등을 코드로 자동 생성하고 배포하는 작업.
+  - **사용자 / 계정 프로비저닝 (User Provisioning)**: 신규 입사자나 서비스 계정에 Cloud
+    Identity/Workspace를 통해 계정을 발급하고 직무에 맞는 IAM 역할 그룹에 자동으로 할당하는 절차.
+  - **동적 프로비저닝 (Dynamic / Auto-provisioning)**: 트래픽 급증 시 오토스케일링 규칙에 따라
+    컨테이너(Cloud Run, GKE)나 프록시 VM(Serverless VPC Access)을 실시간으로 자동 확장 및 준비하는
+    메커니즘.
+- **보안 및 거버넌스 관점**:
+  - **IaC 기반 안전한 프로비저닝**: 수동 콘솔 조작으로 인한 설정 오류(휴먼 에러)를 방지하고, 보안
+    가드레일을 파이프라인에서 사전 검증(CI/CD)합니다.
+  - **디프로비저닝(Deprovisioning)의 중요성**: 퇴사자 계정이나 프로젝트 종료 후 방치된 유휴 리소스를
+    적시에 회수(Deprovisioning)하지 않으면 자격증명 유출 및 불필요한 비용 발생의 원인이 됩니다.
+
 ---
 
 ### R

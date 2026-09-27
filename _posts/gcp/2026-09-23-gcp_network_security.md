@@ -92,6 +92,77 @@ GCP의 Virtual Private Cloud(VPC)는 전 세계 리전을 아우르는 글로벌
 
 ---
 
+### 2.5 VPC vs 서브넷(Subnet) vs Cloud DNS: 아키텍처 비교 및 실무 연동
+
+클라우드 네트워킹을 처음 접할 때 가장 헷갈리기 쉬운 세 가지 기본 개념의 차이와 상호작용 원리를
+정리합니다.
+
+#### 1) 직관적 비유와 핵심 역할 비교
+
+| 비교 항목             | **VPC (가상 사설 클라우드)**                   | **서브넷 (Subnet)**                                      | **Cloud DNS**                                           |
+| :-------------------- | :--------------------------------------------- | :------------------------------------------------------- | :------------------------------------------------------ |
+| **직관적 비유**       | 회사 사옥 건물 (부지)                          | 사옥의 1층, 2층 (각 부서별 사무실)                       | 사옥 로비의 내선 전화번호부 / 안내 데스크               |
+| **핵심 역할**         | 격리된 **가상 네트워크 전체 공간** 제공        | VPC 내에서 **IP 주소 대역(CIDR)을 분할**하여 리소스 배치 | **도메인 이름(FQDN) ↔ IP 주소** 상호 변환 (이름 해석)  |
+| **관리 범위 (Scope)** | **글로벌 (Global)** (전 세계 모든 리전에 걸침) | **리전 (Regional)** (특정 단일 리전에 종속)              | **글로벌** (퍼블릭 존) 또는 **VPC 단위** (프라이빗 존)  |
+| **통신 메커니즘**     | L3 가상 라우터 및 패킷 이동 도로망 제공        | VM에 고유 사설 IP를 부여하고 L2 가상 스위칭 구역 형성    | "목적지 서버의 IP가 몇 번인지" 알려주는 디렉토리 서비스 |
+
+#### 2) 세 서비스의 실제 통신 시퀀스 (협업 흐름)
+
+웹 서버(`web-vm`)가 내부 데이터베이스(`db-vm`)와 통신할 때 세 리소스가 협업하는 과정입니다:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Web as Web VM (10.10.1.10 / Web 서브넷)
+    participant DNS as Cloud DNS (내부 프라이빗 존)
+    participant VPC as VPC 내부 가상 라우터
+    participant DB as DB VM (10.10.2.50 / DB 서브넷)
+
+    Note over Web,DB: 모두 동일한 VPC(사옥) 내부에서 동작
+    Web->>DNS: "db.corp.internal의 IP 주소가 뭐야?"
+    DNS-->>Web: "10.10.2.50 이야!" (이름 해석)
+    Web->>VPC: 목적지 10.10.2.50(DB 서브넷)으로 데이터 패킷 전송
+    VPC->>DB: VPC 라우팅을 거쳐 DB VM으로 패킷 안전하게 전달
+```
+
+#### 3) 실무 Terraform 통합 구성 예시
+
+> [!NOTE] **코드 목적 및 컨텍스트**: 단일 테라폼 코드에서 VPC 네트워크, 특정 리전의 서브넷, 그리고
+> 해당 VPC에 바인딩되어 외부 인터넷에 노출되지 않는 Cloud DNS 프라이빗 존을 한 번에 정의하는 실무
+> 예시입니다.
+
+```hcl
+# [1] VPC 네트워크 생성 (글로벌 사옥 부지)
+resource "google_compute_network" "custom_vpc" {
+  name                    = "prod-vpc"
+  auto_create_subnetworks = false # 서브넷 대역을 수동으로 안전하게 설계하기 위해 비활성화
+}
+
+# [2] 서브넷 생성: 서울 리전(asia-northeast3), 10.10.1.0/24 대역
+resource "google_compute_subnetwork" "seoul_subnet" {
+  name          = "seoul-app-subnet"
+  ip_cidr_range = "10.10.1.0/24"                       # 애플리케이션 VM들이 할당받을 사설 IP 대역
+  region        = "asia-northeast3"                   # 서브넷은 특정 리전에 종속됨
+  network       = google_compute_network.custom_vpc.id # 위에서 정의한 VPC에 바인딩
+}
+
+# [3] Cloud DNS 프라이빗 존 생성 (VPC 전용 내선 전화번호부)
+resource "google_dns_managed_zone" "internal_dns" {
+  name        = "corp-internal-zone"
+  dns_name    = "corp.internal."                      # 내부 전용 FQDN 도메인 (마지막 마침표 필수)
+  description = "VPC 내부 리소스 전용 프라이빗 DNS 존"
+  visibility  = "private"                             # 외부 인터넷에서의 조회를 차단하고 사내망 전용으로 격리
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.custom_vpc.id # 이 VPC 소속 VM들만 이 도메인을 해석 가능
+    }
+  }
+}
+```
+
+---
+
 ## 3. Private Google Access (PGA) vs Cloud NAT
 
 외부 공용 IP가 없는 사설 VM이 외부와 통신할 때 적용하는 두 가지 핵심 네트워크 패턴입니다.
@@ -577,3 +648,4 @@ gcloud ids endpoints create ids-endpoint-prod \
 | **"사설 VM에서 Google API 비공개 통신"**                                                                                                | **Private Google Access (PGA)** (서브넷 단위 설정)                                                                         | Cloud NAT ❌ (외부 인터넷용)                                                                                                                                           |
 | **"사설 VM에서 인터넷 패키지 다운로드 (`apt-get`)"**                                                                                    | **Cloud NAT** (아웃바운드 전용 단방향)                                                                                     | Private Google Access ❌ (Google API 전용)                                                                                                                             |
 | **"타 VPC/SaaS 서비스를 IP 충돌 없이 내 사설 IP로 연동"**                                                                               | **Private Service Connect (PSC)**                                                                                          | VPC Peering ❌ (IP 대역 중복 시 불가)                                                                                                                                  |
+| **"VPC 내부 리소스 간 IP 변경과 무관한 안전한 비공개 통신 / 온프레미스 도메인 연동"**                                                   | **Cloud DNS Private Managed Zone (프라이빗 존)**                                                                           | 퍼블릭 DNS 존 ❌ (인터넷에 내부 IP 노출)<br>하드코딩 IP ❌ (오토스케일링/인스턴스 교체 시 장애)                                                                        |

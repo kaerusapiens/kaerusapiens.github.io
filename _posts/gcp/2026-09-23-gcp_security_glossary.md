@@ -115,6 +115,15 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
 - **정의**: 다른 VPC의 서비스, Google API, 서드파티 SaaS를 내 서브넷 내부의 사설 IP(엔드포인트)로
   끌고 와 연결하는 차세대 제로 트러스트 연결 기술 (IP 대역 중복 문제 없음).
 
+#### PRNG (Pseudo-Random Number Generator, 소프트웨어 난수 / 의사 난수) ⭐
+
+- **정의**: 컴퓨터 프로그램 코드와 수학 공식으로 계산해 낸 **'가짜 난수(의사 난수)'**입니다.
+- **보안 위험성**:
+  - 시작 값(Seed)이나 시간 값을 알면 공격자가 **다음에 나올 난수를 완벽히 역산/예측**할 수 있습니다.
+  - 만약 인증 세션 토큰을 소프트웨어 난수로 만들면, 해커가 토큰 패턴을 추측하여 다른 사용자의 세션을
+    탈취(Session Hijacking)할 위험이 생깁니다.
+- **GCP 매핑**: Cloud KMS의 소프트웨어 보호 수준(`protectionLevel: SOFTWARE`, FIPS 140-2 Level 1).
+
 ---
 
 ### R
@@ -130,6 +139,23 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
     - 스캔된 이미지 원본을 전송하면 별도의 Vision OCR 파이프라인 없이도, DLP 내부 자체 OCR로
       텍스트를 읽고 `PERSON_NAME`, `EMAIL_ADDRESS`, `PHONE_NUMBER` 등의 민감 영역을 검은색 박스로
       덧칠(Redact)한 이미지를 단 1번의 호출(One Call)로 반환합니다.
+
+---
+
+### T
+
+#### TRNG (True-Random Number Generator, 하드웨어 난수 / 순수 난수) ⭐
+
+- **정의**: 수학 공식이 아닌, **전용 하드웨어 칩 내부의 미세한 물리적 현상(열잡음, 전파 노이즈 등)을
+  측정**하여 생성하는 **'진짜 난수(물리적 난수)'**입니다.
+- **보안 강점**:
+  - 수학 공식이 아니므로 **지구상 어떤 슈퍼컴퓨터로도 다음 값을 예측할 수 없습니다.**
+  - 세션 토큰 시드, 암호화 키 생성, 금융 결제망(PCI DSS) 등 최고 수준의 예측 불가능성이 필요할 때
+    필수적입니다.
+- **GCP 매핑**:
+  - **Cloud HSM** (`protectionLevel: HSM`, FIPS 140-2 Level 3 인증 물리 칩).
+  - Cloud KMS의 **`generateRandomBytes` API**를 호출하여 물리 HSM 칩에서 직접 순수 난수(1회 호출당
+    최대 1024바이트)를 추출할 수 있습니다.
 
 ---
 

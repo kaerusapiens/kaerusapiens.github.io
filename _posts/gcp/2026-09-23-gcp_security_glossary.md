@@ -46,6 +46,22 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
 
 ### C
 
+#### CEL Predicate (Common Expression Language 서술어 / 조건식) ⭐
+
+- **정의**: Google이 개발한 오픈소스 표현식 언어인 **CEL(Common Expression Language)** 환경에서 특정
+  조건을 평가하여 **참(true) 또는 거짓(false)**의 불리언(Boolean) 값을 반환하는 논리
+  조건식(함수)입니다.
+- **컴퓨터 과학적 배경**: 'Predicate(서술어/조건자)'는 값을 입력받아 불리언을 반환하는 함수를
+  의미하며, CEL 내에서는 주로 리스트나 맵 같은 컬렉션 데이터를 다루는 매크로(Macros, 예: `all()`,
+  `exists()`)와 함께 사용됩니다.
+- **GCP 보안에서의 주요 활용처**:
+  - **Security Command Center (SCC) Custom Module**: 리소스의 속성(라벨, 회전 주기 등)이 보안 정책을
+    위반했는지(`true`/`false`) 실시간 판정.
+  - **Cloud IAM Conditions**: 접속 시간, 사용자 IP, 리소스 태그 조건에 따라 권한 부여 여부를
+    동적으로 판정.
+  - **Organization Policy Custom Constraints**: 생성/수정 요청된 리소스의 속성을 평가하여 배포
+    허용(`ALLOW`) 또는 차단(`DENY`) 판정.
+
 #### CDE (Cardholder Data Environment, 카드 소유자 데이터 환경)
 
 - **정의**: 신용카드 번호(PAN), 유효기간, CVV 등 결제 카드 데이터가 단 1바이트라도 저장, 처리,

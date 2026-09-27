@@ -273,6 +273,40 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
 
 ---
 
+### N
+
+#### Nonconcurrent (비동시성 / 비동시 실행) ⭐
+
+- **정의**: 여러 작업(Job, Task, 파이프라인)을 동일한 시점에 병렬(Concurrently)로 실행하지 않고,
+  **순차적(Sequentially, 하나씩 직렬 처리)** 또는 작업 큐를 통해 한 번에 하나의 프로세스만
+  실행되도록 통제하는 처리 방식입니다.
+- **주요 엔지니어링 가치**:
+  - **경쟁 상태(Race Condition) 및 데이터 오염 방지**: 동일한 공유 자원(DB 레코드, 공유 파일 시스템,
+    인프라 상태 파일 등)에 동시 다발적인 쓰기 작업이 일어날 때 발생하는 교착 상태(Deadlock)나 정합성
+    훼손을 방지합니다.
+  - **시스템 부하 및 Rate Limit 보호**: 외부 서드파티 API 호출 한도(Quota 초과)나 순간적인
+    CPU/메모리 스파이크를 방어하기 위해 작업을 직렬화(Serialization)합니다.
+  - **CI/CD 및 IaC(Terraform) 거버넌스**: 동일한 대상 인프라나 `terraform.tfstate` 파일에 여러
+    빌드가 동시에 반영되지 않도록 파이프라인 동시 실행 제한(Concurrency Limit = 1)을 걸어 단일
+    배포의 원자성을 보장합니다.
+- **주의 (유사 스펠링 혼동 방지)**:
+  - 시스템 아키텍처의 비동시 처리는 **Nonconcurrent**이며, Cloud Storage 객체 버전 관리의 이전 세대
+    구버전은 **Noncurrent**로 서로 다른 영역의 용어입니다.
+
+#### Noncurrent Object (비활성 객체 / 구버전 객체) ⭐
+
+- **정의**: Google Cloud Storage 버킷에 **객체 버전 관리(Object Versioning)**가 켜져 있을 때, 새
+  파일이 덮어쓰여지거나(Overwrite) 현재 파일이 삭제되었을 때 히스토리로 남겨지는 **'이전 세대의
+  구버전 객체'**를 뜻합니다.
+- **수명 주기 관리(Lifecycle Management) 핵심**:
+  - 버전 관리 버킷에서 일반 `Delete`를 수행하면 최신 버전(Live)이 Noncurrent로 전환될 뿐 버킷에서
+    완전히 영구 삭제되지 않고 스토리지를 계속 차지합니다.
+  - 따라서 규정 준수 만료 시 모든 과거 버전까지 영구 파기하려면 생명주기 규칙에
+    `daysSinceNoncurrentTime` 또는 `isLive: false` 조건을 걸어 Noncurrent 객체를 명시적으로
+    타겟팅해야 합니다.
+
+---
+
 ### O
 
 #### OIDC (OpenID Connect) ⭐

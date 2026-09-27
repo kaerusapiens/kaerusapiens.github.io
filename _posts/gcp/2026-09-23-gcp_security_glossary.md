@@ -103,6 +103,26 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
 
 ---
 
+### L
+
+#### Log Sink (로그 싱크) ⭐
+
+- **정의**: Cloud Logging에서 수집된 대량의 로그 항목(Log Entry) 중, 사전 정의된 필터(Filter) 조건에
+  일치하는 로그를 특정 외부 목적지(Destination)로 실시간 분기/전송하는 **전송
+  파이프라인(배관)**입니다.
+- **지원 목적지 규격**:
+  - **BigQuery 데이터세트**: 대용량 보안/감사 로그의 고성능 SQL 분석
+  - **Cloud Storage 버킷**: 장기 규정 준수(Compliance) 콜드 아카이빙
+  - **Pub/Sub 주제**: SIEM(Splunk, Datadog 등) 실시간 연동
+  - **Log Bucket**: Cloud Logging 내부 저장소 (Linked Dataset은 가상 뷰이므로 싱크 목적지 불가)
+- **핵심 보안 제약사항**:
+  - 싱크 생성 시 Cloud Logging 전용 서비스 계정인 **`writerIdentity`**가 자동 발급됩니다.
+  - 목적지(예: BigQuery)에 이 `writerIdentity`를 대상으로 적절한 쓰기
+    권한(`roles/bigquery.dataEditor`)을 명시적으로 부여하지 않으면, **Permission Denied로 인해
+    로그가 유실**됩니다.
+
+---
+
 ### P
 
 #### Private Google Access (PGA, 비공개 Google 액세스)

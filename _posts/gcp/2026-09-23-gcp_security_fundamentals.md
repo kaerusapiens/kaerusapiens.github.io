@@ -135,3 +135,86 @@ Google은 2010년 오로라 작전(Operation Aurora) 공격을 계기로 사내�
   차단**하는 제로 트러스트 보안 경계(Service Perimeter)입니다.
 - BigQuery, Cloud Storage 등 Google 관리형 API 주변에 방어벽을 둘러, 인가되지 않은 외부 프로젝트로
   데이터를 복사하거나 다운로드하는 행위를 차단합니다.
+
+---
+
+## 4. 조직 정책(Organization Policy)과 커스텀 제약 조건(Custom Constraints)
+
+GCP의 보안 거버넌스에서 **IAM**이 "누가(Who) 어떤 작업을 할 수 있는가"를 통제한다면, **조직
+정책(Organization Policy)**은 프로젝트 관리자나 소유자(Owner)조차 우회할 수 없도록 **리소스 자체에
+강력한 보안 가드레일(Guardrails)**을 설정하는 도구입니다.
+
+### 4.1 Custom Constraints (커스텀 제약 조건)의 필요성
+
+기본 제공되는 제약 조건(예: 공용 IP 생성 차단, 특정 리전 배포 제한) 외에도, 기업의 고유한 보안
+표준(예: GKE 노드풀 자동 업그레이드 강제, 특정 라벨 없는 VM 생성 차단 등)을 강제하기 위해 직접 CEL
+수식 기반의 제약 조건을 작성할 수 있습니다.
+
+---
+
+### 4.2 actionType: ALLOW vs DENY의 결정적 차이
+
+커스텀 제약 조건의 `actionType`은 단 2가지만 존재하며, 동작 방식이 완전히 다릅니다:
+
+| 설정값      | 방식             | 동작 메커니즘                                                                | 실무 해석                                  |
+| :---------- | :--------------- | :--------------------------------------------------------------------------- | :----------------------------------------- |
+| **`ALLOW`** | **화이트리스트** | **Condition과 일치하는 것만 통과!**<br>(일치하지 않는 모든 작업은 거부/차단) | _"오직 이 조건에 맞는 것만 만들어라"_      |
+| **`DENY`**  | **블랙리스트**   | **Condition과 일치하는 작업을 차단!**<br>(일치하지 않는 작업은 통과)         | _"이 조건에 해당하는 짓은 절대 하지 마라"_ |
+
+---
+
+### 4.3 실전 시나리오와 시험 빈출 함정 분석
+
+> **시나리오**: GKE 클러스터의 모든 노드풀은 보안 패치를 위해 **자동 업그레이드(`autoUpgrade`)가
+> 반드시 켜져 있도록 강제**해야 합니다.
+
+- **잘못된 오답 설정 (화이트리스트의 함정)**:
+  ```yaml
+  condition: "resource.management.autoUpgrade == false"
+  actionType: ALLOW # ❌ 치명적 오류!
+  ```
+
+  - `autoUpgrade == false`인 노드풀만 허용하고, 보안을 위해 `autoUpgrade == true`로 안전하게 켜둔
+    노드풀의 생성을 오히려 차단해 버리는 정반대의 결과를 초래합니다.
+- **올바른 정답 설정 (블랙리스트 방식)**:
+  ```yaml
+  condition: "resource.management.autoUpgrade == false"
+  actionType: DENY # ⭕ 정답!
+  ```
+
+  - 자동 업그레이드가 꺼진(`false`) 취약한 노드풀의 생성/수정 요청을 즉시 거부(차단)합니다.
+
+---
+
+### 4.4 실무 설정 예시 (YAML 정의 및 gcloud 적용)
+
+> **컨텍스트 및 목적**:  
+> GKE 노드풀 생성 시 자동 업그레이드가 꺼진 설정을 원천 차단하는 커스텀 제약 조건을 정의하고,
+> 조직(Organization) 노드에 활성화하는 표준 2단계 절차입니다.
+
+#### 1단계: 커스텀 제약 조건 정의 파일 작성 (`custom_gke_autoupgrade.yaml`)
+
+```yaml
+# GKE 노드풀 자동 업그레이드 강제 커스텀 제약 조건
+name: organizations/[ORG_ID]/customConstraints/custom.enforceGkeAutoUpgrade
+resourceTypes:
+  - "container.googleapis.com/NodePool"
+methodTypes:
+  - CREATE
+  - UPDATE
+condition: "resource.management.autoUpgrade == false" # 자동 업그레이드가 비활성화되어 있으면
+actionType: DENY # 즉시 생성을 거부(차단)하라!
+displayName: "GKE 노드풀 자동 업그레이드 필수 정책"
+description: "모든 GKE 노드풀은 최신 보안 패치 적용을 위해 autoUpgrade가 활성화되어야 합니다."
+```
+
+#### 2단계: gcloud CLI를 통한 제약 조건 등록 및 조직 정책 활성화
+
+```bash
+# [1] 커스텀 제약 조건을 조직에 등록
+gcloud org-policies set-custom-constraint custom_gke_autoupgrade.yaml
+
+# [2] 조직 최상위 노드에 해당 정책을 강제(enforce)하는 조직 정책 설정
+# 하위의 모든 폴더 및 프로젝트에 정책이 자동으로 상속됩니다.
+gcloud org-policies set-policy policy.yaml --organization=[ORG_ID]
+```

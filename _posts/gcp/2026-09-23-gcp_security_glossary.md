@@ -117,6 +117,22 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
 
 ---
 
+### R
+
+#### Redact / Redacted (마스킹 / 비식별화 가림 처리) ⭐
+
+- **정의**: 문서, 보고서, 이미지 등에서 기밀, 개인정보(PII), 민감한 내용 등을 보안이나 법적 이유로
+  검열하여 **삭제하거나 검은색 박스 등으로 가려(블라인드/마스킹 처리) 놓은 상태**를 뜻합니다.
+- **어원 및 배경**: 원래 동사 형태인 'redact'는 '(원고 등을) 수정하다, 편집하다'라는 뜻이지만,
+  현대에는 주로 공공 문서나 법적 서류에서 민감한 정보를 지우는 행위를 가리킵니다.
+- **GCP 보안에서의 대표적 구현체**:
+  - **Sensitive Data Protection (Cloud DLP)의 `image.redact` API**:
+    - 스캔된 이미지 원본을 전송하면 별도의 Vision OCR 파이프라인 없이도, DLP 내부 자체 OCR로
+      텍스트를 읽고 `PERSON_NAME`, `EMAIL_ADDRESS`, `PHONE_NUMBER` 등의 민감 영역을 검은색 박스로
+      덧칠(Redact)한 이미지를 단 1번의 호출(One Call)로 반환합니다.
+
+---
+
 ### Z
 
 #### Zero Trust (BeyondCorp)

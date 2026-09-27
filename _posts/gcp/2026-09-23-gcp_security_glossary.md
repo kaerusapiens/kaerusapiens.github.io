@@ -178,6 +178,19 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
 
 ---
 
+### I
+
+#### IdP (Identity Provider, 신원 제공자) ⭐
+
+- **정의**: 사용자의 신원 정보(계정 ID, 비밀번호, MFA, 부서/역할 속성)를 중앙에서 생성·보관하고,
+  클라우드 서비스나 웹 애플리케이션의 로그인 요청 시 사용자가 본인임을 인증(Authentication)하여
+  디지털 자격 증명(SAML Assertion, OIDC JWT 토큰 등)을 발급해 주는 **중앙 신원 인증 시스템**입니다.
+- **대표적 솔루션**: Okta, Microsoft Entra ID (구 Azure AD), Ping Identity, Google Cloud Identity.
+- **클라우드 연동 가치**: 모든 사원 계정을 GCP에 개별 생성하지 않고, 단일 IdP와 자격 증명
+  제휴(Federation)하여 입사/퇴사 시 계정 수명주기를 중앙에서 일괄 통제합니다.
+
+---
+
 ### J
 
 #### Jailbreak Attempts (탈옥 시도)
@@ -232,6 +245,20 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
   - 목적지(예: BigQuery)에 이 `writerIdentity`를 대상으로 적절한 쓰기
     권한(`roles/bigquery.dataEditor`)을 명시적으로 부여하지 않으면, **Permission Denied로 인해
     로그가 유실**됩니다.
+
+---
+
+### O
+
+#### OIDC (OpenID Connect) ⭐
+
+- **정의**: OAuth 2.0 인가(Authorization) 프레임워크 기반 위에 사용자 신원 증명 레이어를 추가한
+  **글로벌 표준 인증(Authentication) 프로토콜**입니다.
+- **핵심 메커니즘 (ID Token)**: 암호학적으로 서명된 **JSON 웹 토큰(JWT)** 형태의 ID Token을
+  발급하여, 사용자의 신원(sub), 이메일, 그룹, 부서 정보 등을 안전하게 전달합니다.
+- **GCP 자격 증명 제휴에서의 역할**: Workforce Identity Federation 및 Workload Identity Federation
+  연동 시, 외부 IdP(Okta, GitHub, Azure 등)가 발급한 OIDC 토큰을 Google STS(Security Token
+  Service)가 검증하여 구글 임시 액세스 토큰으로 교환해 주는 핵심 매개체입니다.
 
 ---
 
@@ -356,6 +383,31 @@ Google Cloud Platform(GCP) 및 엔터프라이즈 클라우드 보안 환경에�
   - **Cloud HSM** (`protectionLevel: HSM`, FIPS 140-2 Level 3 인증 물리 칩).
   - Cloud KMS의 **`generateRandomBytes` API**를 호출하여 물리 HSM 칩에서 직접 순수 난수(1회 호출당
     최대 1024바이트)를 추출할 수 있습니다.
+
+---
+
+### W
+
+#### Workforce Identity Federation (인력 자격 증명 제휴) ⭐
+
+- **정의**: 사내 외부 IdP(Okta, Azure AD/Entra ID 등 - OIDC/SAML 지원)를 사용하는
+  **직원(사람/Workforce)**들이, Google Cloud Identity에 별도 계정을 생성하거나 동기화하지
+  않고도(`no Google accounts`) **기존 회사 계정으로 GCP 콘솔(Web UI)과 gcloud CLI에 직접 로그인**할
+  수 있도록 지원하는 차세대 IAM 연동 기술입니다.
+- **핵심 차별점**:
+  - **콘솔(Web UI) 로그인 지원**: 전용 IdP 로그인 포털 URL을 통해 브라우저 웹 콘솔 접속을 완벽히
+    지원합니다.
+  - **이중 계정 관리 배제**: 구글 쪽에 두 번째 계정 세트가 생기지 않으므로 입사/퇴사 시 사내
+    IdP에서만 계정을 비활성화하면 GCP 접근 권한이 즉시 차단됩니다.
+
+#### Workload Identity Federation (워크로드 자격 증명 제휴) ⭐
+
+- **정의**: AWS, Azure, GitHub Actions, 온프레미스 서버 등 외부 환경에서 실행되는 **소프트웨어
+  애플리케이션 및 CI/CD 러너(기계/Workload)**가, 유출 위험이 높은 영구 서비스 계정 키(JSON 키 파일)
+  없이도 GCP 리소스에 안전하게 접근할 수 있게 해주는 무키(Keyless) 인증 기술입니다.
+- **Workforce와의 결정적 차이**:
+  - 대상이 '기계(Workload)'이므로 **오직 API/CLI 통신만 지원**하며, 사람이 브라우저로 웹 콘솔 화면에
+    로그인하는 기능은 지원하지 않습니다.
 
 ---
 

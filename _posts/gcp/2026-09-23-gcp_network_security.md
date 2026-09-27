@@ -393,7 +393,140 @@ resource "google_cloud_run_v2_service" "app_service" {
 
 ---
 
-## 6. 실무 명령어 예시 (gcloud)
+## 6. 고급 네트워크 보안 검사: Cloud IDS vs Cloud NGFW
+
+엔터프라이즈 환경에서는 동일 서브넷 내부의 VM 간 통신에서 발생하는 **측면 이동(Lateral Movement)**,
+알려진 취약점 공격(Exploit), 악성코드(Malware) 전파를 모니터링해야 합니다.
+
+이때 가장 중요한 엔지니어링 의사결정은 **"대역 외 감시(Out-of-band IDS)로 운영 무중단을 보장할
+것인가, 아니면 인라인(In-line NGFW/IPS)으로 능동 차단할 것인가?"**입니다.
+
+---
+
+### 6.1 아키텍처 및 동작 모델 비교
+
+```text
+[ 방식 A : Cloud IDS (대역 외 패킷 미러링 - CCTV 감시) ]
+  서브넷 VM A ──(실제 패킷 전송)──────────────────────────▶ 서브넷 VM B (정상 통신 무중단!)
+      │
+      └───(VPC 패킷 미러링 복사본 전송)──▶ [ Cloud IDS 엔드포인트 ] (팔로알토 엔진 분석)
+                                                    │
+                                                    ▼
+                                           (위협 탐지 시 알람 발생, 차단 ❌)
+  * 오탐(False Positive)이 발생해도 원본 트래픽에 간섭(Interfere)하거나 차단(Block)할 위험 0%!
+
+------------------------------------------------------------------------------------------
+
+[ 방식 B : Cloud NGFW Threat Prevention (인라인 검사 - 무장 경비원) ]
+  서브넷 VM A ──▶ [ Cloud NGFW 검사 엔진 ] ──(시그니처 검사)──▶ 서브넷 VM B
+                           │
+                     (악성 의심 시)
+                           ▼
+                  [ 패킷 즉시 Drop / Reset! ]
+  * 악성 트래픽을 능동 차단하지만, 오탐 발생 시 정상 운영 서비스가 중단되는 비즈니스 장애 위험!
+```
+
+---
+
+### 6.2 오탐(False Positive)과 운영 가용성: "Zero Risk of Blocking"
+
+보안팀의 핵심 요구사항 중 하나는 **"정상 트래픽에 대한 오탐 차단 위험이 0(Zero)이어야 하며, 합법적인
+운영 트래픽은 항상 흘러야 한다"**는 것입니다.
+
+1. **Cloud IDS (침입 탐지) ➔ 100% 가용성 보장**:
+   - 패킷 미러링을 통해 생성된 **'복제본 패킷'만 분석**하므로, 아무리 치명적인 공격 시그니처가
+     오탐되어도 원본 네트워크 통신에는 물리적으로 손을 댈 수 없습니다.
+   - 금융 결제망, 대고객 주문 시스템 등 **단 1초의 중단도 허용되지 않는 미션 크리티컬 환경**에
+     필수적입니다.
+2. **Cloud NGFW Threat Prevention ➔ 능동 방어 중심**:
+   - 원본 패킷이 직접 방화벽 코어를 통과하는 인라인(In-line) IPS 구조입니다.
+   - 확실한 공격을 즉각 방어하는 데에는 탁월하지만, 시그니처 오탐이 발생할 경우 **정상적인 비즈니스
+     트래픽을 차단(Interfere/Block)하여 서비스 장애를 유발할 위험**이 상존합니다.
+
+---
+
+### 6.3 Cloud IDS 구축 시 3대 엔지니어링 제약사항
+
+1. **동일 리전(Same Region) 일치 필수 ⭐**:
+   - Cloud IDS 엔드포인트와 모니터링 대상 서브넷은 **반드시 동일한 리전**에 프로비저닝되어야 합니다.
+   - Google Cloud는 대역폭 비용과 네트워크 레이턴시 문제로 인해 **리전을 넘나드는(Cross-Region) 패킷
+     미러링을 플랫폼 차원에서 원천 금지**합니다.
+2. **패킷 미러링 정책(Packet Mirroring Policy) 연결 필수**:
+   - Cloud IDS 엔드포인트만 생성하고 패킷 미러링 정책을 붙이지 않으면, 엔드포인트에 유입되는 패킷이
+     0건이므로 아무것도 탐지하지 못합니다.
+3. **동일 서브넷 내부(L2) 트래픽 모니터링 가능**:
+   - 동일 서브넷 내부의 VM 간 통신은 게이트웨이(L3 라우터)를 거치지 않지만, **GCP 가상 분산 스위치
+     레벨에서 패킷을 복제**하므로 내부 횡적 이동(Lateral Movement)을 완벽히 감시할 수 있습니다.
+
+---
+
+### 6.4 실무 아키텍처 비교표: Cloud IDS vs Cloud NGFW
+
+| 비교 항목               | Cloud IDS (모범 사례 ⭕)                            | Cloud NGFW (Threat Prevention)                     |
+| :---------------------- | :-------------------------------------------------- | :------------------------------------------------- |
+| **동작 위치**           | **대역 외 (Out-of-band)**                           | **인라인 (In-line)**                               |
+| **트래픽 수집 방식**    | **패킷 미러링 (Packet Mirroring)** 복사본 검사      | 원본 트래픽이 엔진을 직접 통과                     |
+| **주요 역할**           | **탐지 및 알람 (Detection & Alerting)**             | **능동 차단 및 방어 (Prevention / Drop / Reset)**  |
+| **오탐 시 서비스 영향** | **차단 위험 0% (Zero Risk of Blocking)**            | **정상 운영 트래픽 차단 및 서비스 장애 위험 존재** |
+| **리전 제약**           | **서브넷과 반드시 동일 리전**                       | VPC 방화벽 정책 계층 구조 적용                     |
+| **적합한 시나리오**     | 트래픽 무중단 보장 환경, 내부 횡적 이동 가시성 확보 | 외부 인터넷과의 경계에서 침입 능동 차단            |
+
+---
+
+### 6.5 테라폼(Terraform) 구현 예제
+
+> **컨텍스트 및 목적**:  
+> 서울 리전(`asia-northeast3`)의 운영 서브넷에 대해, 정상 서비스 흐름을 일절 방해하지 않으면서(Zero
+> Risk of Blocking) 내부 횡적 이동을 감시하기 위해 Cloud IDS 엔드포인트를 프로비저닝하고 패킷
+> 미러링을 연결하는 코드입니다.
+
+```hcl
+# ==============================================================================
+# 1. Cloud IDS 전용 엔드포인트 생성
+# ==============================================================================
+# 모니터링 대상 서브넷과 반드시 동일한 리전(asia-northeast3)에 생성
+resource "google_cloud_ids_endpoint" "prod_ids_endpoint" {
+  name     = "ids-endpoint-prod-seoul"
+  location = "asia-northeast3" # 서브넷 리전과 일치 필수
+  network  = var.vpc_network_id
+
+  # 탐지 심각도 수준 설정 (CRITICAL, HIGH, MEDIUM, LOW, INFORMATIONAL)
+  severity = "INFORMATIONAL"
+  description = "운영 서브넷 횡적 이동 및 익스플로잇 비차단 탐지 엔드포인트"
+}
+
+# ==============================================================================
+# 2. 서브넷 대상 패킷 미러링 (Packet Mirroring) 정책 연결
+# ==============================================================================
+# 패킷 미러링 정책을 연결해야만 가상 스위치가 복사본을 IDS 엔드포인트로 전송함
+resource "google_compute_packet_mirroring" "subnet_ids_mirroring" {
+  name        = "pm-prod-subnet-to-ids"
+  description = "운영 서브넷 내부 모든 트래픽을 Cloud IDS로 복제 전송"
+  region      = "asia-northeast3" # 동일 리전 필수
+  network     = var.vpc_network_id
+
+  # 미러링된 트래픽을 수집할 대상: 위에서 생성한 Cloud IDS 엔드포인트의 포워딩 룰 지정
+  collector_ilb {
+    url = google_cloud_ids_endpoint.prod_ids_endpoint.endpoint_forwarding_rule
+  }
+
+  # 모니터링할 소스 범위: 특정 서브넷 전체 지정 (동일 서브넷 VM 간 통신 포함)
+  mirrored_resources {
+    subnetworks {
+      url = var.prod_subnet_id
+    }
+  }
+
+  # 모든 프로토콜(TCP, UDP, ICMP) 트래픽을 미러링하도록 필터 설정
+  filter {
+    direction = "BOTH" # 인바운드 및 아웃바운드 전체 복제
+  }
+}
+```
+
+---
+
+## 7. 실무 명령어 예시 (gcloud)
 
 ```bash
 # [1] 서브넷 레벨에서 Private Google Access (PGA) 활성화
@@ -423,16 +556,24 @@ gcloud compute networks vpc-access connectors create cr-to-sql-connector \
     --network=[VPC_이름] \
     --min-instances=2 \
     --max-instances=10
+
+# [5] Cloud IDS 엔드포인트 생성 (서브넷과 동일 리전 지정 필수)
+gcloud ids endpoints create ids-endpoint-prod \
+    --zone=asia-northeast3-a \
+    --network=[VPC_이름] \
+    --severity=INFORMATIONAL
 ```
 
 ---
 
-## 7. 시험 대비 핵심 암기 공식
+## 8. 시험 대비 핵심 암기 공식
 
-| 문제 키워드                                                                            | 정답 연상 패턴                                                                                                             | 오답 함정                                                                                               |
-| :------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
-| **"Cloud Run에서 사설 IP Cloud SQL 접속"<br>(reach Cloud SQL with only private IP)**   | **Serverless VPC Access Connector**<br>• 동일 리전(`same region`)<br>• `/28` 미사용 전용 서브넷<br>• `private-ranges-only` | • Direct Internet 통신 ❌ (공용 IP 필요)<br>• 크로스 리전 커넥터 ❌<br>• `/24` 등 잘못된 서브넷 크기 ❌ |
-| **"서버리스 환경에서 외부 고정 공인 IP 필요"<br>(static outbound IP for third-party)** | **Serverless VPC Access (`all-traffic`) + Cloud NAT (Static IP)**                                                          | Cloud Run에 직접 고정 공인 IP 부여 ❌ (서버리스 지원 불가)                                              |
-| **"사설 VM에서 Google API 비공개 통신"**                                               | **Private Google Access (PGA)** (서브넷 단위 설정)                                                                         | Cloud NAT ❌ (외부 인터넷용)                                                                            |
-| **"사설 VM에서 인터넷 패키지 다운로드 (`apt-get`)"**                                   | **Cloud NAT** (아웃바운드 전용 단방향)                                                                                     | Private Google Access ❌ (Google API 전용)                                                              |
-| **"타 VPC/SaaS 서비스를 IP 충돌 없이 내 사설 IP로 연동"**                              | **Private Service Connect (PSC)**                                                                                          | VPC Peering ❌ (IP 대역 중복 시 불가)                                                                   |
+| 문제 키워드                                                                                                                             | 정답 연상 패턴                                                                                                             | 오답 함정                                                                                                                                                              |
+| :-------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **"동일 서브넷 VM 간 횡적 이동 탐지, 오탐으로 인한 서비스 차단 위험 절대 불가"<br>(Zero risk that false-positive could block traffic)** | **Cloud IDS (Same Region) + Packet Mirroring Policy**                                                                      | • Cloud NGFW ❌ (인라인 차단형이라 오탐 시 서비스 장애)<br>• Different region ❌ (패킷 미러링 크로스 리전 불가)<br>• Rely on endpoint alone ❌ (패킷 미러링 정책 누락) |
+| **"악성 트래픽을 능동적으로 즉시 차단(Drop/Reset)해야 함"**                                                                             | **Cloud NGFW with Threat Prevention**                                                                                      | Cloud IDS ❌ (탐지만 가능, 차단 불가)                                                                                                                                  |
+| **"Cloud Run에서 사설 IP Cloud SQL 접속"<br>(reach Cloud SQL with only private IP)**                                                    | **Serverless VPC Access Connector**<br>• 동일 리전(`same region`)<br>• `/28` 미사용 전용 서브넷<br>• `private-ranges-only` | • Direct Internet 통신 ❌ (공용 IP 필요)<br>• 크로스 리전 커넥터 ❌<br>• `/24` 등 잘못된 서브넷 크기 ❌                                                                |
+| **"서버리스 환경에서 외부 고정 공인 IP 필요"<br>(static outbound IP for third-party)**                                                  | **Serverless VPC Access (`all-traffic`) + Cloud NAT (Static IP)**                                                          | Cloud Run에 직접 고정 공인 IP 부여 ❌ (서버리스 지원 불가)                                                                                                             |
+| **"사설 VM에서 Google API 비공개 통신"**                                                                                                | **Private Google Access (PGA)** (서브넷 단위 설정)                                                                         | Cloud NAT ❌ (외부 인터넷용)                                                                                                                                           |
+| **"사설 VM에서 인터넷 패키지 다운로드 (`apt-get`)"**                                                                                    | **Cloud NAT** (아웃바운드 전용 단방향)                                                                                     | Private Google Access ❌ (Google API 전용)                                                                                                                             |
+| **"타 VPC/SaaS 서비스를 IP 충돌 없이 내 사설 IP로 연동"**                                                                               | **Private Service Connect (PSC)**                                                                                          | VPC Peering ❌ (IP 대역 중복 시 불가)                                                                                                                                  |

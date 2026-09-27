@@ -287,3 +287,171 @@ gcloud kms keys create my-ekm-key \
 | **비용**              | 가장 저렴 (키당 월 $0.06)     | 중간 (키당 월 $1.00 이상)           | 외부 HSM 장비 및 라이선스 비용 발생        |
 | **주요 사용 대상**    | 90% 이상의 일반 엔터프라이즈  | 금융, 결제(PCI DSS), 인증 세션 토큰 | 유럽 공공기관, 국가 안보, 최고 규제 기업   |
 | **레이턴시 영향**     | 거의 없음 (초고속)            | 매우 적음                           | 외부 네트워크 왕복으로 인한 지연 발생 가능 |
+
+---
+
+## 8. BigQuery 동적 데이터 마스킹과 테라폼 CI/CD 보안 아키텍처
+
+사원 계정, PC 접속 비밀번호, 주민등록번호와 같은 고위험 기밀 데이터를 BigQuery에 저장할 때, **컬럼
+수준 보안(Column-level Security)** 및 **동적 데이터 마스킹(Dynamic Data Masking)**을 구성하여 무단
+열람을 원천 차단할 수 있습니다.
+
+특히 이를 **Terraform(IaC) CI/CD 파이프라인**으로 자동 배포할 때, 서비스 어카운트(Service Account)
+권한 관리는 엔터프라이즈 제로 트러스트(Zero Trust)의 핵심 관문입니다.
+
+---
+
+### 8.1 아키텍처 개요 및 동작 원리
+
+```text
+[ BigQuery 테이블 (사원 ID / 이름 / PC 임시 비밀번호) ]
+                       │
+                       ▼
+          [ Dataplex Policy Tag 분류 ]
+             (예: PII-High-Confidential)
+                       │
+        ┌──────────────┴──────────────┐
+        ▼                             ▼
+[ 보안팀 그룹 ]               [ 일반 쿼리 사용자 / 분석가 ]
+• roles/datacatalog.          • roles/bigquery.dataViewer
+  categoryFineGrainedReader   • Policy Tag 권한 없음
+        │                             │
+        ▼                             ▼
+[ 🔓 원본 비밀번호 조회 ]      [ 🔒 SHA256 해시 / NULL 마스킹 처리 ]
+```
+
+1. **Dataplex Taxonomy & Policy Tag**: 민감 데이터 분류 체계(예: Confidential, Secret)를 정의합니다.
+2. **BigQuery Dynamic Data Masking Rule**: 태그가 부착된 컬럼을 비인가자가 쿼리할 때 반환할 마스킹
+   규칙(`SHA256`, `ALWAYS_NULL`, `DEFAULT_MASKING_VALUE` 등)을 선언합니다.
+3. **IAM 기반 접근 제어**:
+   - `roles/datacatalog.categoryFineGrainedReader` 권한을 보유한 주체만 마스킹을 해제(Unmask)하고
+     원본 데이터를 열람할 수 있습니다.
+
+---
+
+### 8.2 테라폼 CI/CD 파이프라인 권한 분리: 안티패턴 vs 제로 트러스트
+
+테라폼으로 마스킹 인프라와 권한을 배포할 때, **CI/CD 파이프라인 러너(Service Account)의 권한
+설계**가 시스템 전체의 보안을 좌우합니다.
+
+```text
+[ ❌ 위험한 안티패턴 ]
+  테라폼 CI/CD 러너 ──▶ datacatalog.admin (인프라 생성) + categoryFineGrainedReader (언마스크 열람)
+                            │
+                            ▼
+    * CI/CD 계정이 해킹당하면 해커가 테라폼 권한으로 사원 비밀번호를 즉시 탈취(Exfiltration)!
+-----------------------------------------------------------------------------------------
+[ ⭕ 올바른 제로 트러스트 패턴 ]
+  테라폼 CI/CD 러너 ──▶ [ 인프라 생성 권한만 부여 ] (datacatalog.admin, bigquery.admin)
+                            │
+                            ▼
+  실제 언마스크 권한 ──▶ [ 오직 실제 사람(보안팀 그룹)에게만 테라폼 코드로 부여 ]
+                         (group:security-team@company.com -> categoryFineGrainedReader)
+```
+
+- **안티패턴의 위험성**: 테라폼 러너에 `categoryFineGrainedReader`를 부여하면, CI/CD 스크립트 변조나
+  파이프라인 침해 사고 발생 시 해커가 BigQuery 콘솔/API를 통해 사원 비밀번호 원본을 일괄
+  유출(Exfiltration)할 수 있습니다.
+- **올바른 설계**: CI/CD 서비스 어카운트는 인프라를 프로비저닝하는 **Control Plane
+  권한(`datacatalog.admin`, `bigquery.admin`)**만 보유해야 하며, 실제 데이터를 복호화/언마스크하여
+  읽는 **Data Plane 권한(`categoryFineGrainedReader`)**은 절대로 가져서는 안 됩니다.
+
+---
+
+### 8.3 테라폼 실무 구성 시 4대 핵심 원칙
+
+1. **Control Plane과 Data Plane의 철저한 분리**:
+   - 테라폼 서비스 어카운트는 정책 태그를 생성하고 IAM 바인딩을 추가할 권한만 가집니다.
+   - 데이터 열람 권한은 구글 워크스페이스 그룹(`group:security-team@company.com`)에만 매핑합니다.
+2. **`_iam_member` 리소스 사용 필수 (`_iam_binding` 금지)**:
+   - `google_data_catalog_policy_tag_iam_binding`은 선언되지 않은 기존 사용자 권한을 전체 덮어쓰고
+     삭제(Revoke)하는 치명적인 사이드 이펙트가 있습니다.
+   - 따라서 개별 멤버를 추가하는 `google_data_catalog_policy_tag_iam_member`를 사용해야 합니다.
+3. **리전(Location) 일치성 보장**:
+   - Dataplex Taxonomy / Policy Tag의 `location`과 BigQuery 데이터세트의 `location`은 **반드시
+     동일한 리전**(예: `asia-northeast3`)이어야 합니다. 크로스 리전 태깅은 지원되지 않습니다.
+4. **필수 API 사전 활성화**:
+   - `datacatalog.googleapis.com`
+   - `bigquerydatapolicy.googleapis.com`
+
+---
+
+### 8.4 완전한 테라폼(Terraform) 구현 예제
+
+```hcl
+# ==============================================================================
+# 1. 필수 Google Cloud API 활성화
+# ==============================================================================
+# Dataplex Data Catalog API
+resource "google_project_service" "datacatalog" {
+  project = var.project_id
+  service = "datacatalog.googleapis.com"
+  disable_on_destroy = false
+}
+
+# BigQuery Data Policy API (동적 데이터 마스킹 필수 API)
+resource "google_project_service" "bigquery_datapolicy" {
+  project = var.project_id
+  service = "bigquerydatapolicy.googleapis.com"
+  disable_on_destroy = false
+}
+
+# ==============================================================================
+# 2. 데이터 분류 체계 (Taxonomy) 및 정책 태그 (Policy Tag) 생성
+# ==============================================================================
+# 서울 리전(asia-northeast3)에 데이터 분류 카테고리 정의
+resource "google_data_catalog_taxonomy" "security_taxonomy" {
+  provider     = google-beta
+  project      = var.project_id
+  region       = "asia-northeast3"
+  display_name = "사내_보안_분류_체계"
+  description  = "사원 개인정보 및 PC 인증 자산 분류를 위한 Taxonomy"
+
+  # 세분화된 접근 제어(FINE_GRAINED_ACCESS_CONTROL) 활성화
+  activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
+
+  depends_on = [google_project_service.datacatalog]
+}
+
+# 민감 비밀번호 컬럼에 부착할 정책 태그 생성
+resource "google_data_catalog_policy_tag" "pc_password_tag" {
+  provider          = google-beta
+  taxonomy          = google_data_catalog_taxonomy.security_taxonomy.id
+  display_name      = "PC_Password_Confidential"
+  description       = "사원 PC 비밀번호 등 최상위 기밀 자산에 부착"
+}
+
+# ==============================================================================
+# 3. BigQuery 동적 데이터 마스킹 규칙 선언
+# ==============================================================================
+# 권한이 없는 사용자가 조회할 경우 원본 대신 SHA256 해시값으로 마스킹되어 반환
+resource "google_bigquery_datapolicy_data_policy" "password_masking_policy" {
+  provider         = google-beta
+  project          = var.project_id
+  location         = "asia-northeast3" # Taxonomy 리전과 동일해야 함
+  data_policy_id   = "mask_pc_password_sha256"
+  policy_tag       = google_data_catalog_policy_tag.pc_password_tag.name
+  data_policy_type = "DATA_MASKING_POLICY"
+
+  # 마스킹 표현식: SHA256 해시 변환 (또는 ALWAYS_NULL 등 지정 가능)
+  data_masking_policy {
+    predefined_datamask_type = "SHA256"
+  }
+
+  depends_on = [google_project_service.bigquery_datapolicy]
+}
+
+# ==============================================================================
+# 4. 제로 트러스트 IAM 권한 부여 (실제 사람/그룹에게만 언마스크 권한 부여)
+# ==============================================================================
+# 테라폼 실행 서비스 어카운트가 아닌, 검증된 보안 운영팀 그룹에게만 언마스크(Fine-Grained Reader) 권한 할당
+# _iam_binding 대신 _iam_member를 사용하여 기존 권한 유실 방지
+resource "google_data_catalog_policy_tag_iam_member" "security_team_unmask" {
+  provider   = google-beta
+  policy_tag = google_data_catalog_policy_tag.pc_password_tag.name
+  role       = "roles/datacatalog.categoryFineGrainedReader"
+
+  # Google Workspace 보안팀 그룹
+  member     = "group:security-team@company.com"
+}
+```

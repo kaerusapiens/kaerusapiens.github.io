@@ -28,6 +28,8 @@ description:
    - 데이터 보호 및 암호화: `_posts/gcp/YYYY-MM-DD-gcp_data_security.md` (KMS, DLP 등)
    - 보안 운영 및 로깅: `_posts/gcp/YYYY-MM-DD-gcp_operations_security.md` (SCC, Cloud Audit Logs
      등)
+4. **보안 용어집 (Glossary)**: `_posts/gcp/YYYY-MM-DD-gcp_security_glossary.md` (클라우드 보안 전문
+   용어 사전 A to Z)
 
 ## AI 에이전트 수행 지침 (Instructions)
 

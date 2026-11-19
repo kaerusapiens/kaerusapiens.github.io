@@ -53,7 +53,9 @@
 ├── _posts/                  # 블로그 포스트 (카테고리별 하위 디렉토리 구성)
 │   ├── architecture/        # Architecture 포스트
 │   ├── aws/                 # AWS 포스트
+│   ├── certification/       # Certification (FE 등 자격증) 포스트
 │   ├── data/                # Data 포스트
+│   ├── gcp/                 # GCP 포스트
 │   └── kubernetes/          # Kubernetes 포스트
 ├── _tabs/                   # 상단/사이드바 탭 네비게이션 (about, archives, categories, game)
 ├── assets/                  # 정적 리소스 (img/posts, favicons, CSS, JS)
